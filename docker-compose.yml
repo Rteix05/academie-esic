@@ -1,0 +1,57 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: esic_db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_DATABASE: academie_esic
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    container_name: esic_backend
+    tty: true
+    volumes:
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+      - backend_cache:/var/www/html/var/cache
+      - backend_logs:/var/www/html/var/log
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/node/Dockerfile
+    container_name: esic_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000/api
+    depends_on:
+      - backend
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: esic_mailhog
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Interface web
+
+volumes:
+  db_data:
+  backend_vendor:
+  backend_cache:
+  backend_logs:

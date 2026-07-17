@@ -1,0 +1,4 @@
+# CSRF désactivé : API stateless JWT, pas de sessions
+framework:
+    csrf_protection:
+        enabled: false
