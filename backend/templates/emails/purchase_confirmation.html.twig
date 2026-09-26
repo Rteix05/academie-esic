@@ -1,0 +1,18 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block content %}
+    <h2 style="color:#0F291E;">Merci pour votre achat !</h2>
+    <p>Bonjour <strong>{{ display_name }}</strong>,</p>
+    <p>Votre achat de <strong>{{ payment.label }}</strong> a bien été enregistré.</p>
+    <table style="border-collapse:collapse;margin-top:16px;font-size:14px;">
+        <tr><td style="padding:4px 16px 4px 0;color:#888;">Montant payé</td><td><strong>{{ (payment.amountCents / 100)|number_format(2, ',', ' ') }} {{ payment.currency|upper }}</strong></td></tr>
+        <tr><td style="padding:4px 16px 4px 0;color:#888;">Date</td><td>{{ payment.createdAt|date('d/m/Y à H:i') }}</td></tr>
+        {% if payment.stripeSessionId %}
+            <tr><td style="padding:4px 16px 4px 0;color:#888;">Référence</td><td style="font-family:monospace;font-size:12px;">{{ payment.stripeSessionId|slice(-12) }}</td></tr>
+        {% endif %}
+    </table>
+{% endblock %}
+
+{% block footer %}
+    <p style="color:#aaa;font-size:12px;margin-top:24px;">Cet email est un justificatif d'achat. Conservez-le pour vos archives.</p>
+{% endblock %}
