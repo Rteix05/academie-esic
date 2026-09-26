@@ -6,7 +6,7 @@ use App\Repository\EventRegistrationRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MesEvenementsController extends AbstractController
 {
@@ -30,7 +30,8 @@ class MesEvenementsController extends AbstractController
         $result = [];
         foreach ($registrations as $reg) {
             $event = $reg->getEvent();
-            if (!$event) continue;
+            // Une réservation en attente dont le délai de paiement est dépassé n'a plus de valeur
+            if (!$event || $reg->isExpiredPending()) continue;
             $result[] = [
                 'id'             => $event->getId(),
                 'title'          => $event->getTitle(),

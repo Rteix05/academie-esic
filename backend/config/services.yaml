@@ -19,10 +19,20 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            # Défini plus bas comme enfant de l'authentificateur Lexik
+            - '../src/Security/CookieJwtAuthenticator.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
     App\Controller\VideoController:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    app.cookie_jwt_authenticator:
+        class: App\Security\CookieJwtAuthenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
+    App\Controller\ContentController:
         arguments:
             $projectDir: '%kernel.project_dir%'

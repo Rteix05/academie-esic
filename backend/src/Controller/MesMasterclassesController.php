@@ -7,7 +7,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MesMasterclassesController extends AbstractController
 {
@@ -35,13 +35,23 @@ class MesMasterclassesController extends AbstractController
 
             if (!isset($data[$id])) {
                 $data[$id] = [
-                    'id'      => $id,
-                    'title'   => $mc->getTitle(),
-                    'video'   => $mc->getVideo(),
-                    'options' => [],
+                    'id'           => $id,
+                    'title'        => $mc->getTitle(),
+                    'video'        => null,
+                    'pdfAvailable' => false,
+                    'options'      => [],
                 ];
             }
-            $data[$id]['options'][] = $purchase->getOption();
+            $option = $purchase->getOption();
+            $data[$id]['options'][] = $option;
+
+            // Le lien vidéo n'est livré qu'aux acheteurs de l'option vidéo ou pack
+            if (in_array($option, ['video', 'pack'], true)) {
+                $data[$id]['video'] = $mc->getVideo();
+            }
+            if (in_array($option, ['pdf', 'pack'], true)) {
+                $data[$id]['pdfAvailable'] = $mc->isPdfAvailable();
+            }
         }
 
         return $this->json(array_values($data));

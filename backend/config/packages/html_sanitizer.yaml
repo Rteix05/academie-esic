@@ -1,0 +1,12 @@
+framework:
+    html_sanitizer:
+        sanitizers:
+            # Contenu riche saisi dans l'admin (éditeur Trix) puis affiché tel quel par le frontend
+            # (dangerouslySetInnerHTML) : seules les balises de mise en forme sûres sont conservées.
+            app.rich_text:
+                allow_safe_elements: true
+                allow_relative_links: true
+                allowed_link_schemes: ['http', 'https', 'mailto']
+                force_https_urls: false
+                drop_elements: ['img', 'iframe', 'form', 'input', 'button']
+                max_input_length: 200000

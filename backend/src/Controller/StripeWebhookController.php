@@ -2,243 +2,257 @@
 
 namespace App\Controller;
 
-use App\Entity\MasterclassPurchase;
+use App\Entity\Event;
 use App\Entity\EventRegistration;
+use App\Entity\Formation;
+use App\Entity\MasterclassPurchase;
+use App\Entity\User;
 use App\Repository\EventRegistrationRepository;
 use App\Repository\MasterclassRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Stripe\Stripe;
+use Psr\Log\LoggerInterface;
 use Stripe\Webhook;
-use Stripe\StripeClient;
-use App\Repository\FormationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Webhook Stripe : source de vérité des paiements.
+ *
+ * Règle de réponse : Stripe réessaie pendant 3 jours toute réponse non-2xx.
+ * On ne renvoie donc une erreur que si un nouvel essai peut réussir (signature,
+ * erreur serveur). Les cas définitifs (métadonnées absentes, utilisateur supprimé…)
+ * sont journalisés et acquittés en 200.
+ */
 class StripeWebhookController extends AbstractController
 {
+    private const MASTERCLASS_OPTIONS = ['pdf' => 'Format PDF', 'video' => 'Format Vidéo', 'pack' => 'Pack Complet (Vidéo + PDF)'];
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly UserRepository $userRepository,
+        private readonly MasterclassRepository $masterclassRepository,
+        private readonly EventRegistrationRepository $eventRegRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly MailerInterface $mailer,
+    ) {}
+
     #[Route('/api/stripe/webhook', name: 'api_stripe_webhook', methods: ['POST'])]
-    public function handleWebhook(
-        Request $request,
-        UserRepository $userRepository,
-        MasterclassRepository $masterclassRepository,
-        EventRegistrationRepository $eventRegRepository,
-        EntityManagerInterface $em,
-        MailerInterface $mailer
-    ): Response {
-        $payload   = $request->getContent();
-        $sigHeader = $request->headers->get('Stripe-Signature');
+    public function handleWebhook(Request $request): Response
+    {
+        $webhookSecret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? null;
+        if (!$webhookSecret) {
+            $this->logger->critical('Webhook Stripe reçu mais STRIPE_WEBHOOK_SECRET n\'est pas configuré.');
+            return new Response('Webhook non configuré.', 500);
+        }
 
         try {
-            $event = Webhook::constructEvent($payload, $sigHeader, $_ENV['STRIPE_WEBHOOK_SECRET']);
-        } catch (\Exception $e) {
+            $event = Webhook::constructEvent(
+                $request->getContent(),
+                (string) $request->headers->get('Stripe-Signature'),
+                $webhookSecret
+            );
+        } catch (\Throwable) {
             return new Response('Webhook signature invalide.', 400);
         }
 
-        if ($event->type === 'checkout.session.completed') {
-            $session   = $event->data->object;
-            $metadata  = $session->metadata;
-            $userEmail = $metadata->user_email ?? null;
-            $frontendUrl = $_ENV['FRONTEND_URL'] ?? '';
+        $session = $event->data->object;
 
-            if (!$userEmail) {
-                return new Response('Métadonnées manquantes.', 400);
-            }
+        return match ($event->type) {
+            'checkout.session.completed',
+            'checkout.session.async_payment_succeeded' => $this->handleCompleted($session),
+            'checkout.session.expired'                 => $this->handleExpired($session),
+            default                                    => new Response('Ignoré', 200),
+        };
+    }
 
-            $user = $userRepository->findOneBy(['email' => $userEmail]);
-            if (!$user) {
-                return new Response('Utilisateur introuvable.', 404);
-            }
+    private function handleCompleted(object $session): Response
+    {
+        // Moyens de paiement différés : on attend "async_payment_succeeded"
+        if (($session->payment_status ?? null) !== 'paid') {
+            return new Response('Paiement en attente', 200);
+        }
 
-            $displayName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? '')) ?: $user->getEmail();
+        $metadata  = $session->metadata;
+        $userEmail = $metadata->user_email ?? null;
 
-            // ── Événement payant ────────────────────────────────────────────
-            if (!empty($metadata->event_id)) {
-                $eventId = (int) $metadata->event_id;
-                $eventEntity = $em->find(\App\Entity\Event::class, $eventId);
+        if (!$userEmail) {
+            $this->logger->warning('Webhook Stripe : user_email absent des métadonnées', ['session_id' => $session->id]);
+            return new Response('Ignoré (métadonnées)', 200);
+        }
 
-                if ($eventEntity) {
-                    $reg = $eventRegRepository->findOneBy(['event' => $eventEntity, 'user' => $user]);
-                    if (!$reg) {
-                        $reg = new EventRegistration();
-                        $reg->setEvent($eventEntity);
-                        $reg->setUser($user);
-                        $em->persist($reg);
-                    }
-                    $reg->setStatus('paid');
-                    $reg->setStripeSessionId($session->id);
-                    $em->flush();
-
-                    try {
-                        $mail = (new Email())
-                            ->from('noreply@academie-esic.fr')
-                            ->to($user->getEmail())
-                            ->subject('Paiement confirmé — ' . $eventEntity->getTitle())
-                            ->html(
-                                '<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;color:#1C2C24;">' .
-                                '<h2 style="color:#0F291E;">Inscription confirmée !</h2>' .
-                                '<p>Bonjour <strong>' . htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') . '</strong>,</p>' .
-                                '<p>Votre inscription payante à <strong>' . htmlspecialchars($eventEntity->getTitle(), ENT_QUOTES, 'UTF-8') . '</strong> a été confirmée.</p>' .
-                                '<p>📅 ' . $eventEntity->getStartDate()->format('d/m/Y à H:i') . '</p>' .
-                                '<p>📍 ' . htmlspecialchars($eventEntity->getLocation(), ENT_QUOTES, 'UTF-8') . '</p>' .
-                                '<p><a href="' . $frontendUrl . '/evenements/' . $eventEntity->getId() . '" style="display:inline-block;background:#0F291E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Voir l\'événement</a></p>' .
-                                '</div>'
-                            );
-                        $mailer->send($mail);
-                    } catch (\Exception) {}
-                }
-
-                return new Response('OK', 200);
-            }
-
-            // ── Formation ───────────────────────────────────────────────────
-            if (!empty($metadata->formation_id)) {
-                $formationId = (int) $metadata->formation_id;
-                $formation = $em->find(\App\Entity\Formation::class, $formationId);
-
-                if ($formation && !$user->getFormations()->contains($formation)) {
-                    $user->addFormation($formation);
-                    $em->flush();
-                }
-
-                return new Response('OK', 200);
-            }
-
-            // ── Masterclass ─────────────────────────────────────────────────
-            $masterclassId = $metadata->masterclass_id ?? null;
-            $option        = $metadata->option         ?? null;
-
-            if (!$masterclassId || !$option) {
-                return new Response('Métadonnées manquantes.', 400);
-            }
-
-            $masterclass = $masterclassRepository->find($masterclassId);
-            if (!$masterclass) {
-                return new Response('Masterclass introuvable.', 404);
-            }
-
-            $existing = $em->getRepository(MasterclassPurchase::class)->findOneBy([
-                'user' => $user, 'masterclass' => $masterclass, 'option' => $option,
+        $user = $this->userRepository->findOneBy(['email' => $userEmail]);
+        if (!$user) {
+            // Paiement encaissé pour un compte introuvable : nécessite une action manuelle (remboursement…)
+            $this->logger->critical('Webhook Stripe : paiement reçu pour un utilisateur introuvable', [
+                'session_id' => $session->id,
+                'user_email' => $userEmail,
             ]);
+            return new Response('Ignoré (utilisateur)', 200);
+        }
 
-            if (!$existing) {
-                $purchase = new MasterclassPurchase();
-                $purchase->setUser($user);
-                $purchase->setMasterclass($masterclass);
-                $purchase->setOption($option);
-                $purchase->setCreatedAt(new \DateTimeImmutable());
-                $em->persist($purchase);
+        if (!empty($metadata->event_id)) {
+            return $this->grantEvent($session, $user, (int) $metadata->event_id);
+        }
 
-                if (!$user->getMasterclasses()->contains($masterclass)) {
-                    $user->addMasterclass($masterclass);
-                }
+        if (!empty($metadata->formation_id)) {
+            return $this->grantFormation($session, $user, (int) $metadata->formation_id);
+        }
 
-                $em->flush();
+        if (!empty($metadata->masterclass_id)) {
+            return $this->grantMasterclass($session, $user, (int) $metadata->masterclass_id, $metadata->option ?? null);
+        }
 
-                $optionLabels = ['pdf' => 'Format PDF', 'video' => 'Format Vidéo', 'pack' => 'Pack Complet (Vidéo + PDF)'];
-                $optionLabel  = $optionLabels[$option] ?? $option;
+        $this->logger->warning('Webhook Stripe : type d\'achat inconnu', ['session_id' => $session->id]);
+        return new Response('Ignoré (type)', 200);
+    }
 
-                try {
-                    $mail = (new Email())
-                        ->from('noreply@academie-esic.fr')
-                        ->to($user->getEmail())
-                        ->subject('Confirmation d\'achat — ' . $masterclass->getTitle())
-                        ->html(
-                            '<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;color:#1C2C24;">' .
-                            '<h2 style="color:#0F291E;">Merci pour votre achat !</h2>' .
-                            '<p>Bonjour <strong>' . htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') . '</strong>,</p>' .
-                            '<p>Votre achat de <strong>' . htmlspecialchars($masterclass->getTitle(), ENT_QUOTES, 'UTF-8') . '</strong> (' . htmlspecialchars($optionLabel, ENT_QUOTES, 'UTF-8') . ') a bien été enregistré.</p>' .
-                            '<p><a href="' . $frontendUrl . '/dashboard" style="display:inline-block;background:#0F291E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Accéder à ma masterclass</a></p>' .
-                            '<p style="color:#aaa;font-size:12px;margin-top:24px;">Cet email est un justificatif d\'achat. Conservez-le pour vos archives.</p>' .
-                            '</div>'
-                        );
-                    $mailer->send($mail);
-                } catch (\Exception) {}
-            }
+    /**
+     * Session abandonnée : libère la place réservée si l'inscription est toujours en attente.
+     */
+    private function handleExpired(object $session): Response
+    {
+        $registration = $this->eventRegRepository->findOneBy(['stripeSessionId' => $session->id]);
+
+        if ($registration && $registration->getStatus() === EventRegistration::STATUS_PENDING) {
+            $this->em->remove($registration);
+            $this->em->flush();
         }
 
         return new Response('OK', 200);
     }
 
-    #[Route('/api/stripe/confirm', name: 'api_stripe_confirm', methods: ['POST'])]
-    public function confirmSession(
-        Request $request,
-        UserRepository $userRepository,
-        MasterclassRepository $masterclassRepository,
-        FormationRepository $formationRepository,
-        EntityManagerInterface $em
-    ): Response {
-        $data = json_decode($request->getContent() ?: '{}', true);
-        $sessionId = $data['session_id'] ?? null;
-
-        if (!$sessionId) {
-            return new Response('session_id manquant.', 400);
+    private function grantEvent(object $session, User $user, int $eventId): Response
+    {
+        $eventEntity = $this->em->find(Event::class, $eventId);
+        if (!$eventEntity) {
+            $this->logger->critical('Webhook Stripe : paiement reçu pour un événement introuvable', ['session_id' => $session->id, 'event_id' => $eventId]);
+            return new Response('Ignoré (événement)', 200);
         }
 
-        $stripeSecret = $_ENV['STRIPE_SECRET'] ?? $_ENV['STRIPE_SECRET_KEY'] ?? null;
-        if (!$stripeSecret) {
-            return new Response('Stripe non configuré.', 500);
+        $reg = $this->eventRegRepository->findOneBy(['event' => $eventEntity, 'user' => $user]);
+        if (!$reg) {
+            $reg = (new EventRegistration())->setEvent($eventEntity)->setUser($user);
+            $this->em->persist($reg);
         }
 
-        $client = new StripeClient($stripeSecret);
+        // Idempotent avec /api/stripe/confirm/event : un seul email
+        $alreadyPaid = $reg->getStatus() === EventRegistration::STATUS_PAID;
 
+        $reg->setStatus(EventRegistration::STATUS_PAID);
+        $reg->setStripeSessionId($session->id);
+        $this->em->flush();
+
+        if (!$alreadyPaid) {
+            $this->sendMail(
+                $user,
+                'Paiement confirmé — ' . $eventEntity->getTitle(),
+                '<h2 style="color:#0F291E;">Inscription confirmée !</h2>' .
+                '<p>Bonjour <strong>' . $this->e($this->displayName($user)) . '</strong>,</p>' .
+                '<p>Votre inscription payante à <strong>' . $this->e($eventEntity->getTitle()) . '</strong> a été confirmée.</p>' .
+                '<p>📅 ' . $eventEntity->getStartDate()->format('d/m/Y à H:i') . '</p>' .
+                '<p>📍 ' . $this->e($eventEntity->getLocation()) . '</p>' .
+                $this->button('/evenements/' . $eventEntity->getId(), 'Voir l\'événement')
+            );
+        }
+
+        return new Response('OK', 200);
+    }
+
+    private function grantFormation(object $session, User $user, int $formationId): Response
+    {
+        $formation = $this->em->find(Formation::class, $formationId);
+        if (!$formation) {
+            $this->logger->critical('Webhook Stripe : paiement reçu pour une formation introuvable', ['session_id' => $session->id, 'formation_id' => $formationId]);
+            return new Response('Ignoré (formation)', 200);
+        }
+
+        if (!$user->getFormations()->contains($formation)) {
+            $user->addFormation($formation);
+            $this->em->flush();
+        }
+
+        return new Response('OK', 200);
+    }
+
+    private function grantMasterclass(object $session, User $user, int $masterclassId, ?string $option): Response
+    {
+        if (!isset(self::MASTERCLASS_OPTIONS[$option])) {
+            $this->logger->warning('Webhook Stripe : option de masterclass invalide', ['session_id' => $session->id, 'option' => $option]);
+            return new Response('Ignoré (option)', 200);
+        }
+
+        $masterclass = $this->masterclassRepository->find($masterclassId);
+        if (!$masterclass) {
+            $this->logger->critical('Webhook Stripe : paiement reçu pour une masterclass introuvable', ['session_id' => $session->id, 'masterclass_id' => $masterclassId]);
+            return new Response('Ignoré (masterclass)', 200);
+        }
+
+        $existing = $this->em->getRepository(MasterclassPurchase::class)->findOneBy([
+            'user' => $user, 'masterclass' => $masterclass, 'option' => $option,
+        ]);
+
+        if ($existing) {
+            return new Response('OK', 200);
+        }
+
+        $purchase = new MasterclassPurchase();
+        $purchase->setUser($user);
+        $purchase->setMasterclass($masterclass);
+        $purchase->setOption($option);
+        $purchase->setCreatedAt(new \DateTimeImmutable());
+        $this->em->persist($purchase);
+
+        if (!$user->getMasterclasses()->contains($masterclass)) {
+            $user->addMasterclass($masterclass);
+        }
+
+        $this->em->flush();
+
+        $this->sendMail(
+            $user,
+            'Confirmation d\'achat — ' . $masterclass->getTitle(),
+            '<h2 style="color:#0F291E;">Merci pour votre achat !</h2>' .
+            '<p>Bonjour <strong>' . $this->e($this->displayName($user)) . '</strong>,</p>' .
+            '<p>Votre achat de <strong>' . $this->e($masterclass->getTitle()) . '</strong> (' . $this->e(self::MASTERCLASS_OPTIONS[$option]) . ') a bien été enregistré.</p>' .
+            $this->button('/dashboard', 'Accéder à ma masterclass') .
+            '<p style="color:#aaa;font-size:12px;margin-top:24px;">Cet email est un justificatif d\'achat. Conservez-le pour vos archives.</p>'
+        );
+
+        return new Response('OK', 200);
+    }
+
+    private function sendMail(User $user, string $subject, string $body): void
+    {
         try {
-            $session = $client->checkout->sessions->retrieve($sessionId, []);
-        } catch (\Exception $e) {
-            return new Response('Impossible de récupérer la session Stripe: ' . $e->getMessage(), 400);
+            $this->mailer->send((new Email())
+                ->from('noreply@academie-esic.fr')
+                ->to($user->getEmail())
+                ->subject($subject)
+                ->html('<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;color:#1C2C24;">' . $body . '</div>'));
+        } catch (\Throwable $e) {
+            $this->logger->error('Webhook Stripe : email de confirmation non envoyé', ['error' => $e->getMessage()]);
         }
+    }
 
-        if (($session->payment_status ?? null) !== 'paid' && ($session->status ?? null) !== 'complete') {
-            return new Response('Paiement non confirmé.', 400);
-        }
+    private function button(string $path, string $label): string
+    {
+        $url = ($_ENV['FRONTEND_URL'] ?? '') . $path;
 
-        $metadata = $session->metadata ?? [];
-        $user = $this->getUser();
+        return '<p><a href="' . $this->e($url) . '" style="display:inline-block;background:#0F291E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">' . $this->e($label) . '</a></p>';
+    }
 
-        if (!$user) {
-            // fallback to customer_email metadata
-            $email = $metadata->user_email ?? $session->customer_details->email ?? null;
-            if ($email) {
-                $user = $userRepository->findOneBy(['email' => $email]);
-            }
-        }
+    private function displayName(User $user): string
+    {
+        return trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? '')) ?: $user->getEmail();
+    }
 
-        if (!$user) {
-            return new Response('Utilisateur introuvable.', 404);
-        }
-
-        // Handle formation purchase
-        if (!empty($metadata->formation_id ?? $metadata['formation_id'] ?? null)) {
-            $formationId = (int) ($metadata->formation_id ?? $metadata['formation_id']);
-            $formation = $formationRepository->find($formationId);
-            if ($formation) {
-                if (!$user->getFormations()->contains($formation)) {
-                    $user->addFormation($formation);
-                    $em->flush();
-                }
-                return new Response('Formation ajoutée.', 200);
-            }
-            return new Response('Formation introuvable.', 404);
-        }
-
-        // Handle masterclass as before if present
-        if (!empty($metadata->masterclass_id ?? $metadata['masterclass_id'] ?? null)) {
-            $masterclassId = (int) ($metadata->masterclass_id ?? $metadata['masterclass_id']);
-            $masterclass = $masterclassRepository->find($masterclassId);
-            if ($masterclass) {
-                if (!$user->getMasterclasses()->contains($masterclass)) {
-                    $user->addMasterclass($masterclass);
-                    $em->flush();
-                }
-                return new Response('Masterclass ajoutée.', 200);
-            }
-            return new Response('Masterclass introuvable.', 404);
-        }
-
-        return new Response('Métadonnées inconnues.', 400);
+    private function e(?string $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 }

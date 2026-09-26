@@ -3,52 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Formation;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Stripe\StripeClient;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends AbstractController
 {
-    #[Route('/api/checkout/{id}', name: 'api_checkout', methods: ['POST'])]
-    public function simulatePurchase(
-        Formation $formation, 
-        EntityManagerInterface $em, 
-        UserRepository $userRepository
-    ): JsonResponse {
-        
-        $securityUser = $this->getUser();
-        if (!$securityUser) {
-            return $this->json(['message' => 'Veuillez vous connecter.'], 401);
-        }
-
-        // 1. On va chercher le VRAI utilisateur suivi par Doctrine
-        $realUser = $userRepository->findOneBy(['email' => $securityUser->getUserIdentifier()]);
-        
-        if (!$realUser) {
-            return $this->json(['message' => 'Utilisateur introuvable en base.'], 404);
-        }
-
-        // 2. On lie la formation au vrai utilisateur
-        $realUser->addFormation($formation);
-
-        // 3. Doctrine voit enfin la modification et l'écrit !
-        $em->flush();
-
-        return $this->json([
-            'success' => true,
-            'message' => 'Achat simulé et formation ajoutée au compte !'
-        ]);
-    }
-
     #[Route('/api/stripe/checkout/formation/{id}', name: 'api_stripe_checkout_formation', methods: ['POST'])]
     public function createFormationCheckout(
         Formation $formation,
-        Request $request
+        Request $request,
+        LoggerInterface $logger
     ): JsonResponse {
         $securityUser = $this->getUser();
         if (!$securityUser) {
@@ -60,14 +28,26 @@ class CheckoutController extends AbstractController
             return $this->json(['message' => 'Stripe non configuré.'], 500);
         }
 
+        if (!$formation->isPublished()) {
+            return $this->json(['message' => 'Formation non disponible.'], 404);
+        }
+
         $client = new StripeClient($stripeSecret);
 
         $price = (int) round($formation->getPrice() * 100);
 
+        // Formation gratuite : pas de paiement, inscription directe via /api/formations/{id}/enroll
+        if ($price <= 0) {
+            return $this->json([
+                'message'  => 'Cette formation est gratuite : inscrivez-vous directement.',
+                'enrollUrl' => '/api/formations/' . $formation->getId() . '/enroll',
+            ], 400);
+        }
+
         try {
             $session = $client->checkout->sessions->create([
                 'payment_method_types' => ['card'],
-                'mode' => $price > 0 ? 'payment' : 'subscription',
+                'mode' => 'payment',
                 'line_items' => [[
                     'price_data' => [
                         'currency' => 'eur',
@@ -77,10 +57,6 @@ class CheckoutController extends AbstractController
                     'quantity' => 1,
                 ]],
                 'customer_email' => $securityUser->getUserIdentifier(),
-                'metadata' => [
-                    'formation_id' => (string) $formation->getId(),
-                    'user_email' => $securityUser->getUserIdentifier(),
-                ],
                 'success_url' => ($_ENV['FRONTEND_URL'] ?? '') . '/dashboard?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => ($_ENV['FRONTEND_URL'] ?? '') . '/formations/' . $formation->getId(),
                 'metadata' => [
@@ -90,8 +66,13 @@ class CheckoutController extends AbstractController
             ]);
 
             return $this->json(['url' => $session->url]);
-        } catch (\Exception $e) {
-            return $this->json(['message' => 'Erreur Stripe: ' . $e->getMessage()], 500);
+        } catch (\Throwable $e) {
+            $logger->error('Stripe : création de session formation impossible', [
+                'formation_id' => $formation->getId(),
+                'error'        => $e->getMessage(),
+            ]);
+
+            return $this->json(['message' => 'Impossible d\'initialiser le paiement. Réessayez dans quelques instants.'], 502);
         }
     }
 }

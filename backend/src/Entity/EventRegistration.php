@@ -7,8 +7,16 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EventRegistrationRepository::class)]
 #[ORM\Table(name: 'event_registration')]
+#[ORM\UniqueConstraint(name: 'uniq_event_registration_event_user', columns: ['event_id', 'user_id'])]
 class EventRegistration
 {
+    public const STATUS_FREE    = 'free';
+    public const STATUS_PAID    = 'paid';
+    public const STATUS_PENDING = 'pending';
+
+    /** Durée pendant laquelle une place est réservée en attente de paiement */
+    public const PENDING_TTL = '35 minutes';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -45,6 +53,17 @@ class EventRegistration
     public function setUser(?User $user): static { $this->user = $user; return $this; }
 
     public function getRegisteredAt(): \DateTimeImmutable { return $this->registeredAt; }
+    public function setRegisteredAt(\DateTimeImmutable $registeredAt): static { $this->registeredAt = $registeredAt; return $this; }
+
+    /** Inscription effective (gratuite ou payée), par opposition à une réservation en attente */
+    public function isConfirmed(): bool { return $this->status !== self::STATUS_PENDING; }
+
+    /** Réservation en attente de paiement dont le délai est dépassé : la place est libérée */
+    public function isExpiredPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING
+            && $this->registeredAt < new \DateTimeImmutable('-' . self::PENDING_TTL);
+    }
 
     public function getStatus(): string { return $this->status; }
     public function setStatus(string $status): static { $this->status = $status; return $this; }

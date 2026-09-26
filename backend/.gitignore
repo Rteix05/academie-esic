@@ -23,3 +23,7 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+###> contenu payant (uploads privés) ###
+/private/
+###< contenu payant ###

@@ -7,7 +7,7 @@ use App\Repository\EventRegistrationRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class EventStatusController extends AbstractController
 {
@@ -17,7 +17,8 @@ class EventStatusController extends AbstractController
         EventRegistrationRepository $repo,
         UserRepository $userRepository
     ): JsonResponse {
-        $totalRegistered = $repo->count(['event' => $event]);
+        // Places occupées : inscriptions confirmées + réservations en attente de paiement non expirées
+        $totalRegistered = $repo->countOccupiedSeats($event);
         $spotsLeft = $event->getCapacity() !== null
             ? max(0, $event->getCapacity() - $totalRegistered)
             : null;

@@ -3,55 +3,96 @@
 namespace App\Controller;
 
 use App\Entity\MasterclassPurchase;
+use App\Entity\User;
+use App\Repository\FormationRepository;
 use App\Repository\MasterclassRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
+use Psr\Log\LoggerInterface;
+use Stripe\StripeClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Confirmation côté client d'un paiement Stripe (formation ou masterclass),
+ * appelée par PaymentSuccessPopup au retour de Stripe. Le webhook reste la
+ * source de vérité ; cet endpoint est idempotent avec lui.
+ */
 class StripeConfirmController extends AbstractController
 {
+    private const MASTERCLASS_OPTIONS = ['pdf', 'video', 'pack'];
+
     #[Route('/api/stripe/confirm', name: 'api_stripe_confirm', methods: ['POST'])]
     public function confirm(
         Request $request,
-        UserRepository $userRepository,
         MasterclassRepository $masterclassRepository,
-        EntityManagerInterface $em
+        FormationRepository $formationRepository,
+        EntityManagerInterface $em,
+        LoggerInterface $logger
     ): JsonResponse {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['message' => 'Non autorisé.'], 401);
+        }
+
+        $body      = json_decode($request->getContent() ?: '{}', true);
+        $sessionId = is_array($body) ? ($body['session_id'] ?? null) : null;
+
+        if (!is_string($sessionId) || $sessionId === '') {
+            return $this->json(['message' => 'session_id manquant.'], 400);
+        }
+
+        $stripeSecret = $_ENV['STRIPE_SECRET'] ?? $_ENV['STRIPE_SECRET_KEY'] ?? null;
+        if (!$stripeSecret) {
+            return $this->json(['message' => 'Stripe non configuré.'], 500);
+        }
+
         try {
-            $body      = json_decode($request->getContent(), true);
-            $sessionId = $body['session_id'] ?? null;
+            $session = (new StripeClient($stripeSecret))->checkout->sessions->retrieve($sessionId);
+        } catch (\Throwable $e) {
+            $logger->warning('Stripe confirm: session introuvable', ['session_id' => $sessionId, 'error' => $e->getMessage()]);
+            return $this->json(['message' => 'Session de paiement invalide.'], 400);
+        }
 
-            if (!$sessionId) {
-                return $this->json(['error' => 'session_id manquant.'], 400);
+        if ($session->payment_status !== 'paid') {
+            return $this->json(['message' => 'Paiement non complété.'], 402);
+        }
+
+        $metadata = $session->metadata ? $session->metadata->toArray() : [];
+
+        // La session doit appartenir à l'utilisateur connecté : empêche de
+        // rejouer le session_id d'un autre compte pour débloquer du contenu.
+        $ownerEmail = $metadata['user_email'] ?? null;
+        if (!$ownerEmail || strcasecmp($ownerEmail, $user->getUserIdentifier()) !== 0) {
+            return $this->json(['message' => 'Cette session de paiement ne vous appartient pas.'], 403);
+        }
+
+        // ── Formation ─────────────────────────────────────────────────────
+        if (!empty($metadata['formation_id'])) {
+            $formation = $formationRepository->find((int) $metadata['formation_id']);
+            if (!$formation) {
+                return $this->json(['message' => 'Formation introuvable.'], 404);
             }
 
-            Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
-
-            $session = Session::retrieve($sessionId);
-
-            if ($session->payment_status !== 'paid') {
-                return $this->json(['error' => 'Paiement non complété.', 'status' => $session->payment_status], 402);
+            if (!$user->getFormations()->contains($formation)) {
+                $user->addFormation($formation);
+                $em->flush();
             }
 
-            $metadata      = $session->metadata->toArray();
-            $userEmail     = $metadata['user_email']     ?? null;
-            $masterclassId = $metadata['masterclass_id'] ?? null;
-            $option        = $metadata['option']         ?? null;
+            return $this->json(['success' => true, 'formationId' => $formation->getId()]);
+        }
 
-            if (!$userEmail || !$masterclassId || !$option) {
-                return $this->json(['error' => 'Métadonnées manquantes.', 'meta' => $metadata], 400);
+        // ── Masterclass ───────────────────────────────────────────────────
+        if (!empty($metadata['masterclass_id'])) {
+            $option = $metadata['option'] ?? null;
+            if (!in_array($option, self::MASTERCLASS_OPTIONS, true)) {
+                return $this->json(['message' => 'Option d\'achat invalide.'], 400);
             }
 
-            $user        = $userRepository->findOneBy(['email' => $userEmail]);
-            $masterclass = $masterclassRepository->find($masterclassId);
-
-            if (!$user || !$masterclass) {
-                return $this->json(['error' => 'Utilisateur ou masterclass introuvable.'], 404);
+            $masterclass = $masterclassRepository->find((int) $metadata['masterclass_id']);
+            if (!$masterclass) {
+                return $this->json(['message' => 'Masterclass introuvable.'], 404);
             }
 
             $existing = $em->getRepository(MasterclassPurchase::class)->findOneBy([
@@ -80,9 +121,9 @@ class StripeConfirmController extends AbstractController
                 'masterclassId' => $masterclass->getId(),
                 'option'        => $option,
             ]);
-
-        } catch (\Throwable $e) {
-            return $this->json(['error' => $e->getMessage(), 'class' => get_class($e)], 500);
         }
+
+        // Ni formation ni masterclass (ex. événement) : le front bascule sur /api/stripe/confirm/event
+        return $this->json(['message' => 'Type d\'achat non géré par cet endpoint.'], 400);
     }
 }

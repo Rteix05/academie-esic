@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Variables de couleurs sémantiques (RGAA / Dark mode) ─────────────────── */
+@layer base {
+  :root {
+    --bg-page:    251 251 250;   /* #FBFBFA */
+    --bg-card:    255 255 255;
+    --bg-subtle:  240 253 244;   /* emerald-50 */
+    --text-base:  28  44  36;    /* #1C2C24 */
+    --text-muted: 107 114 128;   /* gray-500 */
+    --border:     229 231 235;   /* gray-200 */
+  }
+
+  .dark {
+    --bg-page:    10  24  16;    /* vert nuit */
+    --bg-card:    20  32  24;    /* vert foncé */
+    --bg-subtle:  24  40  30;    /* vert moyen */
+    --text-base:  214 237 222;   /* emerald-100 */
+    --text-muted: 107 150 128;   /* vert moyen clair */
+    --border:     45  74  53;    /* bordure verte sombre */
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: rgb(var(--bg-page));
+    color: rgb(var(--text-base));
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* —— Focus visible accessible —— */
+  *:focus-visible {
+    outline: 3px solid #059669;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* ─── Lien d'évitement (RGAA critère 12.7) ─────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: #0F291E;
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: top 0.1s ease;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #0d9488;
+  outline-offset: 2px;
+}
+
+/* ─── Dark mode — surcharge des classes Tailwind arbitraires ───────────────── */
+/* Permet d'adapter les pages existantes sans toucher chaque fichier            */
+
+/* Fonds */
+.dark .bg-white           { background-color: rgb(var(--bg-card))   !important; }
+.dark .bg-\[\#FBFBFA\]   { background-color: rgb(var(--bg-page))   !important; }
+.dark .bg-gray-50         { background-color: rgb(var(--bg-subtle)) !important; }
+.dark .bg-gray-100        { background-color: rgb(23 38 27)         !important; }
+.dark .bg-gray-200        { background-color: rgb(30 48 36)         !important; }
+
+/* Bordures */
+.dark .border-gray-50     { border-color: rgb(28 44 32)             !important; }
+.dark .border-gray-100    { border-color: rgb(var(--border))        !important; }
+.dark .border-gray-200    { border-color: rgb(50 72 58)             !important; }
+
+/* ── Textes sombres sur fond clair → inversés en dark mode ── */
+/* Couleur principale de titre (#0F291E = vert très foncé / quasi noir) */
+/* Double règle : sélecteur Tailwind + sélecteur attribut (plus robuste) */
+.dark .text-\[\#0F291E\]        { color: rgb(214 237 222) !important; }
+.dark [class*="0F291E"]         { color: rgb(214 237 222) !important; }
+/* Couleur de corps de texte (#1C2C24) */
+.dark .text-\[\#1C2C24\]        { color: rgb(var(--text-base)) !important; }
+.dark [class*="1C2C24"]         { color: rgb(var(--text-base)) !important; }
+/* Niveaux de gris */
+.dark .text-gray-900      { color: rgb(214 237 222)                 !important; }
+.dark .text-gray-800      { color: rgb(196 220 207)                 !important; }
+.dark .text-gray-700      { color: rgb(182 205 192)                 !important; }
+.dark .text-gray-600      { color: rgb(var(--text-muted))           !important; }
+.dark .text-gray-500      { color: rgb(var(--text-muted))           !important; }
+.dark .text-gray-400      { color: rgb(130 152 140)                 !important; }
+
+/* Verts sombres utilisés en texte */
+.dark .text-emerald-900   { color: rgb(110 231 183)                 !important; }
+.dark .text-emerald-800   { color: rgb(52  211 153)                 !important; }
+.dark .text-emerald-700   { color: rgb(52  211 153)                 !important; }
+
+/* hover:text-[#0F291E] — au survol en dark mode, rester clair */
+.dark [class*="hover\:text-\[#0F291E\]"]:hover,
+.dark [class*="0F291E"]:hover { color: rgb(167 243 208) !important; } /* emerald-200 */
+
+/* Fonds colorés utilisés comme badges — restent lisibles */
+.dark .bg-emerald-50      { background-color: rgba(16 185 129 / 0.12)  !important; }
+.dark .bg-emerald-100     { background-color: rgba(16 185 129 / 0.18)  !important; }
+.dark .bg-amber-50        { background-color: rgba(245 158 11 / 0.12)  !important; }
+.dark .bg-blue-50         { background-color: rgba(59 130 246 / 0.12)  !important; }
+.dark .bg-red-50          { background-color: rgba(239 68 68 / 0.12)   !important; }
+.dark .bg-rose-50         { background-color: rgba(244 63 94 / 0.12)   !important; }
+
+/* Textes sur badges colorés */
+.dark .text-emerald-700   { color: rgb(110 231 183)                 !important; }
+.dark .text-amber-700     { color: rgb(251 191  36)                 !important; }
+.dark .text-blue-700      { color: rgb(147 197 253)                 !important; }
+.dark .text-red-600       { color: rgb(252 165 165)                 !important; }
+
+/* Ombres */
+.dark .shadow-sm          { box-shadow: 0 1px 3px rgba(0,0,0,.45)   !important; }
+.dark .shadow-md          { box-shadow: 0 4px 12px rgba(0,0,0,.55)  !important; }
+.dark .shadow-xl          { box-shadow: 0 8px 24px rgba(0,0,0,.65)  !important; }
+
+/* Inputs & formulaires */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: rgb(17 30 21)      !important;
+  border-color:     rgb(var(--border)) !important;
+  color:            rgb(var(--text-base)) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder { color: rgb(var(--text-muted)) !important; }
+
+/* ─── Police display (Playfair Display) ────────────────────────────────────── */
+@layer utilities {
+  .font-display {
+    font-family: var(--font-playfair), Georgia, 'Times New Roman', serif;
+  }
+}
+

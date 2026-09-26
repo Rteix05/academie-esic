@@ -4,13 +4,15 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ForgotPasswordController extends AbstractController
 {
@@ -19,7 +21,9 @@ class ForgotPasswordController extends AbstractController
         Request $request,
         UserRepository $userRepository,
         EntityManagerInterface $em,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        LoggerInterface $logger,
+        RateLimiterFactoryInterface $forgotPasswordLimiter
     ): JsonResponse {
         $data  = json_decode($request->getContent(), true);
         $email = trim((string) ($data['email'] ?? ''));
@@ -28,11 +32,18 @@ class ForgotPasswordController extends AbstractController
             return $this->json(['message' => 'Adresse email invalide.'], 400);
         }
 
+        // Limite par IP + email : empêche le spam d'emails vers une victime
+        $limit = $forgotPasswordLimiter->create($request->getClientIp() . '|' . mb_strtolower($email))->consume();
+        if (!$limit->isAccepted()) {
+            return $this->json(['message' => 'Trop de demandes. Réessayez dans quelques minutes.'], 429);
+        }
+
         // Toujours retourner le même message pour éviter l'énumération d'utilisateurs
         $user = $userRepository->findOneBy(['email' => $email]);
         if ($user) {
+            // Seul le hash du token est stocké : une fuite de la base ne permet pas de réinitialiser un compte
             $token = bin2hex(random_bytes(32));
-            $user->setResetToken($token);
+            $user->setResetToken(hash('sha256', $token));
             $user->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
             $em->flush();
 
@@ -56,8 +67,8 @@ class ForgotPasswordController extends AbstractController
 
             try {
                 $mailer->send($mail);
-            } catch (\Exception) {
-                // L'email ne peut pas être envoyé (mailer non configuré), on continue silencieusement
+            } catch (\Throwable $e) {
+                $logger->error('Envoi email de réinitialisation impossible', ['error' => $e->getMessage()]);
             }
         }
 
@@ -69,8 +80,14 @@ class ForgotPasswordController extends AbstractController
         Request $request,
         UserRepository $userRepository,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        RateLimiterFactoryInterface $resetPasswordLimiter
     ): JsonResponse {
+        $limit = $resetPasswordLimiter->create($request->getClientIp())->consume();
+        if (!$limit->isAccepted()) {
+            return $this->json(['message' => 'Trop de tentatives. Réessayez dans quelques minutes.'], 429);
+        }
+
         $data     = json_decode($request->getContent(), true);
         $token    = trim((string) ($data['token'] ?? ''));
         $password = (string) ($data['password'] ?? '');
@@ -79,16 +96,17 @@ class ForgotPasswordController extends AbstractController
             return $this->json(['message' => 'Token et nouveau mot de passe requis.'], 400);
         }
 
-        if (strlen($password) < 8) {
+        if (strlen($password) < 8 || strlen($password) > 4096) {
             return $this->json(['message' => 'Le mot de passe doit contenir au moins 8 caractères.'], 400);
         }
 
-        $user = $userRepository->findOneBy(['resetToken' => $token]);
+        $user = $userRepository->findOneBy(['resetToken' => hash('sha256', $token)]);
 
         if (!$user || !$user->getResetTokenExpiresAt() || $user->getResetTokenExpiresAt() < new \DateTimeImmutable()) {
             return $this->json(['message' => 'Token invalide ou expiré. Veuillez refaire une demande.'], 400);
         }
 
+        // Le changement de hash invalide aussi les JWT déjà émis (cf. JwtPasswordFingerprintListener)
         $user->setPassword($passwordHasher->hashPassword($user, $password));
         $user->setResetToken(null);
         $user->setResetTokenExpiresAt(null);
