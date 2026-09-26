@@ -34,7 +34,7 @@ class MasterclassCrudController extends AbstractCrudController
             // Image de prévisualisation — upload depuis le PC local
             Field::new('imageUpload', 'Image de prévisualisation (upload)')
                 ->setFormType(FileType::class)
-                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => 'image/jpeg,image/png,image/webp,image/gif']])
+                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => 'image/jpeg,image/png,image/webp,image/gif'], 'constraints' => [UploadConstraints::image()]])
                 ->hideOnIndex()
                 ->setHelp('Formats acceptés : JPG, PNG, WebP — recommandé : 800×450 px. Laissez vide pour conserver l\'image actuelle.'),
 
@@ -46,7 +46,7 @@ class MasterclassCrudController extends AbstractCrudController
             // PDF (champ upload virtuel)
             Field::new('pdfUpload', 'Fichier PDF')
                 ->setFormType(FileType::class)
-                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => '.pdf']])
+                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => '.pdf'], 'constraints' => [UploadConstraints::pdf()]])
                 ->hideOnIndex()
                 ->setHelp('Laissez vide pour conserver le fichier actuel'),
 
@@ -84,6 +84,8 @@ class MasterclassCrudController extends AbstractCrudController
     private function handleUploads(Masterclass $mc): void
     {
         $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/';
+        // Contenu payant : stocké hors de public/, servi uniquement par ContentController
+        $privateDir = $this->getParameter('kernel.project_dir') . '/private/uploads/';
 
         $imageUpload = $mc->getImageUpload();
         if ($imageUpload instanceof UploadedFile) {
@@ -96,7 +98,7 @@ class MasterclassCrudController extends AbstractCrudController
         $pdfUpload = $mc->getPdfUpload();
         if ($pdfUpload instanceof UploadedFile) {
             $fileName = uniqid('pdf_') . '.pdf';
-            $pdfUpload->move($uploadDir . 'pdfs', $fileName);
+            $pdfUpload->move($privateDir . 'pdfs', $fileName);
             $mc->setPdfFile($fileName);
         }
     }

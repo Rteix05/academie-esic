@@ -1,0 +1,8 @@
+# Services propres à l'environnement de test (chargé après services.yaml)
+services:
+    # Double de la passerelle Stripe : aucun appel réseau pendant les tests
+    App\Stripe\StripeGateway:
+        class: App\Tests\Double\FakeStripeGateway
+        autowire: false
+        autoconfigure: false
+        arguments: []

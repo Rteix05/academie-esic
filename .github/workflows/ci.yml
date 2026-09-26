@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Symfony)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      # Les variables d'environnement réelles priment sur les fichiers .env
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/academie_esic?serverVersion=8.0.46&charset=utf8mb4
+      JWT_PASSPHRASE: ci-passphrase
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # même version que docker/php/Dockerfile
+          extensions: intl, pdo_mysql, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-
+
+      # .env n'est pas versionné (il contient des secrets) : on part du modèle
+      - name: Configuration
+        run: cp .env.example .env
+
+      - name: Validation de composer.json
+        run: composer validate --no-check-publish
+
+      - name: Dépendances
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Audit de sécurité des dépendances
+        run: composer audit
+
+      - name: Clés JWT de test
+        run: php bin/console lexik:jwt:generate-keypair --no-interaction
+
+      - name: Lint (YAML, Twig, conteneur, mapping Doctrine)
+        run: |
+          php bin/console lint:yaml config --parse-tags
+          php bin/console lint:twig templates
+          php bin/console lint:container
+          php bin/console doctrine:schema:validate --skip-sync
+
+      - name: Syntaxe PHP
+        run: find src tests migrations -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Base de test
+        run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:schema:create --env=test
+
+      - name: Tests PHPUnit
+        run: php bin/phpunit
+
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Audit de sécurité des dépendances
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Types TypeScript
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
+          NEXT_TELEMETRY_DISABLED: '1'

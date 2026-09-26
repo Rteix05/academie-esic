@@ -3,14 +3,23 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\FormationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: FormationRepository::class)]
-#[ApiResource]
+// Lecture seule : l'écriture passe exclusivement par l'admin EasyAdmin
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+    ]
+)]
 class Formation
 {
     #[ORM\Id]
@@ -42,11 +51,26 @@ class Formation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePreview = null;
 
+    // Contenu payant : jamais exposé par l'API publique
     #[ORM\Column(length: 255, nullable: true)]
+    #[Ignore]
     private ?string $pdfFile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Ignore]
     private ?string $videoUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $institut = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $objectives = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $trainer = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $modalities = null;
 
     // Champs virtuels (non persistés) pour les uploads via le formulaire admin
     private mixed $pdfUpload = null;
@@ -56,6 +80,7 @@ class Formation
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'formations')]
+    #[Ignore]
     private Collection $users;
 
     public function __construct()
@@ -155,6 +180,7 @@ class Formation
     /**
      * @return Collection<int, User>
      */
+    #[Ignore]
     public function getUsers(): Collection
     {
         return $this->users;
@@ -172,6 +198,7 @@ class Formation
         return $this;
     }
 
+    #[Ignore]
     public function getPdfFile(): ?string
     {
         return $this->pdfFile;
@@ -184,6 +211,7 @@ class Formation
         return $this;
     }
 
+    #[Ignore]
     public function getVideoUrl(): ?string
     {
         return $this->videoUrl;
@@ -196,6 +224,60 @@ class Formation
         return $this;
     }
 
+    public function getInstitut(): ?string
+    {
+        return $this->institut;
+    }
+
+    public function setInstitut(?string $institut): static
+    {
+        $this->institut = $institut;
+
+        return $this;
+    }
+
+    public function getObjectives(): ?string
+    {
+        return $this->objectives;
+    }
+
+    public function setObjectives(?string $objectives): static
+    {
+        $this->objectives = $objectives;
+
+        return $this;
+    }
+
+    public function getTrainer(): ?string
+    {
+        return $this->trainer;
+    }
+
+    public function setTrainer(?string $trainer): static
+    {
+        $this->trainer = $trainer;
+
+        return $this;
+    }
+
+    public function getModalities(): ?string
+    {
+        return $this->modalities;
+    }
+
+    public function setModalities(?string $modalities): static
+    {
+        $this->modalities = $modalities;
+
+        return $this;
+    }
+
+    public function isPdfAvailable(): bool
+    {
+        return (bool) $this->pdfFile;
+    }
+
+    #[Ignore]
     public function getImageUpload(): mixed
     {
         return $this->imageUpload;
@@ -208,6 +290,7 @@ class Formation
         return $this;
     }
 
+    #[Ignore]
     public function getPdfUpload(): mixed
     {
         return $this->pdfUpload;

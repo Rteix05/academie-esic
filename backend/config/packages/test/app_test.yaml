@@ -1,0 +1,4 @@
+# Réglages propres à la suite de tests.
+# Les limiteurs de débit gardent leur stockage normal : chaque test utilise une IP cliente
+# aléatoire (cf. tests/ApiTestCase.php), ce qui isole leurs compteurs.
+# Les surcharges de services sont dans config/services_test.yaml (chargé après services.yaml).

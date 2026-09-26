@@ -39,7 +39,8 @@ class Event
     #[ORM\Column]
     private ?\DateTimeImmutable $endDate = null;
 
-    #[ORM\Column(options: ['default' => 0])]
+    // Défaut en chaîne : MySQL le relit ainsi, un entier provoquerait un faux écart de schéma permanent
+    #[ORM\Column(options: ['default' => '0'])]
     private float $price = 0.0;
 
     #[ORM\Column(nullable: true)]

@@ -1,0 +1,6 @@
+parameters:
+    # Valeur par défaut si LOCK_DSN n'est pas défini dans l'environnement
+    env(LOCK_DSN): 'flock'
+
+framework:
+    lock: '%env(LOCK_DSN)%'

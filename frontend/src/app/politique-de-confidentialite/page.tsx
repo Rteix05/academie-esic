@@ -1,0 +1,140 @@
+import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Politique de confidentialité — Académie E.S.I.C.',
+};
+
+export default function PolitiqueConfidentialitePage() {
+  return (
+    <main className="min-h-screen bg-[#FBFBFA] text-[#1C2C24] font-sans antialiased">
+      <section className="max-w-3xl mx-auto px-6 py-16">
+
+        <div className="mb-10">
+          <Link href="/" className="text-sm text-gray-400 hover:text-[#0F291E] transition">← Retour à l'accueil</Link>
+        </div>
+
+        <h1 className="text-4xl font-black text-[#0F291E] tracking-tight mb-2">Politique de confidentialité</h1>
+        <p className="text-sm text-gray-400 mb-12">Dernière mise à jour : juillet 2026</p>
+
+        <div className="prose prose-sm max-w-none space-y-10 text-gray-700">
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">1. Responsable du traitement</h2>
+            <p>
+              L'<strong>Académie E.S.I.C.</strong> est responsable du traitement de vos données personnelles
+              collectées via le site <strong>academie-esic.fr</strong>.<br />
+              Contact DPO : <a href="mailto:contact@academie-esic.fr" className="text-emerald-700 underline">contact@academie-esic.fr</a>
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">2. Données collectées</h2>
+            <p>Dans le cadre de l'utilisation de nos services, nous collectons les données suivantes :</p>
+            <ul className="mt-3 list-disc list-inside space-y-1.5">
+              <li><strong>Données d'inscription :</strong> adresse email, mot de passe (chiffré), prénom, nom</li>
+              <li><strong>Données de transaction :</strong> historique des achats (formations, masterclass), montants</li>
+              <li><strong>Données de connexion :</strong> token d'authentification JWT stocké localement dans votre navigateur</li>
+              <li><strong>Données techniques :</strong> adresse IP, type de navigateur (via les logs serveur)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">3. Finalités du traitement</h2>
+            <p>Vos données sont traitées pour les finalités suivantes :</p>
+            <ul className="mt-3 list-disc list-inside space-y-1.5">
+              <li>Gestion de votre compte utilisateur et authentification sécurisée</li>
+              <li>Traitement des paiements et accès aux contenus achetés (formations, masterclass)</li>
+              <li>Envoi d'emails transactionnels (confirmation d'achat, réinitialisation de mot de passe)</li>
+              <li>Amélioration de nos services et sécurité de la plateforme</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">4. Base légale</h2>
+            <p>
+              Le traitement de vos données est fondé sur :
+            </p>
+            <ul className="mt-3 list-disc list-inside space-y-1.5">
+              <li>L'<strong>exécution du contrat</strong> (accès aux formations et masterclass achetées)</li>
+              <li>Le <strong>consentement</strong> (inscription volontaire sur la plateforme)</li>
+              <li>L'<strong>intérêt légitime</strong> (sécurité de la plateforme, prévention des fraudes)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">5. Durée de conservation</h2>
+            <ul className="list-disc list-inside space-y-1.5">
+              <li><strong>Compte utilisateur :</strong> données conservées pendant toute la durée d'activité du compte, puis 3 ans après la dernière connexion</li>
+              <li><strong>Données de transaction :</strong> 10 ans conformément aux obligations comptables et fiscales</li>
+              <li><strong>Tokens de réinitialisation :</strong> 1 heure, puis supprimés automatiquement</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">6. Partage des données</h2>
+            <p>
+              Vos données ne sont jamais vendues à des tiers. Elles peuvent être partagées avec :
+            </p>
+            <ul className="mt-3 list-disc list-inside space-y-1.5">
+              <li><strong>Stripe</strong> : prestataire de paiement sécurisé (traitement des transactions uniquement)</li>
+              <li><strong>Hébergeur</strong> : pour le fonctionnement technique de la plateforme</li>
+            </ul>
+            <p className="mt-3">
+              Ces prestataires sont soumis à des obligations de confidentialité strictes et conformes au RGPD.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">7. Sécurité des données</h2>
+            <p>
+              Nous mettons en œuvre les mesures techniques et organisationnelles suivantes pour protéger vos données :
+            </p>
+            <ul className="mt-3 list-disc list-inside space-y-1.5">
+              <li>Chiffrement des mots de passe (bcrypt)</li>
+              <li>Authentification par token JWT à durée limitée</li>
+              <li>Communications chiffrées en HTTPS</li>
+              <li>Paiements traités exclusivement par Stripe (norme PCI-DSS)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">8. Vos droits</h2>
+            <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+            <ul className="mt-3 list-disc list-inside space-y-1.5">
+              <li><strong>Droit d'accès :</strong> obtenir une copie de vos données personnelles</li>
+              <li><strong>Droit de rectification :</strong> corriger vos données (via la page{' '}
+                <Link href="/dashboard/profil" className="text-emerald-700 underline">Mon profil</Link>)</li>
+              <li><strong>Droit à l'effacement :</strong> demander la suppression de votre compte</li>
+              <li><strong>Droit à la portabilité :</strong> recevoir vos données dans un format structuré</li>
+              <li><strong>Droit d'opposition :</strong> vous opposer à certains traitements</li>
+            </ul>
+            <p className="mt-4">
+              Pour exercer ces droits, contactez-nous à :{' '}
+              <a href="mailto:contact@academie-esic.fr" className="text-emerald-700 underline">contact@academie-esic.fr</a>.
+              Vous pouvez également introduire une réclamation auprès de la{' '}
+              <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-emerald-700 underline">CNIL</a>.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">9. Cookies</h2>
+            <p>
+              Ce site utilise uniquement des cookies techniques strictement nécessaires au fonctionnement
+              de l'authentification. Aucun cookie de traçage ou publicitaire n'est déposé sur votre appareil.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#0F291E] mb-3">10. Modifications</h2>
+            <p>
+              Nous nous réservons le droit de modifier cette politique à tout moment. Toute modification
+              substantielle vous sera notifiée par email ou affichée en évidence sur le site.
+            </p>
+          </section>
+
+        </div>
+      </section>
+    </main>
+  );
+}

@@ -3,33 +3,43 @@
 namespace App\Controller;
 
 use App\Entity\Formation;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class EnrollmentController extends AbstractController
 {
-    #[Route('/api/formations/{id}/enroll', name: 'api_formation_enroll', methods: ['POST'])]
+    /**
+     * Inscription directe à une formation GRATUITE.
+     * Les formations payantes passent obligatoirement par Stripe (/api/stripe/checkout/formation/{id}).
+     */
+    #[Route('/api/formations/{id}/enroll', name: 'api_formation_enroll', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function enroll(Formation $formation, EntityManagerInterface $entityManager): JsonResponse
     {
-        // 1. On récupère l'élève grâce à son Token JWT
         $user = $this->getUser();
-
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Vous devez être connecté pour rejoindre un cursus.'], 401);
         }
 
-        // 2. On vérifie si l'utilisateur possède déjà la formation pour éviter les doublons
-        if ($user->getFormations()->contains($formation)) {
-            return $this->json(['message' => 'Vous possédez déjà cette formation.'], 400);
+        if (!$formation->isPublished()) {
+            return $this->json(['message' => 'Formation non disponible.'], 404);
         }
 
-        // 3. On ajoute la formation à l'utilisateur (assure-toi d'avoir la méthode addFormation dans l'entité User)
-        $user->addFormation($formation);
+        // Sans ce contrôle, n'importe quel compte obtiendrait une formation payante gratuitement
+        if ((float) $formation->getPrice() > 0) {
+            return $this->json([
+                'message'         => 'Cette formation est payante : veuillez passer par le paiement.',
+                'paymentRequired' => true,
+            ], 402);
+        }
 
-        // 4. On sauvegarde en base de données
-        $entityManager->persist($user);
+        if ($user->getFormations()->contains($formation)) {
+            return $this->json(['message' => 'Vous possédez déjà cette formation.'], 409);
+        }
+
+        $user->addFormation($formation);
         $entityManager->flush();
 
         return $this->json([

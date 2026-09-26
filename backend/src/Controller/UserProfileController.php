@@ -2,27 +2,25 @@
 
 namespace App\Controller;
 
-use App\Repository\UserRepository;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Cookie\JWTCookieProvider;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class UserProfileController extends AbstractController
 {
     #[Route('/api/me', name: 'api_me_get', methods: ['GET'])]
-    public function getProfile(UserRepository $userRepository): JsonResponse
+    public function getProfile(): JsonResponse
     {
-        $securityUser = $this->getUser();
-        if (!$securityUser) {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Non autorisé.'], 401);
-        }
-
-        $user = $userRepository->findOneBy(['email' => $securityUser->getUserIdentifier()]);
-        if (!$user) {
-            return $this->json(['message' => 'Utilisateur introuvable.'], 404);
         }
 
         return $this->json([
@@ -37,21 +35,26 @@ class UserProfileController extends AbstractController
     #[Route('/api/me', name: 'api_me_update', methods: ['PUT', 'PATCH'])]
     public function updateProfile(
         Request $request,
-        UserRepository $userRepository,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        JWTTokenManagerInterface $jwtManager,
+        #[Autowire(service: 'lexik_jwt_authentication.cookie_provider.BEARER')] JWTCookieProvider $cookieProvider
     ): JsonResponse {
-        $securityUser = $this->getUser();
-        if (!$securityUser) {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Non autorisé.'], 401);
         }
 
-        $user = $userRepository->findOneBy(['email' => $securityUser->getUserIdentifier()]);
-        if (!$user) {
-            return $this->json(['message' => 'Utilisateur introuvable.'], 404);
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return $this->json(['message' => 'Requête invalide.'], 400);
         }
 
-        $data = json_decode($request->getContent(), true);
+        foreach (['firstName' => 'Le prénom', 'lastName' => 'Le nom'] as $field => $label) {
+            if (isset($data[$field]) && mb_strlen(trim((string) $data[$field])) > 100) {
+                return $this->json(['message' => $label . ' ne doit pas dépasser 100 caractères.'], 422);
+            }
+        }
 
         if (isset($data['firstName'])) {
             $user->setFirstName(trim((string) $data['firstName']));
@@ -59,26 +62,39 @@ class UserProfileController extends AbstractController
         if (isset($data['lastName'])) {
             $user->setLastName(trim((string) $data['lastName']));
         }
+
+        $passwordChanged = false;
         if (!empty($data['newPassword'])) {
+            $newPassword = (string) $data['newPassword'];
+
             if (empty($data['currentPassword'])) {
                 return $this->json(['message' => 'Le mot de passe actuel est requis pour en changer.'], 400);
             }
-            if (!$passwordHasher->isPasswordValid($user, $data['currentPassword'])) {
+            if (!$passwordHasher->isPasswordValid($user, (string) $data['currentPassword'])) {
                 return $this->json(['message' => 'Mot de passe actuel incorrect.'], 400);
             }
-            if (strlen($data['newPassword']) < 8) {
-                return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'], 400);
+            if (strlen($newPassword) < 8 || strlen($newPassword) > 4096 || !preg_match('/^(?=.*[A-Za-z])(?=.*\d).+$/', $newPassword)) {
+                return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères, dont une lettre et un chiffre.'], 422);
             }
-            $user->setPassword($passwordHasher->hashPassword($user, $data['newPassword']));
+            $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+            $passwordChanged = true;
         }
 
         $em->flush();
 
-        return $this->json([
+        $response = $this->json([
             'success'   => true,
             'firstName' => $user->getFirstName(),
             'lastName'  => $user->getLastName(),
             'email'     => $user->getEmail(),
         ]);
+
+        // Le changement de mot de passe invalide tous les JWT existants (cf. JwtPasswordFingerprintListener) :
+        // on dépose un nouveau cookie pour que la session courante reste ouverte.
+        if ($passwordChanged) {
+            $response->headers->setCookie($cookieProvider->createCookie($jwtManager->create($user)));
+        }
+
+        return $response;
     }
 }

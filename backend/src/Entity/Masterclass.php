@@ -3,15 +3,23 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\MasterclassRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: MasterclassRepository::class)]
-#[ApiResource]
+// Lecture seule : l'écriture passe exclusivement par l'admin EasyAdmin
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+    ]
+)]
 class Masterclass
 {
     #[ORM\Id]
@@ -35,6 +43,7 @@ class Masterclass
     private ?float $price = null;
 
     #[ORM\Column(length: 255)]
+    #[Ignore]
     private ?string $videoUrl = null;
 
     #[ORM\Column]
@@ -47,7 +56,9 @@ class Masterclass
     #[Ignore]
     private Collection $users;
 
+    // Contenu payant : livré uniquement via /api/mes-masterclasses aux acheteurs
     #[ORM\Column(length: 255, nullable: true)]
+    #[Ignore]
     private ?string $video = null;
 
     #[ORM\Column(nullable: true)]
@@ -56,13 +67,15 @@ class Masterclass
     #[ORM\Column(nullable: true)]
     private ?float $priceVideo = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $pricePack = null;
+    // Numérique comme les autres prix (était une chaîne)
+    #[ORM\Column(nullable: true)]
+    private ?float $pricePack = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePreview = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Ignore]
     private ?string $pdfFile = null;
 
     // Champs virtuels (non persistés) pour les uploads via le formulaire admin
@@ -145,6 +158,7 @@ class Masterclass
         return $this;
     }
 
+    #[Ignore]
     public function getVideoUrl(): ?string
     {
         return $this->videoUrl;
@@ -197,6 +211,7 @@ class Masterclass
         return $this;
     }
 
+    #[Ignore]
     public function getVideo(): ?string
     {
         return $this->video;
@@ -233,12 +248,12 @@ class Masterclass
         return $this;
     }
 
-    public function getPricePack(): ?string
+    public function getPricePack(): ?float
     {
         return $this->pricePack;
     }
 
-    public function setPricePack(?string $pricePack): static
+    public function setPricePack(?float $pricePack): static
     {
         $this->pricePack = $pricePack;
 
@@ -257,6 +272,7 @@ class Masterclass
         return $this;
     }
 
+    #[Ignore]
     public function getPdfFile(): ?string
     {
         return $this->pdfFile;
@@ -269,6 +285,17 @@ class Masterclass
         return $this;
     }
 
+    public function isVideoAvailable(): bool
+    {
+        return (bool) $this->video;
+    }
+
+    public function isPdfAvailable(): bool
+    {
+        return (bool) $this->pdfFile;
+    }
+
+    #[Ignore]
     public function getPdfUpload(): mixed
     {
         return $this->pdfUpload;
@@ -281,6 +308,7 @@ class Masterclass
         return $this;
     }
 
+    #[Ignore]
     public function getImageUpload(): mixed
     {
         return $this->imageUpload;

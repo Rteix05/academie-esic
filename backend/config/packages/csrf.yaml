@@ -1,4 +1,4 @@
-# CSRF désactivé : API stateless JWT, pas de sessions
+# CSRF actif : nécessaire pour le formulaire de connexion et les formulaires EasyAdmin (session).
+# L'API JWT stateless n'utilise pas de formulaires Symfony et n'est pas concernée.
 framework:
-    csrf_protection:
-        enabled: false
+    csrf_protection: true

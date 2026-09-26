@@ -59,10 +59,16 @@ class AppFixtures extends Fixture
         }
 
         // 3. Création d'un compte Administrateur
+        // Pas de mot de passe en dur : il doit être fourni via FIXTURES_ADMIN_PASSWORD (.env.local)
+        $adminPassword = $_ENV['FIXTURES_ADMIN_PASSWORD'] ?? $_SERVER['FIXTURES_ADMIN_PASSWORD'] ?? '';
+        if (strlen($adminPassword) < 12) {
+            throw new \RuntimeException('Définissez FIXTURES_ADMIN_PASSWORD (12 caractères minimum) avant de charger les fixtures.');
+        }
+
         $admin = new User();
         $admin->setEmail('admin@esic.fr');
         $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setPassword($this->hasher->hashPassword($admin, 'password123'));
+        $admin->setPassword($this->hasher->hashPassword($admin, $adminPassword));
         $manager->persist($admin);
 
         // 4. Création de quelques comptes Élèves avec des achats aléatoires

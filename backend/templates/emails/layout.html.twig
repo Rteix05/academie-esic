@@ -1,0 +1,14 @@
+{# Mise en page commune des emails transactionnels (styles inline : support client mail) #}
+<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;color:#1C2C24;">
+    {% block content %}{% endblock %}
+
+    {% if cta_url is defined and cta_url %}
+        <p style="margin-top:24px;">
+            <a href="{{ cta_url }}" style="display:inline-block;background:#0F291E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">{{ cta_label }}</a>
+        </p>
+    {% endif %}
+
+    {% block footer %}{% endblock %}
+
+    <p style="color:#aaa;font-size:12px;margin-top:32px;">Académie E.S.I.C.</p>
+</div>

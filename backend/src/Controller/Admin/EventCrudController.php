@@ -39,7 +39,7 @@ class EventCrudController extends AbstractCrudController
             // Upload image depuis le PC local
             Field::new('imageUpload', 'Image (upload depuis PC)')
                 ->setFormType(FileType::class)
-                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => 'image/jpeg,image/png,image/webp,image/gif']])
+                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => 'image/jpeg,image/png,image/webp,image/gif'], 'constraints' => [UploadConstraints::image()]])
                 ->hideOnIndex()
                 ->setHelp('Laissez vide pour conserver l\'image actuelle. Prioritaire sur l\'URL ci-dessous.'),
 

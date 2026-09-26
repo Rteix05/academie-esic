@@ -1,0 +1,15 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block content %}
+    <h2 style="color:#0F291E;">{{ paid ? 'Paiement confirmé !' : 'Inscription confirmée !' }}</h2>
+    <p>Bonjour <strong>{{ display_name }}</strong>,</p>
+    <p>
+        {% if paid %}
+            Votre inscription payante à <strong>{{ event.title }}</strong> est confirmée.
+        {% else %}
+            Votre inscription à l'événement <strong>{{ event.title }}</strong> a bien été enregistrée.
+        {% endif %}
+    </p>
+    <p>📅 {{ event.startDate|date('d/m/Y à H:i') }}</p>
+    <p>📍 {{ event.location }}</p>
+{% endblock %}

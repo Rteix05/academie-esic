@@ -28,43 +28,63 @@ class FormationCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
 
-            TextField::new('title', 'Titre de la formation'),
-            TextEditorField::new('description', 'Description')->hideOnIndex(),
+            // — Classement —
+            ChoiceField::new('institut', 'Institut / Bloc')->setChoices([
+                'Institut Biblique Théologique'           => 'Institut Biblique Théologique',
+                'École du Ministère et du Leadership'     => 'École du Ministère et du Leadership',
+            ])->setRequired(false),
 
-            NumberField::new('price', 'Prix (€)'),
+            ChoiceField::new('category', 'Sous-catégorie')->setChoices([
+                // IBT
+                'Formation biblique'         => 'Formation biblique',
+                'Discipulat'                 => 'Discipulat',
+                'Développement personnel'    => 'Développement personnel',
+                'Famille et vie chrétienne'  => 'Famille et vie chrétienne',
+                'Autres programmes'          => 'Autres programmes',
+                // École du Ministère
+                'Leadership chrétien'        => 'Leadership chrétien',
+                'Formation poussée'          => 'Formation poussée',
+                'Ministère'                  => 'Ministère',
+            ])->setRequired(false),
+
+            TextField::new('title', 'Titre de la formation'),
+            TextEditorField::new('description', 'Contenu de la formation')->hideOnIndex(),
+
+            // — Détails pédagogiques —
+            TextEditorField::new('objectives', 'Objectifs de la formation')->hideOnIndex()->setRequired(false),
+            TextField::new('trainer', 'Formateur')->setRequired(false),
+            TextEditorField::new('modalities', 'Modalités')->hideOnIndex()->setRequired(false)
+                ->setHelp('Modalités d\'accès, de suivi, d\'évaluation…'),
+
+            NumberField::new('price', 'Frais (€)'),
             TextField::new('duration', 'Durée (ex : 8 heures)'),
             ChoiceField::new('level', 'Niveau')->setChoices([
                 'Débutant'      => 'Débutant',
                 'Intermédiaire' => 'Intermédiaire',
                 'Avancé'        => 'Avancé',
             ]),
-            TextField::new('category', 'Catégorie'),
 
-            // Image de prévisualisation — upload depuis le PC local
+            // — Médias —
             Field::new('imageUpload', 'Image de prévisualisation (upload)')
                 ->setFormType(FileType::class)
-                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => 'image/jpeg,image/png,image/webp,image/gif']])
+                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => 'image/jpeg,image/png,image/webp,image/gif'], 'constraints' => [UploadConstraints::image()]])
                 ->hideOnIndex()
                 ->setHelp('Formats acceptés : JPG, PNG, WebP — recommandé : 800×450 px. Laissez vide pour conserver l\'image actuelle.'),
 
-            // Affiche le nom du fichier image enregistré (lecture seule dans la liste)
             TextField::new('imagePreview', 'Image enregistrée')
                 ->hideOnForm()
                 ->setHelp('Nom du fichier image stocké sur le serveur'),
 
-            // PDF support de cours (upload virtuel)
             Field::new('pdfUpload', 'Support de cours (PDF)')
                 ->setFormType(FileType::class)
-                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => '.pdf']])
+                ->setFormTypeOptions(['required' => false, 'attr' => ['accept' => '.pdf'], 'constraints' => [UploadConstraints::pdf()]])
                 ->hideOnIndex()
                 ->setHelp('Laissez vide pour conserver le fichier actuel'),
 
-            // Affiche le PDF enregistré (lecture seule dans la liste)
             TextField::new('pdfFile', 'PDF enregistré')
                 ->hideOnForm()
                 ->setHelp('Nom du fichier PDF stocké sur le serveur'),
 
-            // Lien vidéo externe
             UrlField::new('videoUrl', 'Lien vidéo (URL externe)')
                 ->hideOnIndex()
                 ->setRequired(false)
@@ -89,6 +109,8 @@ class FormationCrudController extends AbstractCrudController
     private function handleUploads(Formation $f): void
     {
         $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/';
+        // Contenu payant : stocké hors de public/, servi uniquement par ContentController
+        $privateDir = $this->getParameter('kernel.project_dir') . '/private/uploads/';
 
         $imageUpload = $f->getImageUpload();
         if ($imageUpload instanceof UploadedFile) {
@@ -101,7 +123,7 @@ class FormationCrudController extends AbstractCrudController
         $pdfUpload = $f->getPdfUpload();
         if ($pdfUpload instanceof UploadedFile) {
             $fileName = uniqid('pdf_') . '.pdf';
-            $pdfUpload->move($uploadDir . 'pdfs', $fileName);
+            $pdfUpload->move($privateDir . 'pdfs', $fileName);
             $f->setPdfFile($fileName);
         }
     }

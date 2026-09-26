@@ -20,37 +20,56 @@ security:
                 check_path: /api/login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            # 5 tentatives échouées / 15 min par couple IP + email (et 25 par IP)
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
 
-        api_event_actions:
-            pattern: ^/api/events/\d+/(register)
-            stateless: true
-            jwt: ~
-
-        api_event_status:
-            pattern: ^/api/events/\d+/status
-            stateless: true
-            jwt: ~
-
+        # Routes réellement publiques et sans aucune opération d'écriture sensible.
+        # Attention : "security: false" désactive aussi access_control pour ces chemins.
         api_public:
-            pattern: ^/api/(masterclasses|formations|events|register|stripe/webhook|forgot-password|reset-password|video-stream)
+            pattern: ^/api/(register|stripe/webhook|forgot-password|reset-password|video-stream)
             stateless: true
             security: false
 
+        # API JWT : les lectures publiques (catalogue) sont ouvertes via access_control,
+        # tout le reste exige un token valide.
         api:
             pattern: ^/api
             stateless: true
-            jwt: ~
+            jwt:
+                # Cookie invalide/expiré => requête anonyme au lieu d'un 401 sur les pages publiques
+                authenticator: app.cookie_jwt_authenticator
+
+        # Back-office EasyAdmin : session + formulaire de connexion
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                default_target_path: admin
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
+            logout:
+                path: app_logout
+                target: app_login
 
     access_control:
+        - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/logout, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/formations, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/masterclasses, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/events, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/stripe/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/api/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/api/reset-password, roles: PUBLIC_ACCESS }
-        - { path: ^/api/stripe, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/video-stream, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
