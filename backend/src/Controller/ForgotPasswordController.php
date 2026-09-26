@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
+use App\Mailer\AppMailer;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,8 +19,7 @@ class ForgotPasswordController extends AbstractController
         Request $request,
         UserRepository $userRepository,
         EntityManagerInterface $em,
-        MailerInterface $mailer,
-        LoggerInterface $logger,
+        AppMailer $mailer,
         RateLimiterFactoryInterface $forgotPasswordLimiter
     ): JsonResponse {
         $data  = json_decode($request->getContent(), true);
@@ -47,29 +44,7 @@ class ForgotPasswordController extends AbstractController
             $user->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
             $em->flush();
 
-            $frontendUrl = $_ENV['FRONTEND_URL'] ?? '';
-            $resetUrl    = $frontendUrl . '/reset-password?token=' . $token;
-
-            $mail = (new Email())
-                ->from('noreply@academie-esic.fr')
-                ->to($email)
-                ->subject('Réinitialisation de votre mot de passe – Académie E.S.I.C.')
-                ->html(
-                    '<div style="font-family:sans-serif;max-width:500px;margin:auto;padding:32px;">' .
-                    '<h2 style="color:#0F291E;">Réinitialisation de mot de passe</h2>' .
-                    '<p>Vous avez demandé la réinitialisation de votre mot de passe sur l\'Académie E.S.I.C.</p>' .
-                    '<p><a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '" ' .
-                    'style="display:inline-block;background:#0F291E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">' .
-                    'Réinitialiser mon mot de passe</a></p>' .
-                    '<p style="color:#888;font-size:13px;">Ce lien est valable <strong>1 heure</strong>. Si vous n\'avez pas fait cette demande, ignorez cet email.</p>' .
-                    '</div>'
-                );
-
-            try {
-                $mailer->send($mail);
-            } catch (\Throwable $e) {
-                $logger->error('Envoi email de réinitialisation impossible', ['error' => $e->getMessage()]);
-            }
+            $mailer->sendPasswordReset($email, $token);
         }
 
         return $this->json(['message' => 'Si cet email existe dans notre base, un lien de réinitialisation vient d\'être envoyé.']);

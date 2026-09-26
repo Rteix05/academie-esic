@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Event;
 use App\Entity\EventRegistration;
+use App\Entity\RegistrationStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,7 +26,7 @@ class EventRegistrationRepository extends ServiceEntityRepository
             ->where('r.event = :event')
             ->andWhere('(r.status != :pending OR r.registeredAt >= :pendingLimit)')
             ->setParameter('event', $event)
-            ->setParameter('pending', EventRegistration::STATUS_PENDING)
+            ->setParameter('pending', RegistrationStatus::Pending->value)
             ->setParameter('pendingLimit', new \DateTimeImmutable('-' . EventRegistration::PENDING_TTL));
 
         if ($exclude?->getId()) {

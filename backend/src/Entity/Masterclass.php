@@ -67,8 +67,9 @@ class Masterclass
     #[ORM\Column(nullable: true)]
     private ?float $priceVideo = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $pricePack = null;
+    // Numérique comme les autres prix (était une chaîne)
+    #[ORM\Column(nullable: true)]
+    private ?float $pricePack = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePreview = null;
@@ -247,12 +248,12 @@ class Masterclass
         return $this;
     }
 
-    public function getPricePack(): ?string
+    public function getPricePack(): ?float
     {
         return $this->pricePack;
     }
 
-    public function setPricePack(?string $pricePack): static
+    public function setPricePack(?float $pricePack): static
     {
         $this->pricePack = $pricePack;
 

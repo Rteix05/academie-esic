@@ -31,12 +31,12 @@ class VideoController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
-            return $this->json(['error' => 'Non autorisé'], 401);
+            return $this->json(['message' => 'Non autorisé'], 401);
         }
 
         $mc = $this->mcRepo->find($id);
         if (!$mc) {
-            return $this->json(['error' => 'Introuvable'], 404);
+            return $this->json(['message' => 'Introuvable'], 404);
         }
 
         // Vérifier l'achat avec option vidéo ou pack (l'utilisateur peut aussi avoir acheté le PDF seul)
@@ -47,7 +47,7 @@ class VideoController extends AbstractController
         ]);
 
         if (!$purchase) {
-            return $this->json(['error' => 'Accès non autorisé — option vidéo requise'], 403);
+            return $this->json(['message' => 'Accès non autorisé — option vidéo requise'], 403);
         }
 
         // Token signé HMAC-SHA256, lié à la masterclass, à l'utilisateur et à l'expiration

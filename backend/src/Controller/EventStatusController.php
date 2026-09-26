@@ -3,49 +3,33 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Entity\User;
 use App\Repository\EventRegistrationRepository;
-use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 class EventStatusController extends AbstractController
 {
-    #[Route('/api/events/{id}/status', name: 'api_event_status', methods: ['GET'])]
-    public function status(
-        Event $event,
-        EventRegistrationRepository $repo,
-        UserRepository $userRepository
-    ): JsonResponse {
+    #[Route('/api/events/{id}/status', name: 'api_event_status', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function status(Event $event, EventRegistrationRepository $repo): JsonResponse
+    {
         // Places occupées : inscriptions confirmées + réservations en attente de paiement non expirées
         $totalRegistered = $repo->countOccupiedSeats($event);
-        $spotsLeft = $event->getCapacity() !== null
-            ? max(0, $event->getCapacity() - $totalRegistered)
-            : null;
-        $isFull = $event->getCapacity() !== null && $totalRegistered >= $event->getCapacity();
+        $capacity = $event->getCapacity();
 
-        $isRegistered = false;
-        $registrationStatus = null;
-
-        $securityUser = $this->getUser();
-        if ($securityUser) {
-            $user = $userRepository->findOneBy(['email' => $securityUser->getUserIdentifier()]);
-            if ($user) {
-                $reg = $repo->findOneBy(['event' => $event, 'user' => $user]);
-                if ($reg && $reg->getStatus() !== 'pending') {
-                    $isRegistered = true;
-                    $registrationStatus = $reg->getStatus();
-                }
-            }
-        }
+        // Route publique : l'utilisateur est connu seulement si un cookie de session valide est présent
+        $user = $this->getUser();
+        $registration = $user instanceof User ? $repo->findOneBy(['event' => $event, 'user' => $user]) : null;
+        $isRegistered = $registration !== null && $registration->isConfirmed();
 
         return $this->json([
             'totalRegistered'    => $totalRegistered,
-            'spotsLeft'          => $spotsLeft,
-            'isFull'             => $isFull,
-            'capacity'           => $event->getCapacity(),
+            'spotsLeft'          => $capacity !== null ? max(0, $capacity - $totalRegistered) : null,
+            'isFull'             => $capacity !== null && $totalRegistered >= $capacity,
+            'capacity'           => $capacity,
             'isRegistered'       => $isRegistered,
-            'registrationStatus' => $registrationStatus,
+            'registrationStatus' => $isRegistered ? $registration->getStatus()->value : null,
         ]);
     }
 }

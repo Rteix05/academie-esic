@@ -20,13 +20,27 @@ interface MasterclassPurchase {
   options: string[];
 }
 
+// Paiement encaissé : montant réellement payé, figé au moment de l'achat
 interface PaymentRecord {
   id: number;
-  masterclassTitle: string;
-  masterclassId: number;
-  option: string;
+  productType: 'formation' | 'masterclass' | 'event';
+  productId: number;
+  label: string;
+  option: string | null;
   amount: number;
-  purchasedAt: string;
+  currency: string;
+  purchasedAt: string; // ISO 8601
+  reference: string | null;
+}
+
+const PRODUCT_LABELS: Record<PaymentRecord['productType'], string> = {
+  formation: 'Formation',
+  masterclass: 'Masterclass',
+  event: 'Événement',
+};
+
+function formatAmount(amount: number, currency: string): string {
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(amount);
 }
 
 interface EventRegistration {
@@ -246,23 +260,26 @@ export default function DashboardPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left border-b border-gray-100">
-                      <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Masterclass</th>
-                      <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Option</th>
-                      <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Montant</th>
+                      <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Achat</th>
+                      <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</th>
+                      <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Montant payé</th>
                       <th className="pb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {paymentHistory.map((p) => (
                       <tr key={p.id} className="hover:bg-gray-50 transition">
-                        <td className="py-3 font-medium text-[#0F291E]">{p.masterclassTitle}</td>
+                        <td className="py-3 font-medium text-[#0F291E]">
+                          {p.label}
+                          {p.reference && <span className="block text-[10px] font-mono text-gray-400">Réf. {p.reference}</span>}
+                        </td>
                         <td className="py-3">
-                          <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg capitalize">
-                            {p.option}
+                          <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg">
+                            {PRODUCT_LABELS[p.productType]}
                           </span>
                         </td>
-                        <td className="py-3 font-bold text-[#0F291E]">{p.amount.toFixed(2)} €</td>
-                        <td className="py-3 text-gray-400">{p.purchasedAt}</td>
+                        <td className="py-3 font-bold text-[#0F291E]">{formatAmount(p.amount, p.currency)}</td>
+                        <td className="py-3 text-gray-400">{new Date(p.purchasedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                       </tr>
                     ))}
                   </tbody>

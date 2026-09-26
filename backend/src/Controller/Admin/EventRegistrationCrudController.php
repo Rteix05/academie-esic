@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\EventRegistration;
+use App\Entity\RegistrationStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -42,13 +43,13 @@ class EventRegistrationCrudController extends AbstractCrudController
             AssociationField::new('event', 'Événement'),
             AssociationField::new('user', 'Utilisateur'),
             ChoiceField::new('status', 'Statut')->setChoices([
-                'Gratuit'  => 'free',
-                'Payant'   => 'paid',
-                'En attente' => 'pending',
+                'Gratuit'    => RegistrationStatus::Free,
+                'Payant'     => RegistrationStatus::Paid,
+                'En attente' => RegistrationStatus::Pending,
             ])->renderAsBadges([
-                'free'    => 'success',
-                'paid'    => 'warning',
-                'pending' => 'secondary',
+                RegistrationStatus::Free->value    => 'success',
+                RegistrationStatus::Paid->value    => 'warning',
+                RegistrationStatus::Pending->value => 'secondary',
             ]),
             DateTimeField::new('registeredAt', 'Date d\'inscription')->hideOnForm(),
             TextField::new('stripeSessionId', 'Session Stripe')->hideOnIndex()->hideOnForm(),
