@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ExternalLink, PlayCircle } from 'lucide-react';
 import { API_URL, apiFetch } from '@/lib/api';
+import { resolvePcloudFile, resolveVideoSource } from '@/lib/videoSource';
 
 interface Props {
   /** URL externe (http...) ou nom de fichier local */
@@ -24,11 +26,22 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
 
   // ─── Résolution de l'URL source ──────────────────────────────────────────
   const isExternal = src.startsWith('http://') || src.startsWith('https://');
+  // Lien externe : lecteur intégré (YouTube, Vimeo, Drive), fichier (Dropbox, .mp4), pCloud ou lien simple
+  const source = useMemo(() => (isExternal ? resolveVideoSource(src) : null), [src, isExternal]);
+  const [fallback, setFallback] = useState(false);
 
   useEffect(() => {
-    // Vidéo externe : utilisation directe
-    if (isExternal) {
-      setStreamUrl(src);
+    if (source) {
+      if (source.kind === 'file') {
+        setStreamUrl(source.src);
+      } else if (source.kind === 'pcloud') {
+        // Lien de partage pCloud → lien de fichier direct (temporaire), sinon ouverture externe
+        resolvePcloudFile(source.code, source.apiHost)
+          .then(setStreamUrl)
+          .catch(() => setFallback(true));
+      } else if (source.kind === 'external') {
+        setFallback(true);
+      }
       return;
     }
 
@@ -49,7 +62,7 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
         }
       })
       .catch(() => setLoadError(true));
-  }, [src, mcId, isExternal]);
+  }, [src, mcId, source]);
 
   // ─── Filigrane dynamique (change de position toutes les 30 s) ────────────
   useEffect(() => {
@@ -101,63 +114,104 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
   }, [streamUrl]);
 
   // ─── Rendu ───────────────────────────────────────────────────────────────
+  // Filigrane flottant (identifie l'utilisateur) et voile « outils de développement »,
+  // communs au lecteur intégré et à la balise <video>
+  const overlays = (
+    <>
+      <div
+        className="pointer-events-none absolute z-20 transition-all duration-[3000ms] ease-in-out"
+        style={{ top: wmPos.top, left: wmPos.left, transform: 'translate(-50%, -50%)' }}
+        aria-hidden="true"
+      >
+        <span className="select-none text-[10px] font-bold uppercase tracking-[0.2em] text-white/25" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>
+          {watermarkText}
+        </span>
+      </div>
+
+      {devToolsOpen && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/90 p-6">
+          <p className="font-display text-sm font-semibold text-white">Contenu protégé</p>
+          <p className="max-w-xs text-center text-xs text-gray-400">Fermez les outils de développement pour reprendre la lecture.</p>
+        </div>
+      )}
+    </>
+  );
+
+  // Hébergeur non intégrable (ou fichier refusé) : ouverture dans un nouvel onglet
+  if (source && fallback) {
+    return (
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-brand-forest">
+        <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
+        <div aria-hidden="true" className="absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-brand-emerald/20" />
+        <div className="relative z-10 flex flex-col items-center p-6 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-brand-emerald shadow-float">
+            <PlayCircle className="h-8 w-8" aria-hidden="true" />
+          </span>
+          <p className="mt-4 font-display text-lg font-semibold text-white">Votre vidéo est prête</p>
+          <p className="mt-1 text-sm text-emerald-100/75">Hébergée sur {source.provider}, elle s&apos;ouvre dans un nouvel onglet.</p>
+          <a
+            href={src}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn mt-6 bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5"
+          >
+            Regarder la vidéo
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-emerald text-white"><ExternalLink className="h-4 w-4" aria-hidden="true" /></span>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Lecteur officiel de l'hébergeur (YouTube, Vimeo, Google Drive)
+  if (source?.kind === 'iframe') {
+    return (
+      <div className="relative h-full w-full select-none overflow-hidden bg-black">
+        <iframe
+          src={source.src}
+          title={`Lecteur vidéo ${source.provider}`}
+          className={`absolute inset-0 h-full w-full border-0 transition-[filter] duration-300 ${devToolsOpen ? 'blur-2xl' : ''}`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+          loading="lazy"
+        />
+        {overlays}
+      </div>
+    );
+  }
+
   if (loadError) {
     return (
-      <div className="w-full h-full bg-black flex items-center justify-center">
-        <p className="text-red-400 text-xs font-medium">Impossible de charger la vidéo.</p>
+      <div className="flex h-full w-full items-center justify-center bg-black">
+        <p className="text-xs font-medium text-red-400">Impossible de charger la vidéo.</p>
       </div>
     );
   }
 
   if (!streamUrl) {
     return (
-      <div className="w-full h-full bg-black flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      <div className="flex h-full w-full items-center justify-center bg-black" role="status">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+        <span className="sr-only">Chargement de la vidéo…</span>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-full select-none overflow-hidden">
-      {/* Lecteur vidéo */}
+    <div className="relative h-full w-full select-none overflow-hidden bg-black">
       <video
         ref={videoRef}
         src={streamUrl}
         controls
         controlsList="nodownload noremoteplayback"
         disablePictureInPicture
-        className={`w-full h-full object-cover transition-[filter] duration-300 ${devToolsOpen ? 'blur-2xl' : ''}`}
+        className={`h-full w-full object-contain transition-[filter] duration-300 ${devToolsOpen ? 'blur-2xl' : ''}`}
         onContextMenu={(e) => e.preventDefault()}
+        // Fichier externe refusé (lien expiré, format non lisible…) : repli sur l'ouverture externe
+        onError={() => (source ? setFallback(true) : setLoadError(true))}
       />
-
-      {/* Filigrane flottant — identifie l'utilisateur */}
-      <div
-        className="absolute pointer-events-none z-20 transition-all duration-[3000ms] ease-in-out"
-        style={{ top: wmPos.top, left: wmPos.left, transform: 'translate(-50%, -50%)' }}
-        aria-hidden="true"
-      >
-        <span
-          className="text-white/20 text-[10px] font-bold uppercase tracking-[0.2em] select-none"
-          style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
-        >
-          {watermarkText}
-        </span>
-      </div>
-
-      {/* Overlay DevTools */}
-      {devToolsOpen && (
-        <div className="absolute inset-0 z-30 bg-black/90 flex flex-col items-center justify-center gap-3 p-6">
-          <div className="w-12 h-12 bg-red-500/10 border border-red-400/30 rounded-full flex items-center justify-center">
-            <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
-            </svg>
-          </div>
-          <p className="text-white text-sm font-bold text-center">Contenu protégé</p>
-          <p className="text-gray-400 text-xs text-center max-w-xs">
-            Fermez les outils de développement pour reprendre la lecture.
-          </p>
-        </div>
-      )}
+      {overlays}
     </div>
   );
 }

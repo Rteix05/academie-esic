@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CheckCircle, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
 interface Props {
@@ -30,15 +30,15 @@ export default function EventInscriptionButton({ eventId, price, isFull: initial
       .finally(() => setLoading(false));
   }, [eventId, initialFull]);
 
-  if (loading) return <div className="h-12 rounded-xl bg-gray-100 animate-pulse w-full" />;
+  if (loading) return <div className="h-12 w-full animate-pulse rounded-full bg-brand-sage/50" />;
 
   if (isRegistered) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="w-full py-3.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-bold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2">
-          <CheckCircle className="w-4 h-4" /> Inscrit
+        <div className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-sage py-3.5 font-display text-sm font-semibold text-brand-forest">
+          <CheckCircle className="h-4 w-4" aria-hidden="true" /> Vous êtes inscrit
         </div>
-        <Link href="/dashboard" className="text-xs text-center text-emerald-600 hover:underline">
+        <Link href="/dashboard" className="text-center text-sm font-medium text-brand-emerald hover:underline">
           Voir dans mon espace →
         </Link>
       </div>
@@ -47,24 +47,22 @@ export default function EventInscriptionButton({ eventId, price, isFull: initial
 
   if (isFull) {
     return (
-      <div className="w-full py-3.5 bg-red-50 border border-red-200 text-red-600 text-sm font-bold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
-        <Users className="w-4 h-4" /> Complet
+      <div className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-red-50 py-3.5 font-display text-sm font-semibold text-red-600">
+        <Users className="h-4 w-4" aria-hidden="true" /> Complet
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {spotsLeft !== null && spotsLeft <= 5 && (
-        <p className="text-xs text-amber-600 font-semibold text-center">
-          ⚠ Plus que {spotsLeft} place{spotsLeft > 1 ? 's' : ''} !
+        <p className="rounded-full bg-amber-50 px-4 py-2 text-center text-xs font-semibold text-amber-700">
+          Plus que {spotsLeft} place{spotsLeft > 1 ? 's' : ''} !
         </p>
       )}
-      <Link
-        href={`/evenements/${eventId}/inscription`}
-        className="w-full py-3.5 bg-[#0F291E] text-white text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-emerald-900 transition text-center shadow-lg shadow-emerald-900/20"
-      >
+      <Link href={`/evenements/${eventId}/inscription`} className="btn-primary w-full justify-between">
         {price === 0 ? "S'inscrire gratuitement" : `S'inscrire — ${price.toFixed(2)} €`}
+        <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
       </Link>
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Lock, Check, AlertCircle } from 'lucide-react';
+import { Spinner } from '@/components/ui';
 import { apiFetch } from '@/lib/api';
 
 interface UserProfile {
@@ -92,141 +93,105 @@ export default function ProfilPage() {
   };
 
   if (!profile) {
-    return <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center text-[#0F291E] font-medium">Chargement du profil...</div>;
+    return <Spinner label="Chargement du profil…" />;
   }
 
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || profile.email.charAt(0).toUpperCase();
+
   return (
-    <main className="min-h-screen bg-[#FBFBFA] text-[#1C2C24] font-sans antialiased">
-      <section className="max-w-3xl mx-auto px-6 py-12">
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/dashboard" className="text-sm text-gray-400 hover:text-[#0F291E] transition">← Mon espace</Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-sm font-bold text-[#0F291E]">Mon profil</span>
-        </div>
-
-        <h1 className="text-4xl font-black text-[#0F291E] tracking-tight mb-10">Mon Profil</h1>
-
-        <div className="flex flex-col gap-8">
-
-          {/* Informations personnelles */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-                <User className="w-5 h-5 text-emerald-700" />
-              </div>
-              <h2 className="text-lg font-bold text-[#0F291E]">Informations personnelles</h2>
+    <div className="pb-8">
+      <section className="container-page pt-4">
+        <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 dark:bg-[#10231a]">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
+          <nav aria-label="Fil d'Ariane" className="relative flex items-center gap-2 text-sm text-brand-muted">
+            <Link href="/dashboard" className="font-medium transition hover:text-brand-emerald">Mon espace</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" className="font-medium text-brand-forest">Mon profil</span>
+          </nav>
+          <div className="relative mt-6 flex items-center gap-5">
+            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-forest font-display text-2xl font-semibold text-white ring-8 ring-white/70 dark:ring-white/10" aria-hidden="true">
+              {initials}
+            </span>
+            <div>
+              <h1 className="font-display text-3xl font-semibold text-brand-forest sm:text-4xl">Mon profil</h1>
+              <p className="mt-1 text-brand-muted">{profile.email}</p>
             </div>
-
-            {profileMsg && (
-              <div className={`mb-5 p-3 rounded-xl text-sm font-medium flex items-center gap-2 ${profileMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                {profileMsg.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                {profileMsg.text}
-              </div>
-            )}
-
-            <form onSubmit={saveProfile} className="space-y-5">
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prénom</label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition text-sm"
-                  placeholder="Votre prénom"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Nom</label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition text-sm"
-                  placeholder="Votre nom"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
-                <input
-                  type="email"
-                  value={profile.email}
-                  disabled
-                  className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-400 text-sm cursor-not-allowed"
-                />
-                <p className="text-[11px] text-gray-400 mt-1.5">L'adresse email ne peut pas être modifiée.</p>
-              </div>
-              <button
-                type="submit"
-                disabled={isSavingProfile}
-                className="px-6 py-2.5 bg-[#0F291E] text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-emerald-900 transition disabled:opacity-60"
-              >
-                {isSavingProfile ? 'Sauvegarde...' : 'Sauvegarder'}
-              </button>
-            </form>
           </div>
-
-          {/* Changement de mot de passe */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
-                <Lock className="w-5 h-5 text-amber-600" />
-              </div>
-              <h2 className="text-lg font-bold text-[#0F291E]">Changer le mot de passe</h2>
-            </div>
-
-            {passwordMsg && (
-              <div className={`mb-5 p-3 rounded-xl text-sm font-medium flex items-center gap-2 ${passwordMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                {passwordMsg.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                {passwordMsg.text}
-              </div>
-            )}
-
-            <form onSubmit={savePassword} className="space-y-5">
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Mot de passe actuel</label>
-                <input
-                  type="password"
-                  required
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition text-sm"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Nouveau mot de passe</label>
-                <input
-                  type="password"
-                  required
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition text-sm"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Confirmer le nouveau mot de passe</label>
-                <input
-                  type="password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition text-sm"
-                  placeholder="••••••••"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSavingPassword}
-                className="px-6 py-2.5 bg-amber-600 text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-amber-700 transition disabled:opacity-60"
-              >
-                {isSavingPassword ? 'Changement...' : 'Changer le mot de passe'}
-              </button>
-            </form>
-          </div>
-
         </div>
       </section>
-    </main>
+
+      <section className="container-page mt-10 grid items-start gap-6 lg:grid-cols-2">
+        {/* Informations personnelles */}
+        <div className="card p-7">
+          <h2 className="flex items-center gap-3 font-display text-lg font-semibold text-brand-forest">
+            <span className="icon-tile h-10 w-10 rounded-xl" aria-hidden="true"><User className="h-5 w-5" /></span>
+            Informations personnelles
+          </h2>
+
+          {profileMsg && <Message msg={profileMsg} />}
+
+          <form onSubmit={saveProfile} className="mt-6 space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label className="field-label" htmlFor="firstName">Prénom</label>
+                <input id="firstName" type="text" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="field" placeholder="Votre prénom" />
+              </div>
+              <div>
+                <label className="field-label" htmlFor="lastName">Nom</label>
+                <input id="lastName" type="text" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} className="field" placeholder="Votre nom" />
+              </div>
+            </div>
+            <div>
+              <label className="field-label" htmlFor="email">Email</label>
+              <input id="email" type="email" value={profile.email} disabled aria-describedby="email-help" className="field cursor-not-allowed opacity-60" />
+              <p id="email-help" className="mt-2 text-xs text-brand-muted">L&apos;adresse email ne peut pas être modifiée.</p>
+            </div>
+            <button type="submit" disabled={isSavingProfile} className="btn-primary-plain">
+              {isSavingProfile ? 'Sauvegarde…' : 'Enregistrer'}
+            </button>
+          </form>
+        </div>
+
+        {/* Mot de passe */}
+        <div className="card p-7">
+          <h2 className="flex items-center gap-3 font-display text-lg font-semibold text-brand-forest">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700" aria-hidden="true"><Lock className="h-5 w-5" /></span>
+            Changer le mot de passe
+          </h2>
+
+          {passwordMsg && <Message msg={passwordMsg} />}
+
+          <form onSubmit={savePassword} className="mt-6 space-y-5">
+            <div>
+              <label className="field-label" htmlFor="currentPassword">Mot de passe actuel</label>
+              <input id="currentPassword" type="password" required autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="field" placeholder="••••••••" />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="newPassword">Nouveau mot de passe</label>
+              <input id="newPassword" type="password" required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="field" placeholder="••••••••" />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="confirmPassword">Confirmer le nouveau mot de passe</label>
+              <input id="confirmPassword" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
+            </div>
+            <button type="submit" disabled={isSavingPassword} className="btn-primary-plain">
+              {isSavingPassword ? 'Changement…' : 'Changer le mot de passe'}
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Message({ msg }: { msg: { type: 'success' | 'error'; text: string } }) {
+  return (
+    <p
+      role={msg.type === 'error' ? 'alert' : 'status'}
+      className={`mt-5 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium ${msg.type === 'success' ? 'bg-brand-sage text-brand-forest' : 'bg-red-50 text-red-700'}`}
+    >
+      {msg.type === 'success' ? <Check className="h-4 w-4" aria-hidden="true" /> : <AlertCircle className="h-4 w-4" aria-hidden="true" />}
+      {msg.text}
+    </p>
   );
 }

@@ -3,8 +3,9 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, MapPin, Users, Tag, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Users, Tag, CheckCircle, Loader2 } from 'lucide-react';
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
+import { ErrorState, PageHeader, Spinner } from '@/components/ui';
 import { apiFetch } from '@/lib/api';
 
 interface Event {
@@ -85,18 +86,16 @@ export default function InscriptionPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <Spinner label="Chargement de l'événement…" />;
   }
 
   if (error && !event) {
     return (
-      <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">{error}</p>
-        <Link href="/evenements" className="px-5 py-2.5 bg-[#0F291E] text-white text-xs font-bold uppercase rounded-full">Retour aux événements</Link>
+      <div className="container-page py-24">
+        <ErrorState message={error} />
+        <div className="mt-6 text-center">
+          <Link href="/evenements" className="btn-secondary">Retour aux événements</Link>
+        </div>
       </div>
     );
   }
@@ -104,137 +103,115 @@ export default function InscriptionPage() {
   if (!event) return null;
 
   const isFree = event.price === 0;
-  const imageUrl = event.imageFile
-    ? `http://localhost:8000/uploads/images/${event.imageFile}`
-    : event.imageUrl ?? null;
 
   return (
-    <main className="min-h-screen bg-[#FBFBFA] text-[#1C2C24] font-sans antialiased pb-20">
+    <div className="pb-8">
       <Suspense fallback={null}>
         <PaymentSuccessPopup />
       </Suspense>
 
-      {/* Hero mini */}
-      <section className="bg-[#0F291E] text-white py-14 px-6 relative overflow-hidden">
-        {imageUrl && (
-          <div className="absolute inset-0">
-            <img src={imageUrl} alt="" className="w-full h-full object-cover opacity-10" />
+      <PageHeader eyebrow={isFree ? 'Inscription gratuite' : 'Réservation'} title={event.title}>
+        <Link href={`/evenements/${id}`} className="btn-ghost">← Retour à l&apos;événement</Link>
+      </PageHeader>
+
+      <section className="container-page mt-12">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6">
+          {/* Récapitulatif */}
+          <div className="card p-7">
+            <h2 className="font-display text-lg font-semibold text-brand-forest">Récapitulatif</h2>
+            <ul className="mt-5 space-y-4 text-sm text-brand-muted">
+              <Row icon={<Calendar className="h-4 w-4" />}>
+                <span className="capitalize text-brand-ink">{formatDate(event.startDate)}</span>
+                <span className="block text-xs">{formatTime(event.startDate)} – {formatTime(event.endDate)}</span>
+              </Row>
+              <Row icon={<MapPin className="h-4 w-4" />}>{event.location}</Row>
+              {spotsLeft !== null ? (
+                <Row icon={<Users className="h-4 w-4" />}>
+                  <span className={isFull ? 'font-semibold text-red-600' : ''}>
+                    {isFull ? 'Événement complet' : `${spotsLeft} place${spotsLeft > 1 ? 's' : ''} restante${spotsLeft > 1 ? 's' : ''}`}
+                  </span>
+                </Row>
+              ) : event.capacity ? (
+                <Row icon={<Users className="h-4 w-4" />}>{event.capacity} places</Row>
+              ) : null}
+              <Row icon={<Tag className="h-4 w-4" />}>
+                <span className="font-display text-base font-semibold text-brand-forest">{isFree ? 'Gratuit' : `${event.price.toFixed(2)} €`}</span>
+              </Row>
+            </ul>
           </div>
-        )}
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <Link href={`/evenements/${id}`} className="inline-flex items-center gap-1.5 text-emerald-300/70 text-sm mb-4 hover:text-white transition">
-            ← Retour à l'événement
-          </Link>
-          <h1 className="text-2xl md:text-4xl font-black tracking-tight">{event.title}</h1>
+
+          {isFull && !alreadyRegistered && (
+            <Notice tone="red" icon={<Users className="h-6 w-6" />} title="Événement complet">
+              Il n&apos;y a plus de places disponibles pour cet événement.
+            </Notice>
+          )}
+
+          {alreadyRegistered && (
+            <Notice tone="green" icon={<CheckCircle className="h-6 w-6" />} title="Vous êtes déjà inscrit !">
+              Votre inscription à cet événement est déjà enregistrée.
+            </Notice>
+          )}
+
+          {success && (
+            <div className="card flex flex-col items-center p-10 text-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
+                <CheckCircle className="h-8 w-8" aria-hidden="true" />
+              </span>
+              <p className="mt-4 font-display text-2xl font-semibold text-brand-forest">Inscription confirmée !</p>
+              <p className="mt-2 text-sm text-brand-muted">Un email de confirmation vous a été envoyé. À bientôt !</p>
+              <Link href="/dashboard" className="btn-primary mt-6">
+                Voir mon espace
+                <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+              </Link>
+            </div>
+          )}
+
+          {error && (
+            <p role="alert" className="rounded-2xl bg-red-50 px-5 py-4 text-sm font-medium text-red-700">{error}</p>
+          )}
+
+          {!success && !alreadyRegistered && !isFull && (
+            <>
+              <button onClick={handleRegister} disabled={submitting} className="btn-primary w-full justify-between py-4">
+                {submitting ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    {isFree ? 'Inscription en cours…' : 'Redirection vers le paiement…'}
+                  </span>
+                ) : (
+                  isFree ? 'Confirmer mon inscription gratuite' : `Procéder au paiement — ${event.price.toFixed(2)} €`
+                )}
+                <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+              </button>
+              <p className="-mt-2 text-center text-xs text-brand-muted">
+                {isFree ? 'Un email de confirmation vous sera envoyé.' : 'Paiement 100 % sécurisé via Stripe.'}
+              </p>
+            </>
+          )}
         </div>
       </section>
+    </div>
+  );
+}
 
-      <section className="max-w-3xl mx-auto px-6 py-12 flex flex-col gap-6">
+function Row({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <li className="flex items-center gap-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-mint text-brand-emerald dark:bg-white/5" aria-hidden="true">{icon}</span>
+      <span>{children}</span>
+    </li>
+  );
+}
 
-        {/* Récapitulatif */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-[#0F291E] mb-4 uppercase tracking-wider">Récapitulatif</h2>
-          <ul className="space-y-3 text-sm text-gray-600">
-            <li className="flex items-start gap-3">
-              <Calendar className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-              <span>
-                {formatDate(event.startDate)}<br />
-                <span className="text-gray-400">{formatTime(event.startDate)} – {formatTime(event.endDate)}</span>
-              </span>
-            </li>
-            <li className="flex items-center gap-3">
-              <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              {event.location}
-            </li>
-            {event.capacity && (
-              <li className="flex items-center gap-3">
-                <Users className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                {event.capacity} places disponibles
-              </li>
-            )}
-            <li className="flex items-center gap-3 font-bold text-[#0F291E]">
-              <Tag className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              {isFree ? 'Gratuit' : `${event.price.toFixed(2)} €`}
-            </li>
-            {spotsLeft !== null && (
-              <li className={`flex items-center gap-3 text-sm font-semibold ${isFull ? 'text-red-600' : 'text-gray-600'}`}>
-                <Users className="w-4 h-4 flex-shrink-0" />
-                {isFull ? 'Événement complet' : `${spotsLeft} place${spotsLeft > 1 ? 's' : ''} restante${spotsLeft > 1 ? 's' : ''}`}
-              </li>
-            )}
-          </ul>
-        </div>
-
-        {/* Événement complet */}
-        {isFull && !alreadyRegistered && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 flex items-center gap-4">
-            <Users className="w-7 h-7 text-red-500 flex-shrink-0" />
-            <div>
-              <p className="font-bold text-red-700">Événement complet</p>
-              <p className="text-sm text-red-600 mt-1">Il n'y a plus de places disponibles pour cet événement.</p>
-            </div>
-          </div>
-        )}
-
-        {/* État : déjà inscrit */}
-        {alreadyRegistered && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 flex items-center gap-4">
-            <CheckCircle className="w-7 h-7 text-emerald-600 flex-shrink-0" />
-            <div>
-              <p className="font-bold text-emerald-800">Vous êtes déjà inscrit !</p>
-              <p className="text-sm text-emerald-700 mt-1">Votre inscription à cet événement est déjà enregistrée.</p>
-            </div>
-          </div>
-        )}
-
-        {/* État : succès inscription gratuite */}
-        {success && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 flex flex-col items-center gap-4 text-center">
-            <CheckCircle className="w-10 h-10 text-emerald-600" />
-            <div>
-              <p className="text-xl font-black text-emerald-800">Inscription confirmée !</p>
-              <p className="text-sm text-emerald-700 mt-1">Un email de confirmation vous a été envoyé. À bientôt !</p>
-            </div>
-            <Link href="/dashboard" className="mt-2 px-6 py-3 bg-[#0F291E] text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-emerald-900 transition">
-              Voir mon espace
-            </Link>
-          </div>
-        )}
-
-        {/* Erreur */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm font-medium">
-            {error}
-          </div>
-        )}
-
-        {/* Bouton d'action */}
-        {!success && !alreadyRegistered && !isFull && (
-          <button
-            onClick={handleRegister}
-            disabled={submitting}
-            className={`w-full py-4 text-white text-sm font-bold uppercase tracking-wider rounded-xl transition shadow-md ${
-              submitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#0F291E] hover:bg-emerald-900'
-            }`}
-          >
-            {submitting ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {isFree ? 'Inscription en cours...' : 'Redirection vers le paiement...'}
-              </span>
-            ) : (
-              isFree ? "Confirmer mon inscription gratuite" : `Procéder au paiement — ${event.price.toFixed(2)} €`
-            )}
-          </button>
-        )}
-
-        {!success && !alreadyRegistered && !isFull && (
-          <p className="text-xs text-center text-gray-400">
-            {isFree ? 'Un email de confirmation vous sera envoyé.' : 'Paiement 100 % sécurisé via Stripe.'}
-          </p>
-        )}
-
-      </section>
-    </main>
+function Notice({ tone, icon, title, children }: { tone: 'red' | 'green'; icon: React.ReactNode; title: string; children: React.ReactNode }) {
+  const styles = tone === 'red' ? 'bg-red-50 text-red-700' : 'bg-brand-sage text-brand-forest';
+  return (
+    <div className={`flex items-center gap-4 rounded-3xl p-6 ${styles}`}>
+      <span className="shrink-0" aria-hidden="true">{icon}</span>
+      <div>
+        <p className="font-display font-semibold">{title}</p>
+        <p className="mt-1 text-sm opacity-90">{children}</p>
+      </div>
+    </div>
   );
 }

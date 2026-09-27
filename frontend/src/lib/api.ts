@@ -8,6 +8,19 @@
 
 export const API_URL = (process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000').replace(/\/$/, '');
 
+/**
+ * URL du backend pour les requêtes faites CÔTÉ SERVEUR (composants serveur Next).
+ * Dans Docker, « localhost » désigne le conteneur frontend lui-même : il faut passer par
+ * le nom du service (docker-compose définit BACKEND_INTERNAL_URL=http://backend:8000).
+ * Hors Docker (npm run dev sur la machine), l'URL publique suffit.
+ */
+export const SERVER_API_URL = (process.env.BACKEND_INTERNAL_URL ?? API_URL).replace(/\/$/, '');
+
+/** URL publique d'une image téléversée dans le back-office */
+export function uploadUrl(fileName: string): string {
+  return `${API_URL}/uploads/images/${fileName}`;
+}
+
 /** Événement navigateur émis quand l'état de connexion change (login, logout, session expirée) */
 export const AUTH_EVENT = 'esic:auth-changed';
 
