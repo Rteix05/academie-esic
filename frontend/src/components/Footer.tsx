@@ -67,7 +67,11 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-center text-xs text-emerald-100/80 md:flex-row md:text-left">
-            <p>© {year} Académie E.S.I.C. — Tous droits réservés.</p>
+            <p>
+              © {year} Académie E.S.I.C. — Tous droits réservés.
+              <span className="mx-2" aria-hidden="true">·</span>
+              <span>Version {process.env.APP_VERSION}</span>
+            </p>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <li><Link href="/mentions-legales" className="underline-offset-4 transition hover:text-white hover:underline">Mentions légales</Link></li>
               <li><Link href="/politique-de-confidentialite" className="underline-offset-4 transition hover:text-white hover:underline">Confidentialité</Link></li>
