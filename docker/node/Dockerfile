@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ WORKDIR /app
 COPY frontend/package*.json ./
 
 # Installer les dépendances au build pour profiter du cache
-RUN npm ci --legacy-peer-deps || true
+RUN npm ci
 
 # Copier le reste des sources (en dev le volume les remplace)
 COPY frontend/ ./

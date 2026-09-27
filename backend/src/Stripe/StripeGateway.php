@@ -31,6 +31,12 @@ class StripeGateway
      */
     public function createCheckoutSession(array $params): Session
     {
+        // Facturation automatique : Stripe génère une facture PDF (numérotée) pour chaque paiement
+        // et l'envoie au client par email (Dashboard Stripe → Paramètres → Emails clients)
+        if (($params['mode'] ?? null) === 'payment') {
+            $params['invoice_creation'] ??= ['enabled' => true];
+        }
+
         return $this->client()->checkout->sessions->create($params);
     }
 

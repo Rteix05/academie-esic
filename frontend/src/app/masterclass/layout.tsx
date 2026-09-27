@@ -1,0 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Masterclass",
+  description: "Masterclass premium en vidéo et PDF : des enseignements approfondis par nos intervenants, accessibles à vie après achat.",
+  alternates: { canonical: '/masterclass' },
+};
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
+}

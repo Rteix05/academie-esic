@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { DM_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import ConditionalNavbar from '@/components/ConditionalNavbar';
 import ConditionalFooter from '@/components/ConditionalFooter';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Titres, navigation, boutons : géométrique et arrondie
+const poppins = Poppins({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+// Texte courant : même famille visuelle, plus lisible en paragraphe
+const dmSans = DM_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
 });
@@ -29,9 +28,6 @@ export const metadata: Metadata = {
   description:
     "Équipement · Spiritualité · Identité · Croissance. Formations professionnelles et masterclass pour fortifier votre marche et approfondir votre connaissance.",
   metadataBase: new URL("https://academie-esic.fr"),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -39,20 +35,12 @@ export const metadata: Metadata = {
     siteName: 'Académie E.S.I.C.',
     title: 'Académie E.S.I.C. — Formations & Masterclass',
     description: 'Équipement · Spiritualité · Identité · Croissance. Formations et masterclass pour approfondir votre foi.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Académie E.S.I.C.',
-      },
-    ],
+    // Image de partage : générée par app/opengraph-image.tsx
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Académie E.S.I.C. — Formations & Masterclass',
     description: 'Équipement · Spiritualité · Identité · Croissance.',
-    images: ['/og-image.png'],
   },
   robots: {
     index: true,
@@ -70,9 +58,9 @@ export default function RootLayout({
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
+      className={`${poppins.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col font-sans">
         <ThemeProvider>
           {/* Lien d'évitement — RGAA critère 12.7 */}
           <a href="#contenu-principal" className="skip-link">
