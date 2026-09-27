@@ -1,9 +1,11 @@
 name: CI
 
+# Gitflow : main (production), develop (intégration), feature/*, release/*, hotfix/*
 on:
   push:
-    branches: [main]
+    branches: [main, develop, 'feature/**', 'release/**', 'hotfix/**']
   pull_request:
+    branches: [main, develop]
 
 concurrency:
   group: ci-${{ github.ref }}
