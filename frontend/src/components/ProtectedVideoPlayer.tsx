@@ -123,7 +123,7 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
         style={{ top: wmPos.top, left: wmPos.left, transform: 'translate(-50%, -50%)' }}
         aria-hidden="true"
       >
-        <span className="select-none text-[10px] font-bold uppercase tracking-[0.2em] text-white/25" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>
+        <span className="select-none text-[length:calc(10px*var(--text-scale,1))] font-bold uppercase tracking-[0.2em] text-white/25" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>
           {watermarkText}
         </span>
       </div>
@@ -155,7 +155,7 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
             rel="noopener noreferrer"
             className="btn mt-6 bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5"
           >
-            Regarder la vidéo
+            Regarder la vidéo<span className="sr-only"> (nouvelle fenêtre)</span>
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-emerald text-white"><ExternalLink className="h-4 w-4" aria-hidden="true" /></span>
           </a>
         </div>

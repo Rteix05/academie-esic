@@ -17,7 +17,7 @@ export default function PolitiqueConfidentialitePage() {
           <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : juillet 2026</p>
         </div>
 
-        <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[15px] leading-relaxed text-brand-muted sm:p-12">
+        <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
 
           <section>
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Responsable du traitement</h2>
@@ -113,7 +113,7 @@ export default function PolitiqueConfidentialitePage() {
               Pour exercer ces droits, contactez-nous à :{' '}
               <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>.
               Vous pouvez également introduire une réclamation auprès de la{' '}
-              <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-emerald underline underline-offset-4">CNIL</a>.
+              <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-emerald underline underline-offset-4">CNIL<span className="sr-only"> (nouvelle fenêtre)</span></a>.
             </p>
           </section>
 

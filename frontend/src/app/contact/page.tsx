@@ -63,13 +63,14 @@ export default function ContactPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              <p className="text-sm text-brand-muted">Les champs suivis d'un astérisque (*) sont obligatoires.</p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="field-label" htmlFor="name">Nom complet</label>
+                  <label className="field-label" htmlFor="name">Nom complet<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
                   <input id="name" type="text" required autoComplete="name" className="field" placeholder="Jean Dupont" />
                 </div>
                 <div>
-                  <label className="field-label" htmlFor="email">Email</label>
+                  <label className="field-label" htmlFor="email">Email<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
                   <input id="email" type="email" required autoComplete="email" className="field" placeholder="jean@exemple.com" />
                 </div>
               </div>
@@ -85,7 +86,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="field-label" htmlFor="message">Message</label>
+                <label className="field-label" htmlFor="message">Message<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
                 <textarea id="message" required rows={6} className="field resize-none" placeholder="Comment pouvons-nous vous aider ?" />
               </div>
 

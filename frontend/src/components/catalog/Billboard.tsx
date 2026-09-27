@@ -23,11 +23,11 @@ export default function Billboard({ item, eyebrow, catalogLabel }: { item: Catal
             {item.badge && <span className="chip bg-amber-300 text-brand-forest">{item.badge}</span>}
           </div>
 
-          <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.1] sm:text-5xl lg:text-6xl">
+          <h2 className="mt-5 font-display text-4xl font-semibold leading-[1.1] sm:text-5xl lg:text-6xl">
             <ViewTransition name={titleTransitionName(item)} share="morph" default="none">
               <span>{item.title}</span>
             </ViewTransition>
-          </h1>
+          </h2>
 
           {item.summary && <p className="mt-5 line-clamp-3 max-w-xl text-base leading-relaxed text-emerald-50/85 sm:text-lg">{item.summary}</p>}
 

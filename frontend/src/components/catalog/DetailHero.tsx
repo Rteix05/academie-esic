@@ -55,12 +55,13 @@ export default function DetailHero({
 
             <dl className="mt-7 flex flex-wrap gap-3">
               {facts.map((fact) => (
-                <div key={fact.label} className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-2.5 backdrop-blur">
-                  <span className="text-emerald-300" aria-hidden="true">{fact.icon}</span>
-                  <div>
-                    <dt className="text-[11px] text-emerald-100/70">{fact.label}</dt>
-                    <dd className="font-display text-sm font-semibold text-white">{fact.value}</dd>
-                  </div>
+                // dt / dd enfants directs du groupe (structure de liste de définitions valide)
+                <div key={fact.label} className="relative rounded-2xl bg-white/10 py-2.5 pl-12 pr-4 backdrop-blur">
+                  <dt className="text-xs text-emerald-50">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300" aria-hidden="true">{fact.icon}</span>
+                    {fact.label}
+                  </dt>
+                  <dd className="font-display text-sm font-semibold text-white">{fact.value}</dd>
                 </div>
               ))}
             </dl>

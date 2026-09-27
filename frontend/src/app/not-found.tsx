@@ -7,7 +7,7 @@ export default function NotFound() {
       <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-20 text-center dark:bg-[#10231a]">
         <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
         <div className="relative">
-          <p className="font-display text-8xl font-semibold text-brand-sage dark:text-white/10 sm:text-9xl" aria-hidden="true">404</p>
+          <p className="font-display text-8xl font-semibold text-emerald-600 sm:text-9xl" aria-hidden="true">404</p>
           <span className="mx-auto -mt-10 flex h-20 w-20 items-center justify-center rounded-full bg-brand-forest text-white shadow-float">
             <Compass className="h-9 w-9" aria-hidden="true" />
           </span>

@@ -84,7 +84,7 @@ export default async function HomePage() {
                 École du Savoir et de l&apos;Intelligence Chrétienne
               </span>
 
-              <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] text-brand-forest sm:text-5xl lg:text-[3.4rem]">
+              <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] text-brand-forest sm:text-5xl lg:text-[length:calc(3.4rem*var(--text-scale,1))]">
                 Former des disciples accomplis, prêts à{' '}
                 <span className="relative text-brand-emerald sm:whitespace-nowrap">
                   servir avec excellence
@@ -132,14 +132,14 @@ export default async function HomePage() {
               </figure>
 
               {/* Étiquettes */}
-              <div className="absolute bottom-16 left-0 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-float [animation-delay:1.5s] animate-float dark:bg-[#18291e]">
+              <div className="absolute bottom-16 left-0 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-float [animation-delay:0.5s] animate-float dark:bg-[#18291e]">
                 <span className="icon-tile h-10 w-10 rounded-xl"><Heart className="h-4 w-4" aria-hidden="true" /></span>
                 <span>
                   <span className="block font-display text-sm font-semibold text-brand-forest">Vie de disciple</span>
                   <span className="block text-xs text-brand-muted">Un caractère transformé</span>
                 </span>
               </div>
-              <div className="absolute bottom-0 right-6 flex items-center gap-3 rounded-2xl bg-brand-forest px-4 py-3 text-white shadow-float [animation-delay:3s] animate-float">
+              <div className="absolute bottom-0 right-6 flex items-center gap-3 rounded-2xl bg-brand-forest px-4 py-3 text-white shadow-float [animation-delay:1s] animate-float">
                 <GraduationCap className="h-5 w-5 text-emerald-300" aria-hidden="true" />
                 <span className="font-display text-sm font-semibold">Études bibliques</span>
               </div>

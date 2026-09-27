@@ -3,7 +3,9 @@ import { DM_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import ConditionalNavbar from '@/components/ConditionalNavbar';
 import ConditionalFooter from '@/components/ConditionalFooter';
+import Script from 'next/script';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { A11Y_BOOT_SCRIPT, A11yProvider } from '@/components/A11yPreferences';
 
 // Titres, navigation, boutons : géométrique et arrondie
 const poppins = Poppins({
@@ -61,7 +63,10 @@ export default function RootLayout({
       className={`${poppins.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        {/* Préférences d'affichage (taille du texte, gras) appliquées avant l'hydratation */}
+        <Script id="a11y-prefs" strategy="beforeInteractive">{A11Y_BOOT_SCRIPT}</Script>
         <ThemeProvider>
+        <A11yProvider>
           {/* Lien d'évitement — RGAA critère 12.7 */}
           <a href="#contenu-principal" className="skip-link">
             Aller au contenu principal
@@ -78,6 +83,7 @@ export default function RootLayout({
           </main>
 
           <ConditionalFooter />
+        </A11yProvider>
         </ThemeProvider>
       </body>
     </html>

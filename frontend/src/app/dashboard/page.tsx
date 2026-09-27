@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, Calendar, MapPin } from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt } from 'lucide-react';
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import { Spinner } from '@/components/ui';
 import { apiFetch, fetchMe } from '@/lib/api';
@@ -44,21 +44,11 @@ function formatAmount(amount: number, currency: string): string {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(amount);
 }
 
-interface EventRegistration {
-  id: number;
-  title: string;
-  location: string;
-  startDate: string;
-  price: number;
-  status: string;
-}
-
 export default function DashboardPage() {
   const router = useRouter();
   const [mesFormations, setMesFormations] = useState<Formation[]>([]);
   const [mesMasterclasses, setMesMasterclasses] = useState<MasterclassPurchase[]>([]);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
-  const [mesEvenements, setMesEvenements] = useState<EventRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
@@ -80,13 +70,11 @@ export default function DashboardPage() {
       load('/api/mes-formations'),
       load('/api/mes-masterclasses'),
       load('/api/payment-history'),
-      load('/api/mes-evenements'),
     ])
-      .then(([formations, masterclasses, history, evenements]) => {
+      .then(([formations, masterclasses, history]) => {
         setMesFormations(Array.isArray(formations) ? formations : formations['hydra:member'] || []);
         setMesMasterclasses(Array.isArray(masterclasses) ? masterclasses : []);
         setPaymentHistory(Array.isArray(history) ? history : []);
-        setMesEvenements(Array.isArray(evenements) ? evenements : []);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -107,7 +95,6 @@ export default function DashboardPage() {
   const stats = [
     { icon: GraduationCap, value: mesFormations.length, label: 'Formations' },
     { icon: Video, value: mesMasterclasses.length, label: 'Masterclasses' },
-    { icon: Calendar, value: mesEvenements.length, label: 'Événements' },
   ];
 
   return (
@@ -124,7 +111,7 @@ export default function DashboardPage() {
             <div>
               <span className="eyebrow bg-white dark:bg-white/5">Mon espace</span>
               <h1 className="mt-4 font-display text-3xl font-semibold text-brand-forest sm:text-4xl">
-                Bonjour{firstName ? ` ${firstName}` : ''} 👋
+                Bonjour{firstName ? ` ${firstName}` : ''} <span aria-hidden="true">👋</span>
               </h1>
               <p className="mt-2 text-brand-muted">Reprenez votre apprentissage là où vous l&apos;avez laissé.</p>
             </div>
@@ -149,8 +136,7 @@ export default function DashboardPage() {
       <section className="container-page mt-10">
         {error && <p role="alert" className="mb-8 rounded-2xl bg-red-50 px-5 py-4 text-sm font-medium text-red-700">{error}</p>}
 
-        <div className="grid items-start gap-6 lg:grid-cols-3">
-          <div className="flex flex-col gap-6 lg:col-span-2">
+        <div className="grid items-start gap-6 lg:grid-cols-2">
             {/* Formations */}
             <Panel icon={<GraduationCap className="h-5 w-5" />} title="Mes cursus actifs">
               {mesFormations.length === 0 ? (
@@ -166,7 +152,7 @@ export default function DashboardPage() {
                           <h3 className="truncate font-display font-semibold text-brand-forest">{formation.title}</h3>
                         </div>
                       </div>
-                      <Link href={`/dashboard/cours/${formation.id}`} className="btn-primary shrink-0 py-2 pl-4">
+                      <Link href={`/dashboard/cours/${formation.id}`} className="btn-primary shrink-0 py-2 pl-4" aria-label={`Reprendre la formation ${formation.title}`}>
                         Reprendre
                         <span className="btn-icon h-7 w-7"><ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span>
                       </Link>
@@ -197,12 +183,12 @@ export default function DashboardPage() {
                           {hasVideo && mc.video && (
                             // Lecture sur le site, dans le lecteur de la fiche masterclass
                             <Link href={`/masterclass/${mc.id}#acces`} className="btn-primary-plain py-2 text-xs">
-                              <Video className="h-4 w-4" aria-hidden="true" /> Regarder la vidéo
+                              <Video className="h-4 w-4" aria-hidden="true" /> Regarder la vidéo<span className="sr-only"> : {mc.title}</span>
                             </Link>
                           )}
                           {hasPdf && (
                             <Link href={`/masterclass/${mc.id}`} className="btn-secondary py-2 text-xs">
-                              <FileText className="h-4 w-4" aria-hidden="true" /> Accéder au PDF
+                              <FileText className="h-4 w-4" aria-hidden="true" /> Accéder au PDF<span className="sr-only"> : {mc.title}</span>
                             </Link>
                           )}
                         </div>
@@ -212,38 +198,6 @@ export default function DashboardPage() {
                 </ul>
               )}
             </Panel>
-          </div>
-
-          {/* Événements */}
-          <Panel icon={<Calendar className="h-5 w-5" />} title="Mes événements">
-            {mesEvenements.length === 0 ? (
-              <EmptyPanel text="Vous n'êtes inscrit à aucun événement." href="/evenements" cta="Voir l'agenda" />
-            ) : (
-              <ul className="space-y-3">
-                {mesEvenements.map((ev) => (
-                  <li key={ev.id}>
-                    <Link href={`/evenements/${ev.id}`} className="group flex items-center gap-4 rounded-3xl bg-brand-cream p-4 transition hover:bg-brand-mint dark:bg-white/5">
-                      <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-white text-center shadow-card dark:bg-white/10">
-                        <span className="font-display text-lg font-semibold leading-none text-brand-forest">
-                          {new Date(ev.startDate).toLocaleDateString('fr-FR', { day: '2-digit' })}
-                        </span>
-                        <span className="mt-0.5 text-[10px] font-medium uppercase text-brand-emerald">
-                          {new Date(ev.startDate).toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
-                        </span>
-                      </span>
-                      <span className="min-w-0">
-                        <span className={`chip mb-1 ${ev.status === 'paid' ? 'bg-amber-100 text-amber-800' : 'bg-brand-sage'}`}>
-                          {ev.status === 'paid' ? 'Payant' : ev.status === 'pending' ? 'Paiement en attente' : 'Gratuit'}
-                        </span>
-                        <span className="block truncate font-display text-sm font-semibold text-brand-forest group-hover:text-brand-emerald">{ev.title}</span>
-                        <span className="flex items-center gap-1 text-xs text-brand-muted"><MapPin className="h-3 w-3" aria-hidden="true" /> {ev.location}</span>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
         </div>
 
         {/* Historique des paiements */}
@@ -254,12 +208,13 @@ export default function DashboardPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
+                  <caption className="sr-only">Historique de vos paiements</caption>
                   <thead>
                     <tr className="text-left text-xs text-brand-muted">
-                      <th className="px-4 pb-3 font-medium">Achat</th>
-                      <th className="px-4 pb-3 font-medium">Type</th>
-                      <th className="px-4 pb-3 font-medium">Montant payé</th>
-                      <th className="px-4 pb-3 font-medium">Date</th>
+                      <th scope="col" className="px-4 pb-3 font-medium">Achat</th>
+                      <th scope="col" className="px-4 pb-3 font-medium">Type</th>
+                      <th scope="col" className="px-4 pb-3 font-medium">Montant payé</th>
+                      <th scope="col" className="px-4 pb-3 font-medium">Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -267,7 +222,7 @@ export default function DashboardPage() {
                       <tr key={p.id} className="border-t border-brand-forest/5 dark:border-white/10">
                         <td className="px-4 py-4 font-medium text-brand-forest">
                           {p.label}
-                          {p.reference && <span className="block font-mono text-[11px] text-brand-muted">Réf. {p.reference}</span>}
+                          {p.reference && <span className="block font-mono text-[length:calc(11px*var(--text-scale,1))] text-brand-muted">Réf. {p.reference}</span>}
                         </td>
                         <td className="px-4 py-4"><span className="chip">{PRODUCT_LABELS[p.productType]}</span></td>
                         <td className="px-4 py-4 font-display font-semibold text-brand-forest">{formatAmount(p.amount, p.currency)}</td>

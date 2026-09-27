@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
+      // Événements temporairement retirés du site (le backend et les données sont conservés)
+      { source: '/evenements/:path*', destination: '/formations', permanent: false },
       // Le back-office EasyAdmin est servi par Symfony
       {
         source: '/admin/:path*',

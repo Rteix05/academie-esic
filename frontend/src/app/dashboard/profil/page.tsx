@@ -162,16 +162,17 @@ export default function ProfilPage() {
           {passwordMsg && <Message msg={passwordMsg} />}
 
           <form onSubmit={savePassword} className="mt-6 space-y-5">
+              <p className="text-sm text-brand-muted">Les champs suivis d'un astérisque (*) sont obligatoires.</p>
             <div>
-              <label className="field-label" htmlFor="currentPassword">Mot de passe actuel</label>
+              <label className="field-label" htmlFor="currentPassword">Mot de passe actuel<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
               <input id="currentPassword" type="password" required autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="field" placeholder="••••••••" />
             </div>
             <div>
-              <label className="field-label" htmlFor="newPassword">Nouveau mot de passe</label>
+              <label className="field-label" htmlFor="newPassword">Nouveau mot de passe<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
               <input id="newPassword" type="password" required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="field" placeholder="••••••••" />
             </div>
             <div>
-              <label className="field-label" htmlFor="confirmPassword">Confirmer le nouveau mot de passe</label>
+              <label className="field-label" htmlFor="confirmPassword">Confirmer le nouveau mot de passe<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
               <input id="confirmPassword" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
             </div>
             <button type="submit" disabled={isSavingPassword} className="btn-primary-plain">

@@ -41,6 +41,8 @@ export default function MasterclassPage() {
 
   return (
     <div className="overflow-x-hidden pb-8">
+      {/* Titre de la page, présent avant le chargement du catalogue (le hero porte un h2) */}
+      <h1 className="sr-only">Masterclass</h1>
       <Suspense fallback={null}>
         <PaymentSuccessPopup />
       </Suspense>

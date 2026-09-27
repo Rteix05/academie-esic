@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const etapes = [
   { icon: UserPlus,   titre: 'Créez votre compte',        desc: "Inscrivez-vous gratuitement en quelques secondes pour accéder à votre espace personnel." },
-  { icon: BookOpen,   titre: 'Choisissez votre parcours', desc: 'Formations structurées, masterclasses ou événements : suivez ce qui correspond à votre appel.' },
+  { icon: BookOpen,   titre: 'Choisissez votre parcours', desc: 'Formations structurées ou masterclasses : suivez ce qui correspond à votre appel.' },
   { icon: CreditCard, titre: 'Apprenez à votre rythme',   desc: 'Paiement sécurisé, accès à vie aux contenus acquis et suivi depuis votre tableau de bord.' },
 ];
 

@@ -99,6 +99,8 @@ export default function FormationsPage() {
 
   return (
     <div className="overflow-x-hidden pb-8">
+      {/* Titre de la page, présent avant le chargement du catalogue (le hero porte un h2) */}
+      <h1 className="sr-only">Formations</h1>
       {loading ? (
         <BillboardSkeleton />
       ) : featured ? (

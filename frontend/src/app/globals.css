@@ -24,12 +24,53 @@
 
   html {
     scroll-behavior: smooth;
+    /* Taille du texte choisie par l'utilisateur (outil d'accessibilité) */
+    --text-scale: 1;
   }
 
   body {
     background-color: rgb(var(--bg-page));
     color: rgb(var(--text-base));
+    font-size: calc(1rem * var(--text-scale));
+    /* Texte agrandi : les mots longs passent à la ligne au lieu de déborder */
+    overflow-wrap: break-word;
     transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3 {
+    hyphens: auto;
+  }
+
+  /* ─── Préférences d'affichage (outil d'accessibilité) ─── */
+  html.a11y-bold-links a {
+    font-weight: 700 !important;
+  }
+  /* Liens textuels soulignés en plus (les liens stylés en bouton gardent leur forme) */
+  html.a11y-bold-links a:not([class*="btn"]):not(.card-hover):not(.group) {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+  }
+  /* Texte agrandi : header compact (logo + réglages + menu burger), rien ne déborde */
+  html.a11y-text-large .nav-desktop,
+  html.a11y-text-large .nav-auth,
+  html.a11y-text-large .logo-subtitle { display: none !important; }
+  html.a11y-text-large .nav-burger { display: flex !important; }
+  html.a11y-text-large .nav-drawer { display: block !important; }
+  html.a11y-text-large .logo-text { white-space: normal; }
+  /* La hauteur du header varie avec le texte : la barre des catégories ne reste plus collée dessous */
+  html.a11y-text-large .category-nav { position: static; }
+  /* Texte agrandi : tout peut passer à la ligne et rétrécir (mots trop longs coupés) — jamais de défilement horizontal */
+  html.a11y-text-large body * { min-width: 0; }
+  html.a11y-text-large body *:not(svg):not(svg *) { white-space: normal !important; }
+  html.a11y-text-large :is(.btn, .btn-primary, .btn-primary-plain, .btn-accent, .btn-secondary, .btn-ghost, .chip, .eyebrow) {
+    max-width: 100%;
+    flex-shrink: 1;
+    text-align: center;
+  }
+
+  html.a11y-bold-text body,
+  html.a11y-bold-text body * {
+    font-weight: 700 !important;
   }
 
   /* —— Focus visible accessible —— */
@@ -96,6 +137,10 @@
 .dark .text-emerald-900   { color: rgb(110 231 183)                 !important; }
 .dark .text-emerald-800   { color: rgb(52  211 153)                 !important; }
 .dark .text-emerald-700   { color: rgb(52  211 153)                 !important; }
+/* Accent de marque en texte sur fond sombre (contraste AA) */
+.dark .text-brand-emerald,
+.dark .hover\:text-brand-emerald:hover,
+.dark .group:hover .group-hover\:text-brand-emerald { color: rgb(52 211 153) !important; }
 
 /* hover:text-[#0F291E] — au survol en dark mode, rester clair */
 .dark [class*="hover\:text-\[#0F291E\]"]:hover,
@@ -250,6 +295,13 @@
   35% { filter: blur(3px); }
 }
 @media (prefers-reduced-motion: reduce) {
+  /* Préférence « réduire les animations » : aucune animation ni transition décorative */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {
@@ -259,7 +311,7 @@
 
 /* ─── Contenu HTML riche (descriptions saisies dans l'admin) ───────────────── */
 .rich-text {
-  @apply space-y-4 text-[15px] leading-relaxed text-brand-muted;
+  @apply space-y-4 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted;
 }
 .rich-text h1, .rich-text h2, .rich-text h3 {
   @apply font-display text-lg font-semibold text-brand-forest;
@@ -289,7 +341,9 @@
 .dark .btn-ghost            { color: rgb(214 237 222); }
 /* Le vert profond se confond avec le fond sombre : les actions principales passent en émeraude */
 .dark .btn-primary,
-.dark .btn-primary-plain    { background-color: #059669; }
+.dark .btn-primary-plain    { background-color: #047857; } /* blanc sur emerald-700 : 5,5:1 */
 .dark .btn-primary:hover,
-.dark .btn-primary-plain:hover { background-color: #10B981; }
+.dark .btn-primary-plain:hover { background-color: #065F46; } /* emerald-800 : 7,6:1 */
+/* Pastilles posées sur un visuel : fond opaque pour rester lisibles quelle que soit l'image */
+.dark .chip.bg-white\/95   { background-color: rgb(15 41 30 / 0.94); }
 

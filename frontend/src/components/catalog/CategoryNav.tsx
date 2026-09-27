@@ -5,7 +5,7 @@ export default function CategoryNav({ rows }: { rows: { id: string; title: strin
   if (rows.length < 2) return null;
 
   return (
-    <nav aria-label="Catégories du catalogue" className="sticky top-20 z-30 -mx-5 bg-brand-cream/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 dark:bg-[#0a1810]/90">
+    <nav aria-label="Catégories du catalogue" className="category-nav sticky top-16 z-30 sm:top-20 -mx-5 bg-brand-cream/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 dark:bg-[#0a1810]/90">
       <ul className="no-scrollbar flex gap-2 overflow-x-auto">
         {rows.map((row) => (
           <li key={row.id} className="shrink-0">

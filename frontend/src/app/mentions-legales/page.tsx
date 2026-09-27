@@ -17,7 +17,7 @@ export default function MentionsLegalesPage() {
           <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : juillet 2026</p>
         </div>
 
-        <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[15px] leading-relaxed text-brand-muted sm:p-12">
+        <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
 
           <section>
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Éditeur du site</h2>

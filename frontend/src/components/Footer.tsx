@@ -1,41 +1,16 @@
 import Link from 'next/link';
 import { ArrowRight, Mail } from 'lucide-react';
 import Logo from './Logo';
+import { SITE_SECTIONS } from '@/lib/siteMap';
 
-const COLUMNS = [
-  {
-    title: 'Académie',
-    links: [
-      { href: '/histoire', label: 'À propos' },
-      { href: '/temoignages', label: 'Témoignages' },
-      { href: '/actualites', label: 'Actualités' },
-      { href: '/contact', label: 'Contact' },
-    ],
-  },
-  {
-    title: 'Apprendre',
-    links: [
-      { href: '/formations', label: 'Formations' },
-      { href: '/masterclass', label: 'Masterclass' },
-      { href: '/evenements', label: 'Événements' },
-    ],
-  },
-  {
-    title: 'Mon compte',
-    links: [
-      { href: '/login', label: 'Connexion' },
-      { href: '/register', label: 'Inscription' },
-      { href: '/dashboard', label: 'Mon espace' },
-      { href: '/dashboard/profil', label: 'Mon profil' },
-    ],
-  },
-];
+// Colonnes du pied de page : rubriques du plan du site (hors « Informations », en bas de page)
+const COLUMNS = SITE_SECTIONS.filter((section) => section.title !== 'Informations');
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto pt-24">
+    <footer className="mt-auto pt-24" aria-label="Pied de page">
       <div className="container-page">
         {/* Bandeau d'appel à l'action, à cheval sur le pied de page */}
         <div className="relative z-10 -mb-20 overflow-hidden rounded-4xl bg-brand-emerald px-8 py-10 shadow-float sm:px-12 md:flex md:items-center md:justify-between md:gap-10">
@@ -45,7 +20,7 @@ export default function Footer() {
             <h2 className="font-display text-2xl font-semibold text-white sm:text-3xl">
               Prêt à grandir dans votre marche avec Dieu ?
             </h2>
-            <p className="mt-2 max-w-xl text-sm text-emerald-50/90">
+            <p className="mt-2 max-w-xl text-sm text-white">
               Rejoignez une communauté d&apos;étudiants engagés et commencez votre parcours dès aujourd&apos;hui.
             </p>
           </div>
@@ -66,7 +41,7 @@ export default function Footer() {
           <div className="grid grid-cols-2 gap-10 pb-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
             <div className="col-span-2 md:col-span-1">
               <Logo inverted />
-              <p className="mt-6 max-w-xs text-sm leading-relaxed text-emerald-100/70">
+              <p className="mt-6 max-w-xs text-sm leading-relaxed text-emerald-100/80">
                 Un centre de formation chrétienne dédié à l&apos;édification des disciples et à la préparation des serviteurs de Dieu.
               </p>
               <p className="mt-5 text-sm italic text-emerald-200/80">
@@ -79,8 +54,8 @@ export default function Footer() {
 
             {COLUMNS.map((column) => (
               <div key={column.title}>
-                <h3 className="font-display text-sm font-semibold text-white">{column.title}</h3>
-                <ul className="mt-5 space-y-3 text-sm text-emerald-100/70">
+                <h2 className="font-display text-sm font-semibold text-white">{column.title}</h2>
+                <ul className="mt-5 space-y-3 text-sm text-emerald-100/80">
                   {column.links.map((link) => (
                     <li key={link.href}>
                       <Link href={link.href} className="transition hover:text-white">{link.label}</Link>
@@ -91,12 +66,14 @@ export default function Footer() {
             ))}
           </div>
 
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-emerald-100/50 md:flex-row">
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-center text-xs text-emerald-100/80 md:flex-row md:text-left">
             <p>© {year} Académie E.S.I.C. — Tous droits réservés.</p>
-            <div className="flex items-center gap-5">
-              <Link href="/mentions-legales" className="transition hover:text-white">Mentions légales</Link>
-              <Link href="/politique-de-confidentialite" className="transition hover:text-white">Confidentialité</Link>
-            </div>
+            <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              <li><Link href="/mentions-legales" className="underline-offset-4 transition hover:text-white hover:underline">Mentions légales</Link></li>
+              <li><Link href="/politique-de-confidentialite" className="underline-offset-4 transition hover:text-white hover:underline">Confidentialité</Link></li>
+              <li><Link href="/accessibilite" className="underline-offset-4 transition hover:text-white hover:underline">Accessibilité : non conforme</Link></li>
+              <li><Link href="/plan-du-site" className="underline-offset-4 transition hover:text-white hover:underline">Plan du site</Link></li>
+            </ul>
           </div>
         </div>
       </div>

@@ -33,7 +33,7 @@ export default function AuthShell({ title, subtitle, children, footer }: {
               <span className="absolute -left-4 top-8 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 font-display text-xs font-semibold text-brand-forest shadow-float animate-float">
                 <GraduationCap className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Formations
               </span>
-              <span className="absolute -right-6 bottom-8 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 font-display text-xs font-semibold text-brand-forest shadow-float [animation-delay:2s] animate-float">
+              <span className="absolute -right-6 bottom-8 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 font-display text-xs font-semibold text-brand-forest shadow-float [animation-delay:0.6s] animate-float">
                 <Users className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Communauté
               </span>
             </div>
@@ -65,7 +65,8 @@ export default function AuthShell({ title, subtitle, children, footer }: {
             <div className="w-full max-w-md">
               <h1 className="font-display text-3xl font-semibold text-brand-forest sm:text-4xl">{title}</h1>
               {subtitle && <p className="mt-3 text-brand-muted">{subtitle}</p>}
-              <div className="mt-8">{children}</div>
+              <p className="mt-6 text-sm text-brand-muted">Tous les champs sont obligatoires.</p>
+              <div className="mt-4">{children}</div>
               {footer && <div className="mt-8 text-center text-sm text-brand-muted">{footer}</div>}
             </div>
           </div>
