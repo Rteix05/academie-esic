@@ -1,0 +1,5 @@
+# Fichiers téléversés depuis le back-office : jamais exécutés comme scripts
+<FilesMatch "\.(php[0-9]?|phtml|phar|pl|py|cgi|sh)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes -ExecCGI

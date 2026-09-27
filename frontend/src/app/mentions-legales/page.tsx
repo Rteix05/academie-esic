@@ -2,35 +2,35 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Mentions légales — Académie E.S.I.C.',
+  title: 'Mentions légales',
 };
 
 export default function MentionsLegalesPage() {
   return (
-    <main className="min-h-screen bg-[#FBFBFA] text-[#1C2C24] font-sans antialiased">
-      <section className="max-w-3xl mx-auto px-6 py-16">
+    <div className="pb-8">
+      <section className="container-page pt-4">
 
-        <div className="mb-10">
-          <Link href="/" className="text-sm text-gray-400 hover:text-[#0F291E] transition">← Retour à l'accueil</Link>
+        <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-14 text-center sm:px-12 dark:bg-[#10231a]">
+          <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
+          <Link href="/" className="relative text-sm font-medium text-brand-muted transition hover:text-brand-emerald">← Retour à l'accueil</Link>
+          <h1 className="relative mt-5 font-display text-4xl font-semibold text-brand-forest sm:text-5xl">Mentions légales</h1>
+          <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : juillet 2026</p>
         </div>
 
-        <h1 className="text-4xl font-black text-[#0F291E] tracking-tight mb-2">Mentions légales</h1>
-        <p className="text-sm text-gray-400 mb-12">Dernière mise à jour : juillet 2026</p>
-
-        <div className="prose prose-sm max-w-none space-y-10 text-gray-700">
+        <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">1. Éditeur du site</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Éditeur du site</h2>
             <p>
               Le site <strong>academie-esic.fr</strong> est édité par l'<strong>Académie E.S.I.C.</strong>,
               association loi 1901 dont le siège social est situé en France.<br />
               Responsable de la publication : Direction de l'Académie E.S.I.C.<br />
-              Contact : <a href="mailto:contact@academie-esic.fr" className="text-emerald-700 underline">contact@academie-esic.fr</a>
+              Contact : <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">2. Hébergement</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">2. Hébergement</h2>
             <p>
               Ce site est hébergé par des prestataires d'hébergement cloud (serveurs localisés dans l'Union Européenne).
               Les coordonnées précises de l'hébergeur sont disponibles sur demande à l'adresse email indiquée ci-dessus.
@@ -38,7 +38,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">3. Propriété intellectuelle</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">3. Propriété intellectuelle</h2>
             <p>
               L'ensemble des contenus présents sur ce site (textes, images, vidéos, logos, formations, masterclass)
               est la propriété exclusive de l'Académie E.S.I.C. ou de ses partenaires, et est protégé par les lois
@@ -51,7 +51,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">4. Données personnelles</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">4. Données personnelles</h2>
             <p>
               L'Académie E.S.I.C. collecte et traite des données à caractère personnel dans le cadre de la gestion
               des comptes utilisateurs et des transactions. Conformément au Règlement Général sur la Protection des
@@ -60,9 +60,9 @@ export default function MentionsLegalesPage() {
             </p>
             <p className="mt-3">
               Pour exercer ces droits, contactez-nous à :{' '}
-              <a href="mailto:contact@academie-esic.fr" className="text-emerald-700 underline">contact@academie-esic.fr</a>.
+              <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>.
               Consultez notre{' '}
-              <Link href="/politique-de-confidentialite" className="text-emerald-700 underline">
+              <Link href="/politique-de-confidentialite" className="font-medium text-brand-emerald underline underline-offset-4">
                 politique de confidentialité
               </Link>{' '}
               pour plus d'informations.
@@ -70,7 +70,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">5. Cookies</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">5. Cookies</h2>
             <p>
               Ce site utilise des cookies techniques nécessaires à son bon fonctionnement (authentification,
               session utilisateur). Aucun cookie publicitaire ou de tracking tiers n'est utilisé.
@@ -78,7 +78,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">6. Limitation de responsabilité</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">6. Limitation de responsabilité</h2>
             <p>
               L'Académie E.S.I.C. s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées
               sur ce site. Toutefois, elle ne peut garantir l'exactitude, la précision ou l'exhaustivité des
@@ -88,7 +88,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-[#0F291E] mb-3">7. Droit applicable</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">7. Droit applicable</h2>
             <p>
               Les présentes mentions légales sont soumises au droit français. En cas de litige,
               les tribunaux français seront seuls compétents.
@@ -97,6 +97,6 @@ export default function MentionsLegalesPage() {
 
         </div>
       </section>
-    </main>
+    </div>
   );
 }

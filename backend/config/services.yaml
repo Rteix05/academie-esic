@@ -6,6 +6,8 @@
 parameters:
     # Expéditeur des emails si MAILER_FROM n'est pas défini
     mailer_from_default: 'noreply@academie-esic.fr'
+    # Proxys de confiance par défaut : reverse proxy local uniquement
+    env(TRUSTED_PROXIES): '127.0.0.1'
 
 services:
     # default configuration for services in *this* file

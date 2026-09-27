@@ -24,19 +24,60 @@
 
   html {
     scroll-behavior: smooth;
+    /* Taille du texte choisie par l'utilisateur (outil d'accessibilité) */
+    --text-scale: 1;
   }
 
   body {
     background-color: rgb(var(--bg-page));
     color: rgb(var(--text-base));
+    font-size: calc(1rem * var(--text-scale));
+    /* Texte agrandi : les mots longs passent à la ligne au lieu de déborder */
+    overflow-wrap: break-word;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
+  h1, h2, h3 {
+    hyphens: auto;
+  }
+
+  /* ─── Préférences d'affichage (outil d'accessibilité) ─── */
+  html.a11y-bold-links a {
+    font-weight: 700 !important;
+  }
+  /* Liens textuels soulignés en plus (les liens stylés en bouton gardent leur forme) */
+  html.a11y-bold-links a:not([class*="btn"]):not(.card-hover):not(.group) {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+  }
+  /* Texte agrandi : header compact (logo + réglages + menu burger), rien ne déborde */
+  html.a11y-text-large .nav-desktop,
+  html.a11y-text-large .nav-auth,
+  html.a11y-text-large .logo-subtitle { display: none !important; }
+  html.a11y-text-large .nav-burger { display: flex !important; }
+  html.a11y-text-large .nav-drawer { display: block !important; }
+  html.a11y-text-large .logo-text { white-space: normal; }
+  /* La hauteur du header varie avec le texte : la barre des catégories ne reste plus collée dessous */
+  html.a11y-text-large .category-nav { position: static; }
+  /* Texte agrandi : tout peut passer à la ligne et rétrécir (mots trop longs coupés) — jamais de défilement horizontal */
+  html.a11y-text-large body * { min-width: 0; }
+  html.a11y-text-large body *:not(svg):not(svg *) { white-space: normal !important; }
+  html.a11y-text-large :is(.btn, .btn-primary, .btn-primary-plain, .btn-accent, .btn-secondary, .btn-ghost, .chip, .eyebrow) {
+    max-width: 100%;
+    flex-shrink: 1;
+    text-align: center;
+  }
+
+  html.a11y-bold-text body,
+  html.a11y-bold-text body * {
+    font-weight: 700 !important;
+  }
+
   /* —— Focus visible accessible —— */
+  /* Le contour suit l'arrondi de l'élément (boutons en pilule, cartes) */
   *:focus-visible {
     outline: 3px solid #059669;
     outline-offset: 3px;
-    border-radius: 2px;
   }
 }
 
@@ -96,6 +137,10 @@
 .dark .text-emerald-900   { color: rgb(110 231 183)                 !important; }
 .dark .text-emerald-800   { color: rgb(52  211 153)                 !important; }
 .dark .text-emerald-700   { color: rgb(52  211 153)                 !important; }
+/* Accent de marque en texte sur fond sombre (contraste AA) */
+.dark .text-brand-emerald,
+.dark .hover\:text-brand-emerald:hover,
+.dark .group:hover .group-hover\:text-brand-emerald { color: rgb(52 211 153) !important; }
 
 /* hover:text-[#0F291E] — au survol en dark mode, rester clair */
 .dark [class*="hover\:text-\[#0F291E\]"]:hover,
@@ -131,10 +176,174 @@
 .dark input::placeholder,
 .dark textarea::placeholder { color: rgb(var(--text-muted)) !important; }
 
-/* ─── Police display (Playfair Display) ────────────────────────────────────── */
-@layer utilities {
-  .font-display {
-    font-family: var(--font-playfair), Georgia, 'Times New Roman', serif;
+/* ─── Typographie ──────────────────────────────────────────────────────────── */
+/* Titres en Poppins (font-display), texte courant en DM Sans (font-sans).      */
+/* font-display est défini dans tailwind.config.js.                             */
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 }
+
+/* ─── Composants du design system ──────────────────────────────────────────── */
+@layer components {
+  /* Conteneur de page */
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  /* Petit badge d'introduction au-dessus d'un titre */
+  .eyebrow {
+    @apply inline-flex max-w-full items-center gap-2 rounded-full bg-brand-sage/70 px-4 py-1.5 text-left font-display text-xs font-semibold leading-snug text-brand-forest;
+  }
+  .dark .eyebrow {
+    @apply bg-emerald-400/10 text-emerald-300;
+  }
+
+  /* Titre de section centré (style référence) */
+  .section-title {
+    @apply font-display text-3xl font-semibold leading-tight text-brand-forest sm:text-4xl;
+  }
+  .section-lead {
+    @apply mt-4 text-base leading-relaxed text-brand-muted;
+  }
+
+  /* Boutons en pilule */
+  .btn {
+    @apply inline-flex items-center justify-center gap-3 rounded-full font-display text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-emerald/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-brand-forest py-3 pl-6 pr-2 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-emerald;
+  }
+  .btn-primary-plain {
+    @apply btn bg-brand-forest px-6 py-3 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-emerald;
+  }
+  .btn-accent {
+    @apply btn bg-brand-emerald py-3 pl-6 pr-2 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-forest;
+  }
+  .btn-secondary {
+    @apply btn border border-brand-forest/15 bg-white px-6 py-3 text-brand-forest hover:border-brand-emerald hover:text-brand-emerald;
+  }
+  .btn-ghost {
+    @apply btn px-4 py-3 text-brand-forest hover:text-brand-emerald;
+  }
+  /* Pastille ronde contenant l'icône, à droite du libellé */
+  .btn-icon {
+    @apply flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-transform duration-200;
+  }
+  .btn-primary:hover .btn-icon,
+  .btn-accent:hover .btn-icon {
+    @apply translate-x-0.5;
+  }
+  .dark .btn-secondary {
+    @apply border-white/15 bg-transparent text-emerald-100;
+  }
+
+  /* Cartes */
+  .card {
+    @apply rounded-4xl border border-brand-forest/5 bg-white shadow-card;
+  }
+  .card-hover {
+    @apply card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft;
+  }
+
+  /* Pastille d'icône (cartes, atouts) */
+  .icon-tile {
+    @apply flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-mint text-brand-emerald;
+  }
+  .dark .icon-tile {
+    @apply bg-emerald-400/10 text-emerald-300;
+  }
+
+  /* Champs de formulaire */
+  .field-label {
+    @apply mb-2 block font-display text-sm font-medium text-brand-forest;
+  }
+  .field {
+    @apply w-full rounded-2xl border border-brand-forest/10 bg-brand-cream px-5 py-3.5 text-sm text-brand-ink placeholder:text-gray-400 transition focus:border-brand-emerald focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-emerald/15;
+  }
+
+  /* Badges de statut / catégorie */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-brand-mint px-3 py-1 font-display text-xs font-medium text-brand-forest;
+  }
+  .dark .chip {
+    @apply bg-emerald-400/10 text-emerald-200;
+  }
+}
+
+/* ─── Carrousels : défilement sans barre visible ───────────────────────────── */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Transitions catalogue → détail (View Transitions API) ────────────────── */
+/* La vignette du catalogue « devient » le visuel du hero de la page détail.     */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: morph-blur;
+}
+@keyframes morph-blur {
+  35% { filter: blur(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Préférence « réduire les animations » : aucune animation ni transition décorative */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ─── Contenu HTML riche (descriptions saisies dans l'admin) ───────────────── */
+.rich-text {
+  @apply space-y-4 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted;
+}
+.rich-text h1, .rich-text h2, .rich-text h3 {
+  @apply font-display text-lg font-semibold text-brand-forest;
+}
+.rich-text ul { @apply list-disc space-y-2 pl-5; }
+.rich-text ol { @apply list-decimal space-y-2 pl-5; }
+.rich-text li::marker { @apply text-brand-emerald; }
+.rich-text a { @apply font-medium text-brand-emerald underline underline-offset-4; }
+.rich-text strong { @apply font-semibold text-brand-ink; }
+.rich-text blockquote { @apply rounded-2xl border-l-4 border-brand-emerald bg-brand-mint px-5 py-3 italic; }
+.dark .rich-text strong { color: rgb(var(--text-base)); }
+.dark .rich-text blockquote { background-color: rgb(var(--bg-subtle)); }
+
+/* ─── Mode sombre : composants et palette brand-* ──────────────────────────── */
+.dark .card,
+.dark .card-hover           { background-color: rgb(var(--bg-card)); border-color: rgb(var(--border)); }
+.dark .section-title,
+.dark .field-label,
+.dark .text-brand-forest    { color: rgb(214 237 222); }
+.dark .text-brand-ink       { color: rgb(var(--text-base)); }
+.dark .section-lead,
+.dark .text-brand-muted     { color: rgb(var(--text-muted)); }
+.dark .bg-brand-cream       { background-color: rgb(var(--bg-page)); }
+.dark .bg-brand-mint        { background-color: rgb(var(--bg-subtle)); }
+.dark .bg-brand-sage        { background-color: rgba(16 185 129 / 0.15); }
+.dark .field                { background-color: rgb(17 30 21); border-color: rgb(var(--border)); color: rgb(var(--text-base)); }
+.dark .btn-ghost            { color: rgb(214 237 222); }
+/* Le vert profond se confond avec le fond sombre : les actions principales passent en émeraude */
+.dark .btn-primary,
+.dark .btn-primary-plain    { background-color: #047857; } /* blanc sur emerald-700 : 5,5:1 */
+.dark .btn-primary:hover,
+.dark .btn-primary-plain:hover { background-color: #065F46; } /* emerald-800 : 7,6:1 */
+/* Pastilles posées sur un visuel : fond opaque pour rester lisibles quelle que soit l'image */
+.dark .chip.bg-white\/95   { background-color: rgb(15 41 30 / 0.94); }
 

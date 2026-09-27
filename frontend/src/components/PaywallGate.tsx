@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Lock, Check, FileText, Video, Package, ExternalLink } from 'lucide-react';
 import BoutonPaywall from './BoutonPaywall';
 import ProtectedVideoPlayer from './ProtectedVideoPlayer';
-import { apiFetch, fetchMe } from '@/lib/api';
+import { apiFetch, fetchMe, uploadUrl } from '@/lib/api';
+
 
 interface Purchase {
   id: number;
@@ -62,123 +63,108 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
 
   if (loading) {
     return (
-      <section className="max-w-5xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 rounded-2xl bg-gray-100 aspect-video animate-pulse" />
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-48 animate-pulse" />
+      <section id="acces" className="container-page mt-12 grid scroll-mt-28 grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="aspect-video animate-pulse rounded-4xl bg-brand-sage/50 lg:col-span-2" />
+        <div className="card h-56 animate-pulse" />
       </section>
     );
   }
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <section id="acces" className="container-page mt-12 grid scroll-mt-28 grid-cols-1 items-start gap-8 lg:grid-cols-3">
 
-      {/* Colonne gauche : vidéo */}
-      <div className="lg:col-span-2 flex flex-col gap-6">
-        <div className="rounded-2xl overflow-hidden bg-black aspect-video relative flex items-center justify-center">
+      {/* Colonne gauche : vidéo + description */}
+      <div className="flex flex-col gap-6 lg:col-span-2">
+        <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-4xl bg-brand-forest shadow-float">
           {mc.videoAvailable ? (
             hasVideo && videoSrc ? (
               <ProtectedVideoPlayer
-                src={videoSrc}
-                mcId={Number(mc.id)}
-                userEmail={userInfo?.email}
-                userName={userInfo?.firstName ? `${userInfo.firstName} ${userInfo.lastName ?? ''}`.trim() : undefined}
-              />
-            ) : (
-              <div className="w-full h-full relative flex items-center justify-center">
-                <img
-                  src="https://images.unsplash.com/photo-1610116306796-6ebd30d779c6?q=80&w=800&auto=format&fit=crop"
-                  className="w-full h-full object-cover blur-[6px] scale-105 opacity-40 absolute inset-0"
-                  alt="Aperçu verrouillé"
+                  src={videoSrc}
+                  mcId={Number(mc.id)}
+                  userEmail={userInfo?.email}
+                  userName={userInfo?.firstName ? `${userInfo.firstName} ${userInfo.lastName ?? ''}`.trim() : undefined}
                 />
-                <div className="relative z-10 flex flex-col items-center text-center p-6">
-                  <div className="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center mb-3 shadow-xl">
-                    <Lock className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="text-white font-bold text-sm uppercase tracking-wider">Contenu protégé</p>
-                  <p className="text-gray-300 text-xs mt-1">Choisissez une option ci-contre pour débloquer</p>
+            ) : (
+              <div className="relative flex h-full w-full items-center justify-center">
+                {mc.imagePreview && (
+                  <img src={uploadUrl(mc.imagePreview)} alt="" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-30 blur-[6px]" />
+                )}
+                <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
+                <div className="relative z-10 flex flex-col items-center p-6 text-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
+                    <Lock className="h-7 w-7" aria-hidden="true" />
+                  </span>
+                  <p className="mt-4 font-display text-base font-semibold text-white">Contenu protégé</p>
+                  <p className="mt-1 text-sm text-emerald-100/70">Choisissez une option pour débloquer la vidéo</p>
                 </div>
               </div>
             )
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-emerald-900 to-[#0F291E] flex items-center justify-center">
-              <span className="text-xs font-bold text-emerald-300 tracking-wider">Pas de vidéo disponible</span>
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-emerald-200/80">
+              <Video className="h-8 w-8" aria-hidden="true" />
+              <span className="font-display text-sm font-medium">Pas de vidéo pour cette masterclass</span>
             </div>
           )}
         </div>
 
         {mc.description && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-            <h2 className="text-lg font-black text-[#0F291E] mb-3">À propos de cette masterclass</h2>
-            <div
-              className="text-sm text-gray-600 leading-relaxed prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: mc.description }}
-            />
+          <div className="card p-7 sm:p-9">
+            <h2 className="font-display text-xl font-semibold text-brand-forest">À propos de cette masterclass</h2>
+            <div className="rich-text mt-4" dangerouslySetInnerHTML={{ __html: mc.description }} />
           </div>
         )}
       </div>
 
-      {/* Colonne droite */}
-      <div className="flex flex-col gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm sticky top-24">
-          {estAchetee ? (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center shrink-0">
-                  <Check className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-black text-emerald-700">Masterclass débloquée</p>
-                  <p className="text-xs text-gray-400">Accédez à votre contenu ci-dessous</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2 mt-2">
-                {hasVideo && videoSrc && (
-                  <a
-                    href={videoSrc}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl transition"
-                  >
-                    <span className="flex items-center gap-2"><Video className="w-3.5 h-3.5" /> Regarder la vidéo</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-                {hasPdf && mc.pdfAvailable && (
-                  <button
-                    type="button"
-                    onClick={() => downloadPdf(Number(mc.id), mc.title)}
-                    className="flex items-center justify-between w-full py-2.5 px-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-xs font-bold rounded-xl transition"
-                  >
-                    <span className="flex items-center gap-2"><FileText className="w-3.5 h-3.5" /> Télécharger le PDF</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
-                )}
-                {options.includes('pack') && (
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-1 px-1">
-                    <Package className="w-3.5 h-3.5" />
-                    <span>Pack Complet — Vidéo + PDF inclus</span>
-                  </div>
-                )}
+      {/* Colonne droite : accès / achat */}
+      <aside className="card p-6 lg:sticky lg:top-28">
+        {estAchetee ? (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3 rounded-3xl bg-brand-mint p-4 dark:bg-white/5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-forest text-white">
+                <Check className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-display text-sm font-semibold text-brand-forest">Masterclass débloquée</p>
+                <p className="text-xs text-brand-muted">Accédez à votre contenu ci-dessous</p>
               </div>
             </div>
-          ) : (
-            <>
-              <h3 className="text-base font-black text-[#0F291E] mb-1">Débloquer cette masterclass</h3>
-              <p className="text-xs text-gray-400 mb-4">Choisissez le format qui vous convient :</p>
-              <BoutonPaywall
-                masterclassId={Number(mc.id)}
-                prices={{
-                  pdf: mc.pricePdf ?? null,
-                  video: mc.priceVideo ?? null,
-                  pack: mc.pricePack ?? null,
-                }}
-              />
-            </>
-          )}
-        </div>
-      </div>
 
+            <div className="flex flex-col gap-2">
+              {hasVideo && videoSrc && (
+                <a href={videoSrc} target="_blank" rel="noopener noreferrer" className="btn-primary justify-between">
+                  <span className="flex items-center gap-2"><Video className="h-4 w-4" aria-hidden="true" /> Ouvrir dans un nouvel onglet</span>
+                  <span className="btn-icon"><ExternalLink className="h-4 w-4" aria-hidden="true" /></span>
+                </a>
+              )}
+              {hasPdf && mc.pdfAvailable && (
+                <button type="button" onClick={() => downloadPdf(Number(mc.id), mc.title)} className="btn-secondary justify-between">
+                  <span className="flex items-center gap-2"><FileText className="h-4 w-4" aria-hidden="true" /> Télécharger le PDF</span>
+                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
+              {options.includes('pack') && (
+                <p className="mt-1 flex items-center gap-2 px-1 text-xs text-brand-muted">
+                  <Package className="h-4 w-4 text-brand-emerald" aria-hidden="true" />
+                  Pack complet — vidéo + PDF inclus
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            <h3 className="font-display text-lg font-semibold text-brand-forest">Débloquer cette masterclass</h3>
+            <p className="mb-5 mt-1 text-sm text-brand-muted">Choisissez le format qui vous convient :</p>
+            <BoutonPaywall
+              masterclassId={Number(mc.id)}
+              prices={{
+                pdf: mc.pricePdf ?? null,
+                video: mc.priceVideo ?? null,
+                pack: mc.pricePack ?? null,
+              }}
+            />
+          </>
+        )}
+      </aside>
     </section>
   );
 }

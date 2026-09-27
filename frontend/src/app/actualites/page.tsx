@@ -1,63 +1,56 @@
-import { Calendar } from 'lucide-react';
+import type { Metadata } from 'next';
+import { CalendarDays } from 'lucide-react';
+import { PageHeader } from '@/components/ui';
+
+export const metadata: Metadata = {
+  title: 'Actualités',
+  description: "Les dernières nouvelles, sessions et temps forts de l'Académie E.S.I.C.",
+};
 
 // TODO(API) : remplacer actualitesDemo par l'appel à l'API Symfony (ex: GET /api/actualites)
-// et par le DTO TypeScript correspondant dès qu'il sera fourni.
-
 const actualitesDemo = [
   {
     date: "Septembre 2026",
     titre: "Ouverture des inscriptions pour la nouvelle session",
-    resume:
-      "Les inscriptions pour l'Institut Biblique Théologique et l'École du Ministère sont désormais ouvertes. Places limitées pour un accompagnement de qualité.",
+    resume: "Les inscriptions pour l'Institut Biblique Théologique et l'École du Ministère sont désormais ouvertes. Places limitées pour un accompagnement de qualité.",
   },
   {
     date: "Août 2026",
     titre: "Nouvelle formation en Leadership chrétien",
-    resume:
-      "Un nouveau programme dédié à la formation de leaders spirituels compétents fait son entrée à l'Académie dès la rentrée.",
+    resume: "Un nouveau programme dédié à la formation de leaders spirituels compétents fait son entrée à l'Académie dès la rentrée.",
   },
   {
     date: "Juillet 2026",
     titre: "Session de graduation 2026",
-    resume:
-      "Retour en images sur la cérémonie de graduation qui a célébré l'engagement de nos étudiants tout au long de l'année.",
+    resume: "Retour en images sur la cérémonie de graduation qui a célébré l'engagement de nos étudiants tout au long de l'année.",
   },
 ];
 
 export default function ActualitesPage() {
   return (
-    <main className="min-h-screen bg-[#FBFBFA] text-[#1C2C24] font-sans antialiased overflow-x-hidden">
+    <div className="overflow-x-hidden">
+      <PageHeader
+        eyebrow="À la une"
+        title="Actualités de l'Académie"
+        lead="Suivez les dernières nouvelles, sessions et temps forts de l'Académie E.S.I.C."
+      />
 
-      {/* EN-TÊTE */}
-      <section className="max-w-7xl mx-auto px-6 pt-24 pb-16 text-center">
-        <h2 className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3">À la une</h2>
-        <h1 className="text-4xl sm:text-5xl font-black text-[#0F291E] tracking-tight mb-6">
-          Actualités de l&apos;Académie
-        </h1>
-        <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
-          Suivez les dernières nouvelles, sessions et temps forts de l&apos;Académie E.S.I.C.
-        </p>
-      </section>
-
-      {/* LISTE DES ACTUALITÉS */}
-      <section className="max-w-5xl mx-auto px-6 pb-24">
-        {/* TODO(API) : remplacer actualitesDemo par les actualités renvoyées par l'API */}
-        <div className="flex flex-col gap-6">
-          {actualitesDemo.map((a, i) => (
-            <article key={i} className="p-8 rounded-3xl border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 flex flex-col md:flex-row md:items-start gap-6">
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-widest md:w-40 shrink-0">
-                <Calendar className="w-4 h-4" />
-                {a.date}
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-[#0F291E] mb-2">{a.titre}</h2>
-                <p className="text-sm text-gray-500 leading-relaxed">{a.resume}</p>
-              </div>
-            </article>
+      <section className="container-page py-20">
+        <ol className="relative mx-auto max-w-3xl space-y-6 before:absolute before:bottom-6 before:left-7 before:top-6 before:w-px before:bg-brand-sage">
+          {actualitesDemo.map((a) => (
+            <li key={a.titre} className="relative flex gap-6">
+              <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-forest text-white shadow-soft" aria-hidden="true">
+                <CalendarDays className="h-6 w-6" />
+              </span>
+              <article className="card-hover flex-1 p-7">
+                <p className="font-display text-xs font-semibold text-brand-emerald">{a.date}</p>
+                <h2 className="mt-2 font-display text-lg font-semibold text-brand-forest">{a.titre}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{a.resume}</p>
+              </article>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
-
-    </main>
+    </div>
   );
 }
