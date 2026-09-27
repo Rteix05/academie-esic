@@ -1,10 +1,15 @@
 import type { NextConfig } from "next";
+import pkg from "./package.json";
 
 // URL publique de l'API Symfony (ex. https://api.academie-esic.fr) — inlinée au build
 const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000').replace(/\/$/, '');
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Version du site (package.json), affichée dans le pied de page ; mise à jour à chaque release / hotfix
+  env: {
+    APP_VERSION: pkg.version,
+  },
   async redirects() {
     return [
       // Événements temporairement retirés du site (le backend et les données sont conservés)
