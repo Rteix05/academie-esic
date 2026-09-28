@@ -6,6 +6,11 @@ framework:
             policy: 'sliding_window'
             limit: 5
             interval: '1 hour'
+        # Formulaire de contact : 5 messages par heure et par IP
+        contact:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
         # Mot de passe oublié : 3 demandes par 15 min et par IP + email
         forgot_password:
             policy: 'sliding_window'

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Formation;
 use App\Entity\User;
+use App\Mailer\AppMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +17,7 @@ class EnrollmentController extends AbstractController
      * Les formations payantes passent obligatoirement par Stripe (/api/stripe/checkout/formation/{id}).
      */
     #[Route('/api/formations/{id}/enroll', name: 'api_formation_enroll', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function enroll(Formation $formation, EntityManagerInterface $entityManager): JsonResponse
+    public function enroll(Formation $formation, EntityManagerInterface $entityManager, AppMailer $mailer): JsonResponse
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
@@ -41,6 +42,9 @@ class EnrollmentController extends AbstractController
 
         $user->addFormation($formation);
         $entityManager->flush();
+
+        // Confirmation par email (un échec d'envoi ne bloque pas l'inscription)
+        $mailer->sendEnrollmentConfirmation($user, $formation);
 
         return $this->json([
             'message' => 'Félicitations, vous avez rejoint la formation !',

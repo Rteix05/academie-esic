@@ -41,6 +41,13 @@ final class PurchaseTest extends ApiTestCase
         $this->jsonRequest('POST', '/api/formations/' . $formation->getId() . '/enroll');
         self::assertResponseIsSuccessful();
 
+        // Confirmation d'inscription par email
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertEmailAddressContains($email, 'To', 'eleve@test.fr');
+        self::assertEmailHeaderSame($email, 'Subject', 'Inscription confirmée — ' . $formation->getTitle());
+        self::assertEmailHtmlBodyContains($email, 'Gratuit');
+
         $this->client->request('GET', '/api/mes-formations');
         self::assertSame($formation->getId(), $this->responseJson()[0]['id']);
     }
@@ -133,7 +140,7 @@ final class PurchaseTest extends ApiTestCase
         $email = self::getMailerMessage();
         self::assertEmailHeaderSame($email, 'Subject', 'Confirmation de votre commande – Académie E.S.I.C.');
         self::assertEmailHtmlBodyContains($email, '29,00 EUR');
-        self::assertEmailHtmlBodyContains($email, 'version du ' . SalesTerms::CGV_VERSION);
+        self::assertEmailHtmlBodyContains($email, 'version du ' . (new \DateTimeImmutable(SalesTerms::CGV_VERSION))->format('d/m/Y'));
         self::assertEmailHtmlBodyContains($email, htmlspecialchars(SalesTerms::IMMEDIATE_ACCESS_CONSENT, ENT_QUOTES));
     }
 
