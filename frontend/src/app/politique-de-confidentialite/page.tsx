@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL } from '@/lib/contact';
+import VideoConsentReset from '@/components/VideoConsentReset';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
@@ -118,12 +119,29 @@ export default function PolitiqueConfidentialitePage() {
             </p>
           </section>
 
-          <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">9. Cookies</h2>
+          <section id="cookies" className="scroll-mt-28">
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">9. Cookies et lecteurs vidéo</h2>
             <p>
-              Ce site utilise uniquement des cookies techniques strictement nécessaires au fonctionnement
-              de l'authentification. Aucun cookie de traçage ou publicitaire n'est déposé sur votre appareil.
+              Le site n'utilise aucun cookie publicitaire ni outil de mesure d'audience. Seuls sont déposés :
             </p>
+            <ul className="mt-3 list-disc space-y-2 pl-5">
+              <li>
+                un cookie de connexion, strictement nécessaire, déposé uniquement lorsque vous vous connectez à votre
+                compte (il expire au bout d'une heure) ;
+              </li>
+              <li>
+                vos préférences d'affichage (thème, taille du texte, liens et texte en gras), enregistrées uniquement
+                dans votre navigateur, à votre demande.
+              </li>
+            </ul>
+            <p className="mt-3">
+              Certaines vidéos des masterclass sont diffusées par des services tiers (YouTube, Google Drive, Vimeo),
+              susceptibles de déposer leurs propres cookies. Leur lecteur n'est jamais chargé automatiquement : il ne
+              l'est qu'après votre clic sur « Lancer la vidéo », qui vaut consentement pour cette vidéo. Si vous cochez
+              « Mémoriser mon choix », votre accord est conservé dans votre navigateur pour ce service pendant 6 mois.
+              Vous pouvez le retirer à tout moment :
+            </p>
+            <VideoConsentReset />
           </section>
 
           <section>
