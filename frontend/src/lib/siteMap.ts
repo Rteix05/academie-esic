@@ -18,7 +18,7 @@ export const SITE_SECTIONS: SiteSection[] = [
       { href: '/', label: 'Accueil' },
       { href: '/histoire', label: 'À propos' },
       { href: '/how-it-works', label: 'Comment ça marche' },
-      { href: '/temoignages', label: 'Témoignages' },
+      // { href: '/temoignages', label: 'Témoignages' }, — masquée jusqu'à la réception de vrais avis
       { href: '/actualites', label: 'Actualités' },
       { href: '/contact', label: 'Contact' },
     ],
