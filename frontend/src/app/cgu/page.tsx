@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
 import { PageHeader } from '@/components/ui';
-import { CONTACT_EMAIL } from '@/lib/contact';
+import { ContactEmail, LegalArticle, LegalIdentity, LegalList, LegalToc, LegalValue, legalLinkClass } from '@/components/legal';
+import { LEGAL_INFO } from '@/lib/legalInfo';
 
 export const metadata: Metadata = {
   title: "Conditions générales d'utilisation",
@@ -10,232 +10,342 @@ export const metadata: Metadata = {
   alternates: { canonical: '/cgu' },
 };
 
-const linkClass = 'font-medium text-brand-forest underline underline-offset-4 hover:text-brand-emerald dark:text-emerald-200';
-
-const CONTACT = (
-  <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>{CONTACT_EMAIL}</a>
-);
-
-function Article({ id, title, children }: { id: string; title: string; children: ReactNode }) {
-  return (
-    <section aria-labelledby={id} className="scroll-mt-28">
-      <h2 id={id} className="mb-3 font-display text-lg font-semibold text-brand-forest">{title}</h2>
-      <div className="space-y-3">{children}</div>
-    </section>
-  );
-}
-
 const ARTICLES = [
   { id: 'objet', title: '1. Objet et acceptation' },
   { id: 'editeur', title: '2. Éditeur du site' },
   { id: 'acces', title: '3. Accès au site et création de compte' },
-  { id: 'securite', title: '4. Identifiants et sécurité du compte' },
+  { id: 'securite', title: '4. Identifiants et sécurité' },
   { id: 'services', title: '5. Services proposés' },
-  { id: 'contenus', title: '6. Utilisation des contenus pédagogiques' },
-  { id: 'propriete', title: '7. Propriété intellectuelle' },
-  { id: 'obligations', title: "8. Obligations de l'utilisateur" },
-  { id: 'suspension', title: '9. Suspension et suppression du compte' },
-  { id: 'responsabilite', title: '10. Disponibilité et responsabilité' },
-  { id: 'donnees', title: '11. Données personnelles et cookies' },
-  { id: 'liens', title: '12. Liens et services tiers' },
-  { id: 'modification', title: '13. Modification des conditions' },
-  { id: 'droit', title: '14. Droit applicable et litiges' },
+  { id: 'acces-contenus', title: '6. Accès aux contenus' },
+  { id: 'utilisation', title: '7. Utilisation des contenus pédagogiques' },
+  { id: 'propriete', title: '8. Propriété intellectuelle' },
+  { id: 'obligations', title: "9. Obligations de l'utilisateur" },
+  { id: 'suspension', title: "10. Suspension ou suppression d'un compte" },
+  { id: 'disponibilite', title: '11. Disponibilité du site' },
+  { id: 'responsabilite', title: '12. Responsabilité' },
+  { id: 'donnees', title: '13. Données personnelles' },
+  { id: 'cookies', title: '14. Cookies et technologies similaires' },
+  { id: 'tiers', title: '15. Services tiers' },
+  { id: 'liens', title: '16. Liens externes' },
+  { id: 'modification', title: '17. Modification des CGU' },
+  { id: 'droit', title: '18. Droit applicable et règlement des litiges' },
 ];
 
+const cgv = <Link href="/cgv" className={legalLinkClass}>Conditions Générales de Vente</Link>;
+const politique = <Link href="/politique-de-confidentialite" className={legalLinkClass}>Politique de confidentialité</Link>;
+
 export default function CguPage() {
+  const L = LEGAL_INFO;
   return (
     <div className="pb-8">
-      <PageHeader title="Conditions générales d'utilisation" lead="Dernière mise à jour : septembre 2026" />
+      <PageHeader
+        title="Conditions générales d'utilisation"
+        lead={<>Dernière mise à jour : <LegalValue value={L.dateCgu} label="date" /></>}
+      />
 
       <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
-        <nav aria-label="Sommaire des conditions générales d'utilisation">
-          <p className="font-display text-sm font-semibold text-brand-forest">Sommaire</p>
-          <ol className="mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
-            {ARTICLES.map((a) => (
-              <li key={a.id}><a href={`#${a.id}`} className={linkClass}>{a.title}</a></li>
-            ))}
-          </ol>
-        </nav>
+        <LegalToc label="Sommaire des conditions générales d'utilisation" articles={ARTICLES} />
 
-        <Article id="objet" title="1. Objet et acceptation">
+        <LegalArticle id="objet" title="1. Objet et acceptation">
           <p>
-            Les présentes conditions générales d&apos;utilisation (« CGU ») définissent les règles d&apos;accès et
-            d&apos;utilisation du site <strong>academie-esic.fr</strong> et des services proposés par
-            l&apos;Académie E.S.I.C. (« l&apos;Académie »).
+            Les présentes Conditions Générales d&apos;Utilisation (« CGU ») ont pour objet de définir les conditions
+            d&apos;accès et d&apos;utilisation du site <strong>academie-esic.fr</strong> ainsi que des services proposés
+            par l&apos;Académie E.S.I.C. (« l&apos;Académie »).
           </p>
           <p>
-            La navigation sur le site vaut acceptation des présentes CGU. La création d&apos;un compte est subordonnée
-            à leur acceptation expresse, en cochant la case prévue à cet effet dans le formulaire d&apos;inscription.
+            Le site permet notamment aux utilisateurs de consulter des contenus pédagogiques, de créer un compte
+            personnel, d&apos;accéder à des formations et masterclass, gratuites ou payantes, et de gérer leurs contenus
+            depuis leur espace personnel.
+          </p>
+          <p>La navigation sur le site implique l&apos;acceptation des présentes CGU.</p>
+          <p>
+            La création d&apos;un compte nécessite l&apos;acceptation expresse des présentes CGU au moyen de la case
+            prévue à cet effet lors de l&apos;inscription.
           </p>
           <p>
-            L&apos;achat de formations ou de masterclass est en outre soumis aux conditions de vente (prix, paiement,
-            droit de rétractation) portées à la connaissance de l&apos;utilisateur avant toute commande.
+            L&apos;achat de contenus payants est également soumis aux {cgv} de l&apos;Académie, qui doivent être
+            acceptées avant toute commande.
           </p>
-        </Article>
+        </LegalArticle>
 
-        <Article id="editeur" title="2. Éditeur du site">
+        <LegalArticle id="editeur" title="2. Éditeur du site">
+          <p>Le site academie-esic.fr est édité par :</p>
+          <LegalIdentity rows={[
+            { label: 'Dénomination', value: L.nom },
+            { label: 'Forme juridique', value: <LegalValue value={L.formeJuridique} label="forme juridique" /> },
+            { label: 'Capital social', value: <LegalValue value={L.capitalSocial} label="le cas échéant" /> },
+            { label: 'Siège social', value: <LegalValue value={L.siege} label="adresse complète" /> },
+            { label: 'SIREN / SIRET', value: <LegalValue value={L.siren} label="numéro" /> },
+            { label: 'N° de TVA intracommunautaire', value: <LegalValue value={L.tva} label="le cas échéant" /> },
+            { label: 'Email', value: <ContactEmail /> },
+            { label: 'Téléphone', value: <LegalValue value={L.telephone} label="numéro" /> },
+            { label: 'Directeur de la publication', value: <LegalValue value={L.directeurPublication} label="nom" /> },
+          ]} />
           <p>
-            Le site est édité par l&apos;Académie E.S.I.C. Les informations relatives à l&apos;éditeur et à
-            l&apos;hébergeur figurent dans les{' '}
-            <Link href="/mentions-legales" className={linkClass}>mentions légales</Link>.
-            Pour toute question relative aux présentes CGU : {CONTACT}.
+            Les informations relatives à l&apos;hébergement du site sont disponibles dans les{' '}
+            <Link href="/mentions-legales" className={legalLinkClass}>mentions légales</Link>.
           </p>
-        </Article>
+        </LegalArticle>
 
-        <Article id="acces" title="3. Accès au site et création de compte">
+        <LegalArticle id="acces" title="3. Accès au site et création de compte">
+          <p>Le site est accessible gratuitement à toute personne disposant d&apos;un accès à Internet.</p>
           <p>
-            Le site est accessible gratuitement à toute personne disposant d&apos;un accès à Internet. Les frais de
-            connexion et d&apos;équipement restent à la charge de l&apos;utilisateur.
+            Les frais nécessaires à l&apos;accès au site, notamment les frais de connexion, d&apos;abonnement Internet et
+            d&apos;équipement informatique ou mobile, sont à la charge de l&apos;utilisateur.
           </p>
+          <p>Certaines fonctionnalités, formations et masterclass nécessitent la création d&apos;un compte.</p>
           <p>
-            L&apos;accès aux formations, aux masterclass et à l&apos;espace personnel nécessite la création d&apos;un
-            compte, avec une adresse email valide et un mot de passe. L&apos;utilisateur s&apos;engage à fournir des
-            informations exactes et à les tenir à jour depuis son espace « Mon profil ».
+            Lors de la création de son compte, l&apos;utilisateur s&apos;engage à fournir des informations exactes,
+            complètes et à jour.
           </p>
+          <p>L&apos;utilisateur peut modifier certaines informations personnelles depuis son espace « Mon profil ».</p>
+          <p>Un compte est strictement personnel. Il ne peut être vendu, cédé, prêté ou utilisé par plusieurs personnes.</p>
           <p>
-            Un compte est strictement personnel : il ne peut être ni partagé, ni cédé, ni utilisé par plusieurs
-            personnes. Les mineurs doivent disposer de l&apos;autorisation de leur représentant légal pour créer un
-            compte et effectuer un achat.
+            Lorsqu&apos;un utilisateur est mineur, les conditions applicables aux mineurs et, notamment,
+            l&apos;autorisation de son représentant légal doivent être respectées.
           </p>
-        </Article>
+        </LegalArticle>
 
-        <Article id="securite" title="4. Identifiants et sécurité du compte">
+        <LegalArticle id="securite" title="4. Identifiants et sécurité">
+          <p>L&apos;utilisateur est responsable de la confidentialité de ses identifiants de connexion.</p>
+          <p>Il s&apos;engage à :</p>
+          <LegalList items={[
+            'choisir un mot de passe suffisamment robuste ;',
+            'conserver ses identifiants confidentiels ;',
+            'ne pas communiquer son compte à un tiers ;',
+            "informer l'Académie dans les meilleurs délais en cas d'utilisation non autorisée ou de compromission de son compte.",
+          ]} />
+          <p>En cas d&apos;oubli du mot de passe, l&apos;utilisateur peut utiliser la fonctionnalité « Mot de passe oublié ».</p>
           <p>
-            L&apos;utilisateur est responsable de la confidentialité de son mot de passe et de toute activité réalisée
-            depuis son compte. Il choisit un mot de passe robuste et ne le communique à personne.
+            Afin de préserver la sécurité du service, l&apos;Académie peut mettre temporairement en œuvre des mesures de
+            protection, notamment le blocage temporaire de tentatives de connexion répétées.
           </p>
-          <p>
-            En cas de perte ou de suspicion d&apos;utilisation frauduleuse, l&apos;utilisateur modifie sans délai son
-            mot de passe (fonction « Mot de passe oublié » ou « Mon profil ») et en informe l&apos;Académie à {CONTACT}.
-            Pour la sécurité des comptes, les tentatives de connexion répétées peuvent être temporairement bloquées.
-          </p>
-        </Article>
+        </LegalArticle>
 
-        <Article id="services" title="5. Services proposés">
+        <LegalArticle id="services" title="5. Services proposés">
           <p>L&apos;Académie propose notamment :</p>
-          <ul className="list-disc space-y-2 pl-5">
-            <li>des <strong>formations</strong>, en accès gratuit ou payant selon la formation ;</li>
-            <li>des <strong>masterclass</strong> payantes, disponibles en vidéo, en PDF ou en pack (vidéo et PDF) ;</li>
-            <li>un <strong>espace personnel</strong> regroupant les contenus débloqués et l&apos;historique des paiements.</li>
-          </ul>
+          <LegalList items={[
+            'des formations accessibles gratuitement ou moyennant paiement ;',
+            'des masterclass payantes ;',
+            'des contenus vidéo ;',
+            'des documents au format PDF ;',
+            'des packs comprenant plusieurs formats de contenus ;',
+            'un espace personnel permettant notamment de retrouver les contenus accessibles ;',
+            'un historique des commandes et paiements.',
+          ]} />
           <p>
-            Les contenus achetés restent accessibles depuis l&apos;espace personnel tant que le compte est actif et
-            que le service est exploité par l&apos;Académie. Les paiements sont traités par le prestataire sécurisé
-            Stripe : l&apos;Académie n&apos;a jamais accès aux données bancaires complètes.
+            Les caractéristiques essentielles, les modalités d&apos;accès et, lorsqu&apos;ils sont payants, les prix des
+            contenus sont présentés à l&apos;utilisateur avant toute commande.
           </p>
-          <p>
-            L&apos;Académie peut faire évoluer, ajouter ou retirer des contenus et des fonctionnalités, sans
-            toutefois retirer l&apos;accès à un contenu déjà acheté, sauf motif légitime (obligation légale, droits
-            d&apos;un intervenant) ; dans ce cas, l&apos;utilisateur en est informé.
-          </p>
-        </Article>
+          <p>Les modalités spécifiques relatives aux achats sont définies dans les {cgv}.</p>
+        </LegalArticle>
 
-        <Article id="contenus" title="6. Utilisation des contenus pédagogiques">
+        <LegalArticle id="acces-contenus" title="6. Accès aux contenus">
+          <p>Les contenus accessibles depuis le compte de l&apos;utilisateur sont destinés à un usage personnel et non commercial.</p>
+          <p>L&apos;accès à un contenu ne constitue pas un transfert de propriété intellectuelle.</p>
+          <p>Sauf indication contraire dans les CGV ou lors de la commande, l&apos;accès aux contenus numériques est personnel et individuel.</p>
+          <p>L&apos;Académie peut faire évoluer ses formations, ses fonctionnalités et son interface afin d&apos;améliorer le service.</p>
           <p>
-            Les formations, masterclass, vidéos et documents sont concédés pour un <strong>usage strictement personnel
-            et non commercial</strong>, dans le cadre de l&apos;apprentissage de l&apos;utilisateur.
+            Lorsqu&apos;un contenu a déjà été acheté, toute modification ou suppression de ce contenu est réalisée
+            conformément aux conditions prévues dans les CGV.
           </p>
-          <p>Sont notamment interdits, sans autorisation écrite de l&apos;Académie :</p>
-          <ul className="list-disc space-y-2 pl-5">
-            <li>le téléchargement, l&apos;enregistrement ou la capture des vidéos ;</li>
-            <li>la reproduction, la diffusion, le partage ou la revente de tout ou partie des contenus, y compris des PDF ;</li>
-            <li>la communication de ses accès à un tiers ou la projection collective des contenus.</li>
-          </ul>
-          <p>
-            Afin de protéger les contenus, le lecteur vidéo affiche un filigrane personnalisé (nom ou adresse email de
-            l&apos;utilisateur). Toute diffusion illicite constatée peut entraîner la suspension du compte, sans
-            préjudice de poursuites.
-          </p>
-        </Article>
+        </LegalArticle>
 
-        <Article id="propriete" title="7. Propriété intellectuelle">
+        <LegalArticle id="utilisation" title="7. Utilisation des contenus pédagogiques">
           <p>
-            L&apos;ensemble des éléments du site (textes, vidéos, documents, images, logos, marques, structure) est
-            protégé par le droit de la propriété intellectuelle et appartient à l&apos;Académie ou à ses intervenants
-            et partenaires. L&apos;utilisation du site ou l&apos;achat d&apos;un contenu ne transfère aucun droit de
-            propriété à l&apos;utilisateur, au-delà du droit d&apos;usage personnel défini à l&apos;article 6.
+            Les formations, masterclass, vidéos, documents et autres supports pédagogiques sont destinés exclusivement à
+            l&apos;usage personnel de l&apos;utilisateur.
           </p>
-        </Article>
+          <p>
+            Sauf autorisation écrite préalable de l&apos;Académie ou des titulaires des droits concernés, il est
+            notamment interdit de :
+          </p>
+          <LegalList items={[
+            'reproduire tout ou partie des contenus ;',
+            'copier ou redistribuer les vidéos ;',
+            'enregistrer ou capturer les vidéos ;',
+            'partager les fichiers PDF avec des tiers ;',
+            'revendre ou commercialiser les contenus ;',
+            'communiquer ses identifiants à un tiers ;',
+            'mettre les contenus à disposition du public ;',
+            'organiser une projection ou diffusion collective ;',
+            'utiliser les contenus pour créer une offre concurrente.',
+          ]} />
+          <p>
+            Afin de protéger les contenus, certains lecteurs vidéo peuvent intégrer un filigrane personnalisé
+            comprenant notamment le nom ou l&apos;adresse email du titulaire du compte.
+          </p>
+          <p>
+            Toute utilisation illicite ou diffusion non autorisée pourra entraîner les mesures prévues par les présentes
+            CGU, sans préjudice des éventuelles actions judiciaires.
+          </p>
+        </LegalArticle>
 
-        <Article id="obligations" title="8. Obligations de l'utilisateur">
-          <p>L&apos;utilisateur s&apos;engage à utiliser le site de manière loyale et conforme à la loi. Il s&apos;interdit notamment :</p>
-          <ul className="list-disc space-y-2 pl-5">
-            <li>de porter atteinte au fonctionnement ou à la sécurité du site (intrusion, contournement des protections, surcharge volontaire) ;</li>
-            <li>d&apos;utiliser des robots ou procédés automatisés pour extraire des contenus ou des données ;</li>
-            <li>d&apos;usurper l&apos;identité d&apos;un tiers ou de transmettre des informations fausses ;</li>
-            <li>de publier ou de transmettre, notamment via le formulaire de contact, des propos illicites, injurieux ou discriminatoires.</li>
-          </ul>
-        </Article>
+        <LegalArticle id="propriete" title="8. Propriété intellectuelle">
+          <p>
+            L&apos;ensemble des éléments composant le site et les services de l&apos;Académie, notamment les textes,
+            vidéos, documents, illustrations, photographies, logos, marques, éléments graphiques, interfaces, bases de
+            données et contenus pédagogiques, est protégé par les dispositions applicables en matière de propriété
+            intellectuelle.
+          </p>
+          <p>Ces éléments appartiennent à l&apos;Académie, à ses intervenants, partenaires ou titulaires de droits concernés.</p>
+          <p>L&apos;accès au site ou l&apos;achat d&apos;un contenu n&apos;emporte aucun transfert de propriété intellectuelle au profit de l&apos;utilisateur.</p>
+          <p>Toute reproduction, représentation, adaptation ou exploitation non autorisée est susceptible de constituer une contrefaçon.</p>
+        </LegalArticle>
 
-        <Article id="suspension" title="9. Suspension et suppression du compte">
+        <LegalArticle id="obligations" title="9. Obligations de l'utilisateur">
           <p>
-            L&apos;utilisateur peut demander à tout moment la suppression de son compte en écrivant à {CONTACT}. La
-            suppression entraîne la perte d&apos;accès aux contenus débloqués ; les données de paiement sont
-            conservées pendant la durée imposée par les obligations comptables.
+            L&apos;utilisateur s&apos;engage à utiliser le site de manière loyale, responsable et conforme aux lois et
+            règlements applicables.
           </p>
-          <p>
-            En cas de manquement aux présentes CGU, l&apos;Académie peut suspendre ou supprimer le compte concerné,
-            après information préalable de l&apos;utilisateur, sauf urgence ou manquement grave (fraude, diffusion
-            illicite des contenus, atteinte à la sécurité du site).
-          </p>
-        </Article>
+          <p>Il lui est notamment interdit :</p>
+          <LegalList items={[
+            "de tenter d'accéder sans autorisation aux systèmes informatiques du site ;",
+            'de contourner les dispositifs de sécurité ;',
+            'de perturber volontairement le fonctionnement du site ;',
+            'de procéder à une surcharge volontaire des serveurs ;',
+            "d'utiliser des robots ou systèmes automatisés pour extraire les contenus ou données ;",
+            "d'usurper l'identité d'une autre personne ;",
+            'de fournir volontairement de fausses informations ;',
+            'de diffuser des contenus illicites, haineux, discriminatoires, injurieux ou menaçants ;',
+            "de porter atteinte aux droits de l'Académie ou de tiers.",
+          ]} />
+        </LegalArticle>
 
-        <Article id="responsabilite" title="10. Disponibilité et responsabilité">
+        <LegalArticle id="suspension" title="10. Suspension ou suppression d'un compte">
+          <p>L&apos;utilisateur peut demander la suppression de son compte en contactant l&apos;Académie à l&apos;adresse : <ContactEmail /></p>
           <p>
-            L&apos;Académie met en œuvre les moyens raisonnables pour assurer un accès continu au site, sans
-            obligation de résultat. L&apos;accès peut être interrompu pour maintenance, mise à jour ou en cas de force
-            majeure ou de défaillance d&apos;un prestataire technique.
+            L&apos;Académie peut suspendre ou supprimer un compte en cas de violation des présentes CGU, notamment en cas
+            de fraude, de partage d&apos;identifiants, de diffusion non autorisée de contenus ou d&apos;atteinte à la
+            sécurité du site.
+          </p>
+          <p>Lorsque la situation le permet, l&apos;utilisateur est informé préalablement de la mesure envisagée.</p>
+          <p>
+            En cas de manquement grave ou de risque immédiat pour la sécurité du service ou les droits de l&apos;Académie
+            ou de tiers, une suspension immédiate peut être mise en œuvre.
           </p>
           <p>
-            L&apos;Académie ne saurait être tenue responsable des dommages résultant d&apos;une mauvaise utilisation du
-            site, d&apos;une indisponibilité temporaire, ou de l&apos;usage fait par l&apos;utilisateur des
-            enseignements proposés. Les contenus ont une vocation pédagogique et spirituelle et ne constituent pas un
-            conseil professionnel individualisé.
+            La suppression d&apos;un compte peut entraîner la perte de l&apos;accès aux contenus associés au compte, sous
+            réserve des droits impératifs dont bénéficie éventuellement l&apos;utilisateur et des conditions applicables
+            aux contenus achetés prévues dans les CGV.
           </p>
-        </Article>
+        </LegalArticle>
 
-        <Article id="donnees" title="11. Données personnelles et cookies">
-          <p>
-            Les données personnelles sont traitées conformément au Règlement général sur la protection des données
-            (RGPD). Les traitements, leurs finalités, les durées de conservation et les droits de l&apos;utilisateur
-            (accès, rectification, effacement, portabilité, opposition) sont détaillés dans la{' '}
-            <Link href="/politique-de-confidentialite" className={linkClass}>politique de confidentialité</Link>.
-          </p>
-          <p>
-            Le site utilise un cookie strictement nécessaire à la connexion au compte. Les préférences d&apos;affichage
-            (thème, taille du texte) sont enregistrées uniquement dans le navigateur de l&apos;utilisateur.
-          </p>
-        </Article>
+        <LegalArticle id="disponibilite" title="11. Disponibilité du site">
+          <p>L&apos;Académie met en œuvre des moyens raisonnables afin d&apos;assurer l&apos;accessibilité et le bon fonctionnement du site.</p>
+          <p>Le site peut toutefois être temporairement inaccessible notamment en raison :</p>
+          <LegalList items={[
+            "d'opérations de maintenance ;",
+            'de mises à jour ;',
+            "d'incidents techniques ;",
+            'de défaillances de prestataires ;',
+            'de difficultés liées aux réseaux Internet ;',
+            "d'un cas de force majeure.",
+          ]} />
+          <p>L&apos;Académie ne peut garantir une disponibilité permanente du site.</p>
+        </LegalArticle>
 
-        <Article id="liens" title="12. Liens et services tiers">
+        <LegalArticle id="responsabilite" title="12. Responsabilité">
+          <p>L&apos;utilisateur est responsable de l&apos;utilisation qu&apos;il fait du site et des contenus auxquels il accède.</p>
           <p>
-            Certaines vidéos sont diffusées au moyen de lecteurs de services tiers (par exemple YouTube ou Vimeo) et
-            le paiement est assuré par Stripe. L&apos;utilisation de ces services est également soumise à leurs
-            propres conditions. Les liens vers des sites extérieurs sont fournis à titre d&apos;information ;
-            l&apos;Académie n&apos;est pas responsable de leur contenu.
+            L&apos;Académie ne saurait être responsable des dommages résultant notamment d&apos;une mauvaise utilisation
+            du site, d&apos;une utilisation non conforme aux présentes CGU, d&apos;une indisponibilité temporaire
+            indépendante de sa volonté ou d&apos;une défaillance d&apos;un équipement appartenant à l&apos;utilisateur.
           </p>
-        </Article>
+          <p>Les contenus proposés par l&apos;Académie ont notamment une vocation pédagogique et spirituelle.</p>
+          <p>
+            Ils ne constituent pas, sauf indication contraire, un conseil professionnel, juridique, médical, financier
+            ou personnalisé.
+          </p>
+          <p>
+            Aucune stipulation des présentes CGU ne saurait avoir pour objet ou pour effet de supprimer ou limiter une
+            responsabilité qui ne peut légalement être exclue ou limitée.
+          </p>
+        </LegalArticle>
 
-        <Article id="modification" title="13. Modification des conditions">
+        <LegalArticle id="donnees" title="13. Données personnelles">
           <p>
-            L&apos;Académie peut modifier les présentes CGU, notamment pour suivre l&apos;évolution des services ou de
-            la réglementation. La version applicable est celle en ligne à la date d&apos;utilisation du site. En cas
-            de modification substantielle, les utilisateurs inscrits en sont informés par email ou lors de leur
-            connexion.
+            L&apos;Académie traite certaines données personnelles nécessaires notamment à la création et à la gestion
+            des comptes, à la fourniture des services, au traitement des commandes et au fonctionnement du site.
           </p>
-        </Article>
+          <p>Les modalités de traitement des données personnelles sont détaillées dans la {politique} accessible sur le site.</p>
+          <p>Cette politique précise notamment :</p>
+          <LegalList items={[
+            'les données collectées ;',
+            'les finalités des traitements ;',
+            'les bases légales ;',
+            'les destinataires ;',
+            'les durées de conservation ;',
+            'les droits des personnes concernées ;',
+            "les modalités d'exercice de ces droits.",
+          ]} />
+        </LegalArticle>
 
-        <Article id="droit" title="14. Droit applicable et litiges">
+        <LegalArticle id="cookies" title="14. Cookies et technologies similaires">
           <p>
-            Les présentes CGU sont soumises au droit français. En cas de difficulté, l&apos;utilisateur est invité à
-            contacter d&apos;abord l&apos;Académie à {CONTACT} afin de rechercher une solution amiable.
+            Le site peut utiliser des cookies et technologies similaires nécessaires à son fonctionnement, notamment pour
+            permettre l&apos;authentification et le maintien de la session de l&apos;utilisateur.
           </p>
           <p>
-            L&apos;utilisateur consommateur peut également recourir gratuitement à un médiateur de la consommation,
-            dans les conditions prévues par le Code de la consommation. À défaut d&apos;accord amiable, le litige est
-            porté devant les juridictions françaises compétentes.
+            Les éventuels cookies non strictement nécessaires sont utilisés conformément à la réglementation applicable
+            et font, lorsque nécessaire, l&apos;objet d&apos;un consentement préalable.
           </p>
-        </Article>
+          <p>
+            Les préférences d&apos;affichage pouvant être enregistrées localement dans le navigateur de l&apos;utilisateur
+            ne sont utilisées qu&apos;aux fins prévues lors de leur mise en place.
+          </p>
+        </LegalArticle>
+
+        <LegalArticle id="tiers" title="15. Services tiers">
+          <p>Le site peut utiliser des services fournis par des prestataires tiers, notamment :</p>
+          <LegalList items={[
+            'Stripe pour le traitement des paiements ;',
+            "YouTube, Vimeo ou d'autres prestataires pour la diffusion de certaines vidéos ;",
+            "des prestataires techniques nécessaires à l'hébergement et au fonctionnement du site.",
+          ]} />
+          <p>
+            L&apos;utilisation de ces services peut être soumise aux conditions contractuelles et politiques de
+            confidentialité propres à ces prestataires.
+          </p>
+          <p>Les traitements de données associés sont détaillés dans la {politique} de l&apos;Académie.</p>
+        </LegalArticle>
+
+        <LegalArticle id="liens" title="16. Liens externes">
+          <p>Le site peut contenir des liens vers des sites Internet exploités par des tiers.</p>
+          <p>Ces liens sont proposés à titre informatif.</p>
+          <p>
+            L&apos;Académie ne contrôle pas nécessairement le contenu ou le fonctionnement de ces sites et ne peut être
+            tenue responsable de leur contenu ou de leurs pratiques.
+          </p>
+        </LegalArticle>
+
+        <LegalArticle id="modification" title="17. Modification des CGU">
+          <p>
+            L&apos;Académie peut modifier les présentes CGU afin notamment de tenir compte de l&apos;évolution de ses
+            services, de ses fonctionnalités ou de la réglementation applicable.
+          </p>
+          <p>La version applicable est celle publiée sur le site à la date d&apos;utilisation du service.</p>
+          <p>
+            En cas de modification substantielle affectant les utilisateurs inscrits, l&apos;Académie pourra les informer
+            par email ou lors de leur prochaine connexion, lorsque cela est approprié.
+          </p>
+        </LegalArticle>
+
+        <LegalArticle id="droit" title="18. Droit applicable et règlement des litiges">
+          <p>Les présentes CGU sont soumises au droit français.</p>
+          <p>
+            En cas de difficulté ou de réclamation, l&apos;utilisateur est invité à contacter en premier lieu
+            l&apos;Académie : <ContactEmail />
+          </p>
+          <p>
+            Lorsqu&apos;il agit en qualité de consommateur, l&apos;utilisateur bénéficie des dispositions impératives de
+            protection qui lui sont applicables.
+          </p>
+          <p>
+            Les conditions relatives à la médiation de la consommation sont précisées dans les{' '}
+            <Link href="/cgv#mediation" className={legalLinkClass}>CGV</Link>.
+          </p>
+        </LegalArticle>
       </div>
     </div>
   );

@@ -44,6 +44,7 @@ export const SITE_SECTIONS: SiteSection[] = [
     links: [
       { href: '/mentions-legales', label: 'Mentions légales' },
       { href: '/cgu', label: "Conditions générales d'utilisation" },
+      { href: '/cgv', label: 'Conditions générales de vente' },
       { href: '/politique-de-confidentialite', label: 'Politique de confidentialité' },
       { href: '/accessibilite', label: 'Accessibilité' },
       { href: '/plan-du-site', label: 'Plan du site' },
