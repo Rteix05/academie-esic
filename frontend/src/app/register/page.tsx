@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptCgu, setAcceptCgu] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +93,24 @@ export default function RegisterPage() {
           <div>
             <label className="field-label" htmlFor="confirm-password">Confirmer le mot de passe</label>
             <input id="confirm-password" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
+          </div>
+
+          {/* Acceptation expresse des CGU, obligatoire pour créer un compte */}
+          <div className="flex items-start gap-3">
+            <input
+              id="accept-cgu"
+              type="checkbox"
+              required
+              checked={acceptCgu}
+              onChange={(e) => setAcceptCgu(e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-brand-forest/30 accent-brand-emerald"
+            />
+            <label htmlFor="accept-cgu" className="text-sm text-brand-muted">
+              J&apos;ai lu et j&apos;accepte les{' '}
+              <Link href="/cgu" target="_blank" rel="noopener" className="font-semibold text-brand-forest underline underline-offset-4 hover:text-brand-emerald dark:text-emerald-200">
+                conditions générales d&apos;utilisation<span className="sr-only"> (nouvelle fenêtre)</span>
+              </Link>.
+            </label>
           </div>
 
           <button type="submit" disabled={isLoading} className="btn-primary w-full justify-between py-4">
