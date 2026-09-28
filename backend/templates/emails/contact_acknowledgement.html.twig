@@ -1,0 +1,19 @@
+{% extends 'emails/layout.html.twig' %}
+{% import 'emails/_components.html.twig' as ui %}
+
+{% block content %}
+    <p style="margin:24px 4px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1C2C24;">
+        Bonjour <strong>{{ name }}</strong>,<br>
+        nous avons bien reçu votre message et nous vous répondrons dans les meilleurs délais, en principe sous 48 heures ouvrées.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;background-color:#F6F7F5;border-radius:16px;">
+        <tr>
+            <td style="padding:20px 24px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#3F4A44;">
+                <div style="font-size:15px;font-weight:bold;color:#0F291E;">Votre message</div>
+                <div style="margin-top:4px;color:#5B6660;">Sujet : {{ subject_label }} &middot; {{ sent_at|date('d/m/Y à H:i') }}</div>
+                {{ ui.quote(message) }}
+            </td>
+        </tr>
+    </table>
+{% endblock %}

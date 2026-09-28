@@ -28,7 +28,7 @@ security:
         # Routes réellement publiques et sans aucune opération d'écriture sensible.
         # Attention : "security: false" désactive aussi access_control pour ces chemins.
         api_public:
-            pattern: ^/api/(register|stripe/webhook|forgot-password|reset-password|video-stream)
+            pattern: ^/api/(register|contact|stripe/webhook|forgot-password|reset-password|video-stream)
             stateless: true
             security: false
 
@@ -63,6 +63,7 @@ security:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/logout, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/contact, roles: PUBLIC_ACCESS }
         - { path: ^/api/formations, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/masterclasses, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/events, roles: PUBLIC_ACCESS, methods: [GET] }

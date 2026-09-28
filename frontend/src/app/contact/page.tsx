@@ -4,17 +4,40 @@ import { useState } from 'react';
 import { ArrowRight, Mail, MapPin, Check, Clock } from 'lucide-react';
 import { PageHeader } from '@/components/ui';
 import { CONTACT_EMAIL } from '@/lib/contact';
+import { apiFetch } from '@/lib/api';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess]       = useState(false);
+  const [error, setError]               = useState<string | null>(null);
 
-  // TODO(API) : l'envoi est SIMULÉ — aucun message n'est réellement transmis.
-  // À brancher sur un endpoint backend (ex. POST /api/contact) avant la mise en production.
-  const handleSubmit = (e: React.FormEvent) => {
+  // Envoi à l'API : notification à l'Académie + accusé de réception par email au visiteur
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     setIsSubmitting(true);
-    setTimeout(() => { setIsSubmitting(false); setIsSuccess(true); }, 1500);
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    try {
+      const res = await apiFetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: data.get('name'),
+          email: data.get('email'),
+          subject: data.get('subject'),
+          message: data.get('message'),
+          website: data.get('website'), // champ piège anti-robots, toujours vide pour un humain
+        }),
+      });
+      const body: { message?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.message || "Votre message n'a pas pu être envoyé.");
+      form.reset();
+      setIsSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Votre message n'a pas pu être envoyé.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -61,39 +84,49 @@ export default function ContactPage() {
                 <Check className="h-8 w-8" aria-hidden="true" />
               </span>
               <h2 className="mt-5 font-display text-2xl font-semibold text-brand-forest">Message envoyé !</h2>
-              <p className="mt-2 text-brand-muted">Nous reviendrons vers vous dans les plus brefs délais.</p>
-              <button onClick={() => setIsSuccess(false)} className="btn-secondary mt-8">
+              <p className="mt-2 text-brand-muted">Un accusé de réception vient de vous être envoyé par email. Nous vous répondrons dans les meilleurs délais.</p>
+              <button type="button" onClick={() => setIsSuccess(false)} className="btn-secondary mt-8">
                 Envoyer un autre message
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="relative space-y-5">
               <p className="text-sm text-brand-muted">Les champs suivis d'un astérisque (*) sont obligatoires.</p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label className="field-label" htmlFor="name">Nom complet<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
-                  <input id="name" type="text" required autoComplete="name" className="field" placeholder="Jean Dupont" />
+                  <input id="name" name="name" type="text" required maxLength={100} autoComplete="name" className="field" placeholder="Jean Dupont" />
                 </div>
                 <div>
                   <label className="field-label" htmlFor="email">Email<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
-                  <input id="email" type="email" required autoComplete="email" className="field" placeholder="jean@exemple.com" />
+                  <input id="email" name="email" type="email" required maxLength={180} autoComplete="email" className="field" placeholder="jean@exemple.com" />
                 </div>
               </div>
 
               <div>
                 <label className="field-label" htmlFor="subject">Sujet</label>
-                <select id="subject" className="field">
-                  <option>Question sur une formation</option>
-                  <option>Problème technique</option>
-                  <option>Partenariat</option>
-                  <option>Autre</option>
+                <select id="subject" name="subject" className="field" defaultValue="formation">
+                  <option value="formation">Question sur une formation</option>
+                  <option value="technique">Problème technique</option>
+                  <option value="partenariat">Partenariat</option>
+                  <option value="autre">Autre</option>
                 </select>
               </div>
 
               <div>
                 <label className="field-label" htmlFor="message">Message<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
-                <textarea id="message" required rows={6} className="field resize-none" placeholder="Comment pouvons-nous vous aider ?" />
+                <textarea id="message" name="message" required minLength={10} maxLength={5000} rows={6} className="field resize-none" placeholder="Comment pouvons-nous vous aider ?" />
               </div>
+
+              {/* Champ piège anti-robots : invisible et ignoré par les humains et les lecteurs d'écran */}
+              <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                <label htmlFor="website">Ne pas remplir ce champ</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
+
+              {error && (
+                <p role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-200">{error}</p>
+              )}
 
               <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-between py-4">
                 {isSubmitting ? 'Envoi en cours…' : 'Envoyer le message'}

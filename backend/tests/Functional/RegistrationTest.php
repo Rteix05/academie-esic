@@ -18,6 +18,21 @@ final class RegistrationTest extends ApiTestCase
         self::assertNotNull($user);
         self::assertSame(['ROLE_USER'], $user->getRoles());
         self::assertNotSame($password, $user->getPassword(), 'Le mot de passe doit être haché');
+
+        // Email de bienvenue au nouvel inscrit
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertEmailAddressContains($email, 'To', 'nouvel.eleve@test.fr');
+        self::assertEmailHeaderSame($email, 'Subject', 'Bienvenue à l\'Académie E.S.I.C.');
+        self::assertEmailHtmlBodyContains($email, 'Bienvenue à l');
+        self::assertEmailHtmlBodyContains($email, 'nouvel.eleve@test.fr');
+    }
+
+    public function testNoWelcomeEmailWhenRegistrationFails(): void
+    {
+        $this->jsonRequest('POST', '/api/register', ['email' => 'pas-un-email', 'password' => self::validPassword()]);
+        self::assertResponseStatusCodeSame(422);
+        self::assertEmailCount(0);
     }
 
     /**

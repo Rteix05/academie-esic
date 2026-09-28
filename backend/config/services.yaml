@@ -6,6 +6,8 @@
 parameters:
     # Expéditeur des emails si MAILER_FROM n'est pas défini
     mailer_from_default: 'noreply@academie-esic.fr'
+    # Destinataire des messages du formulaire de contact si CONTACT_EMAIL n'est pas défini
+    contact_email_default: 'panzusamuelpanzu@gmail.com'
     # Proxys de confiance par défaut : reverse proxy local uniquement
     env(TRUSTED_PROXIES): '127.0.0.1'
 

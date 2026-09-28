@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Mailer\AppMailer;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,8 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $em,
         ValidatorInterface $validator,
-        RateLimiterFactoryInterface $registrationLimiter
+        RateLimiterFactoryInterface $registrationLimiter,
+        AppMailer $mailer,
     ): JsonResponse {
         $limit = $registrationLimiter->create($request->getClientIp())->consume();
         if (!$limit->isAccepted()) {
@@ -92,6 +94,9 @@ class RegistrationController extends AbstractController
         } catch (UniqueConstraintViolationException) {
             return $this->json(['message' => 'Cet email est déjà utilisé par un autre compte.'], 409);
         }
+
+        // 5. Email de bienvenue (un échec d'envoi ne bloque pas l'inscription)
+        $mailer->sendWelcome($user);
 
         return $this->json([
             'success' => true,

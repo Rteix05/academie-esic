@@ -1,42 +1,40 @@
 {% extends 'emails/layout.html.twig' %}
+{% import 'emails/_components.html.twig' as ui %}
 
 {% block content %}
-    <h2 style="color:#0F291E;">Confirmation de votre commande</h2>
-    <p>Bonjour <strong>{{ display_name }}</strong>,</p>
-    <p>Nous vous confirmons votre commande :</p>
-    <table style="border-collapse:collapse;margin-top:16px;font-size:14px;">
-        <tr><td style="padding:4px 16px 4px 0;color:#666;">Contenu</td><td><strong>{{ payment.label }}</strong></td></tr>
-        <tr><td style="padding:4px 16px 4px 0;color:#666;">Prix payé</td><td><strong>{{ (payment.amountCents / 100)|number_format(2, ',', ' ') }} {{ payment.currency|upper }}</strong></td></tr>
-        <tr><td style="padding:4px 16px 4px 0;color:#666;">Date de commande</td><td>{{ payment.createdAt|date('d/m/Y à H:i') }}</td></tr>
-        {% if payment.stripeSessionId %}
-            <tr><td style="padding:4px 16px 4px 0;color:#666;">Référence</td><td style="font-family:monospace;font-size:12px;">{{ payment.stripeSessionId|slice(-12) }}</td></tr>
-        {% endif %}
+    <p style="margin:24px 4px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1C2C24;">
+        Bonjour <strong>{{ display_name }}</strong>,<br>
+        nous vous confirmons votre commande. Votre contenu est maintenant disponible dans votre espace personnel.
+    </p>
+
+    {{ ui.card('Votre commande', [
+        { label: 'Contenu', value: payment.label },
+        { label: 'Date de commande', value: payment.createdAt|date('d/m/Y à H:i') },
+        { label: 'Référence', value: reference },
+    ], { label: 'Total payé', value: ui.amount(payment.amountCents, payment.currency) }) }}
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;background-color:#F6F7F5;border-radius:16px;">
+        <tr>
+            <td style="padding:20px 24px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#3F4A44;">
+                <div style="font-size:15px;font-weight:bold;color:#0F291E;margin-bottom:8px;">Conditions applicables</div>
+                {% if payment.cgvVersion %}
+                    Vous avez accepté les Conditions Générales de Vente (version du {{ payment.cgvVersion matches '/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/' ? payment.cgvVersion|date('d/m/Y') : payment.cgvVersion }})
+                    le {{ payment.cgvAcceptedAt|date('d/m/Y à H:i') }}. Elles sont consultables à l'adresse :
+                {% else %}
+                    Les Conditions Générales de Vente sont consultables à l'adresse :
+                {% endif %}
+                <a href="{{ cgv_url }}" style="color:#047857;">{{ cgv_url }}</a>
+
+                {% if payment.immediateAccessConsentAt %}
+                    <div style="margin-top:12px;">Le {{ payment.immediateAccessConsentAt|date('d/m/Y à H:i') }}, avant le paiement, vous avez coché la mention suivante :</div>
+                    {{ ui.quote('« ' ~ consent_statement ~ ' »') }}
+                {% endif %}
+            </td>
+        </tr>
     </table>
-    <p style="margin-top:16px;">Votre contenu est maintenant disponible dans votre espace personnel.</p>
-
-    <h3 style="color:#0F291E;font-size:15px;margin-top:24px;">Conditions applicables</h3>
-    {% if payment.cgvVersion %}
-        <p style="font-size:14px;">
-            Vous avez accepté les Conditions Générales de Vente (version du {{ payment.cgvVersion }})
-            le {{ payment.cgvAcceptedAt|date('d/m/Y à H:i') }}.
-            Elles sont consultables à l'adresse : <a href="{{ cgv_url }}" style="color:#047857;">{{ cgv_url }}</a>
-        </p>
-    {% else %}
-        <p style="font-size:14px;">Les Conditions Générales de Vente sont consultables à l'adresse : <a href="{{ cgv_url }}" style="color:#047857;">{{ cgv_url }}</a></p>
-    {% endif %}
-
-    {% if payment.immediateAccessConsentAt %}
-        <p style="font-size:14px;">
-            Le {{ payment.immediateAccessConsentAt|date('d/m/Y à H:i') }}, avant le paiement, vous avez coché la mention suivante :
-        </p>
-        <blockquote style="margin:8px 0 0;padding:10px 14px;border-left:4px solid #047857;background:#F0FDF4;font-size:14px;font-style:italic;">
-            « {{ consent_statement }} »
-        </blockquote>
-    {% endif %}
 {% endblock %}
 
-{% block footer %}
-    <p style="color:#666;font-size:12px;margin-top:24px;">
-        Cet email confirme votre commande et les conditions acceptées. Conservez-le pour vos archives.
-    </p>
+{% block footer_note %}
+    Cet email confirme votre commande et les conditions acceptées : conservez-le pour vos archives.
+    Merci de ne pas y répondre ; pour toute question, écrivez à {{ contact_email }}.
 {% endblock %}
