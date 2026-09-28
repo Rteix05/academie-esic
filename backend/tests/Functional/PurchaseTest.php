@@ -5,15 +5,20 @@ namespace App\Tests\Functional;
 use App\Entity\MasterclassPurchase;
 use App\Entity\Payment;
 use App\Entity\ProductType;
+use App\Legal\SalesTerms;
 use App\Tests\ApiTestCase;
 use App\Tests\Double\FakeStripeGateway;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Parcours d'achat : création de session, webhook signé, confirmation par le navigateur,
- * idempotence et historique au montant réellement payé.
+ * Parcours d'achat : consentements (CGV, accès immédiat), création de session, webhook signé,
+ * confirmation par le navigateur, idempotence et historique au montant réellement payé.
  */
 final class PurchaseTest extends ApiTestCase
 {
+    /** Consentements cochés par le client avant le paiement */
+    private const CONSENTS = ['acceptCgv' => true, 'immediateAccess' => true];
+
     public function testPaidFormationCannotBeEnrolledForFree(): void
     {
         $this->createUser();
@@ -56,7 +61,7 @@ final class PurchaseTest extends ApiTestCase
         $formation = $this->createFormation(price: 149.99);
         $this->login();
 
-        $this->jsonRequest('POST', '/api/stripe/checkout/formation/' . $formation->getId());
+        $this->jsonRequest('POST', '/api/stripe/checkout/formation/' . $formation->getId(), self::CONSENTS);
         self::assertResponseIsSuccessful();
         self::assertStringStartsWith('https://checkout.stripe.test/', $this->responseJson()['url']);
 
@@ -64,6 +69,72 @@ final class PurchaseTest extends ApiTestCase
         self::assertSame(14999, $params['line_items'][0]['price_data']['unit_amount'], 'Pas de perte de centime à l\'arrondi');
         self::assertSame('eleve@test.fr', $params['metadata']['user_email']);
         self::assertSame((string) $formation->getId(), $params['metadata']['formation_id']);
+
+        // Consentements transmis à Stripe pour être enregistrés avec le paiement
+        self::assertSame(SalesTerms::CGV_VERSION, $params['metadata'][SalesTerms::META_CGV_VERSION]);
+        self::assertNotFalse(\DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $params['metadata'][SalesTerms::META_CGV_ACCEPTED_AT]));
+        self::assertArrayHasKey(SalesTerms::META_IMMEDIATE_ACCESS_AT, $params['metadata']);
+    }
+
+    /**
+     * @return iterable<string, array{0: array<string, mixed>|null, 1: list<string>}>
+     */
+    public static function missingConsents(): iterable
+    {
+        yield 'aucun consentement' => [null, ['acceptCgv', 'immediateAccess']];
+        yield 'CGV seules' => [['acceptCgv' => true], ['immediateAccess']];
+        yield 'accès immédiat seul' => [['immediateAccess' => true], ['acceptCgv']];
+        yield 'valeurs non booléennes' => [['acceptCgv' => 'oui', 'immediateAccess' => 1], ['acceptCgv', 'immediateAccess']];
+    }
+
+    /**
+     * @param array<string, mixed>|null $body
+     * @param list<string> $missing
+     */
+    #[DataProvider('missingConsents')]
+    public function testCheckoutRequiresBothConsents(?array $body, array $missing): void
+    {
+        $this->createUser();
+        $formation = $this->createFormation(price: 99.0);
+        $masterclass = $this->createMasterclass();
+        $this->login();
+
+        foreach (['/api/stripe/checkout/formation/' . $formation->getId(), '/api/stripe/checkout/' . $masterclass->getId() . '/pack'] as $uri) {
+            $this->jsonRequest('POST', $uri, $body);
+            self::assertResponseStatusCodeSame(422);
+            self::assertSame($missing, $this->responseJson()['missing']);
+        }
+
+        self::assertSame([], FakeStripeGateway::$createdSessions, 'Aucune session de paiement sans consentement');
+    }
+
+    public function testFulfillmentRecordsConsentsAndConfirmationEmailQuotesThem(): void
+    {
+        $user = $this->createUser();
+        $masterclass = $this->createMasterclass();
+        $consentedAt = '2026-10-01T10:15:00+02:00';
+        $session = FakeStripeGateway::sessionData('cs_test_consent', [
+            'user_email' => 'eleve@test.fr', 'masterclass_id' => (string) $masterclass->getId(), 'option' => 'video',
+            SalesTerms::META_CGV_VERSION         => SalesTerms::CGV_VERSION,
+            SalesTerms::META_CGV_ACCEPTED_AT     => $consentedAt,
+            SalesTerms::META_IMMEDIATE_ACCESS_AT => $consentedAt,
+        ], amountTotal: 2900);
+
+        $this->postWebhook('checkout.session.completed', $session);
+        self::assertResponseIsSuccessful();
+
+        $payment = $this->em()->getRepository(Payment::class)->findOneBy(['user' => $user->getId()]);
+        self::assertSame(SalesTerms::CGV_VERSION, $payment?->getCgvVersion());
+        self::assertEquals(new \DateTimeImmutable($consentedAt), $payment->getCgvAcceptedAt());
+        self::assertEquals(new \DateTimeImmutable($consentedAt), $payment->getImmediateAccessConsentAt());
+
+        // Confirmation sur support durable : récapitulatif, CGV acceptées et mention de renonciation
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertEmailHeaderSame($email, 'Subject', 'Confirmation de votre commande – Académie E.S.I.C.');
+        self::assertEmailHtmlBodyContains($email, '29,00 EUR');
+        self::assertEmailHtmlBodyContains($email, 'version du ' . SalesTerms::CGV_VERSION);
+        self::assertEmailHtmlBodyContains($email, htmlspecialchars(SalesTerms::IMMEDIATE_ACCESS_CONSENT, ENT_QUOTES));
     }
 
     public function testWebhookGrantsMasterclassAndRecordsAmountPaid(): void

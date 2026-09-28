@@ -4,8 +4,8 @@ namespace App\Mailer;
 
 use App\Entity\Event;
 use App\Entity\Payment;
-use App\Entity\ProductType;
 use App\Entity\User;
+use App\Legal\SalesTerms;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -45,15 +45,19 @@ class AppMailer
     {
         $user = $payment->getUser();
 
+        // Confirmation sur support durable (CGV, articles 7 et 10) : récapitulatif, conditions
+        // acceptées et, le cas échéant, demande d'accès immédiat avec renonciation à la rétractation
         $this->send(
             $user->getEmail(),
-            'Confirmation d\'achat — ' . $payment->getLabel(),
+            'Confirmation de votre commande – Académie E.S.I.C.',
             'emails/purchase_confirmation.html.twig',
             [
-                'display_name' => $this->displayName($user),
-                'payment'      => $payment,
-                'cta_url'      => $this->url($payment->getProductType() === ProductType::Formation ? '/formations/' . $payment->getProductId() : '/dashboard'),
-                'cta_label'    => 'Accéder à mon contenu',
+                'display_name'      => $this->displayName($user),
+                'payment'           => $payment,
+                'cta_url'           => $this->url('/dashboard'),
+                'cta_label'         => 'Accéder à mon espace personnel',
+                'cgv_url'           => $this->url('/cgv'),
+                'consent_statement' => SalesTerms::IMMEDIATE_ACCESS_CONSENT,
             ]
         );
     }

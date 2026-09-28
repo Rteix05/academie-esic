@@ -98,7 +98,7 @@ export default async function FormationDetailPage({ params }: { params: Promise<
             {facts.filter((f) => f.label !== 'Formateur').map((f) => (
               <Perk key={f.label} icon={f.icon}>{f.label} : <strong className="font-semibold text-brand-forest">{f.value}</strong></Perk>
             ))}
-            <Perk icon={<GraduationCap className="h-4 w-4" />}>Accès à vie au contenu</Perk>
+            <Perk icon={<GraduationCap className="h-4 w-4" />}>Accès au contenu depuis votre espace</Perk>
             <Perk icon={<Award className="h-4 w-4" />}>Certificat de réussite inclus</Perk>
           </ul>
           <a href="#contenu-principal" className="btn-secondary mt-6 w-full">Retour en haut</a>
