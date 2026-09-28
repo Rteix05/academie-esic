@@ -3,9 +3,13 @@ import Link from 'next/link';
 import { ArrowRight, Quote } from 'lucide-react';
 import { PageHeader } from '@/components/ui';
 
+// Page masquée : retirée du menu, du pied de page, du plan du site et du sitemap,
+// et non indexée tant que les témoignages sont des données de démonstration.
+// Pour la publier : retirer `robots` ci-dessous et rétablir les liens (Navbar, lib/siteMap.ts, sitemap.ts).
 export const metadata: Metadata = {
   title: 'Témoignages',
   description: "Des récits d'étudiants sur l'impact des formations de l'Académie E.S.I.C.",
+  robots: { index: false, follow: false },
 };
 
 // TODO(API) : remplacer temoignagesDemo par l'appel à l'API Symfony (ex: GET /api/temoignages)

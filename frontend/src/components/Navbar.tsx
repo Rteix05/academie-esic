@@ -20,7 +20,7 @@ const NAV_LINKS = [
   { href: '/histoire',    label: 'À propos' },
   { href: '/formations',  label: 'Formations' },
   { href: '/masterclass', label: 'Masterclass' },
-  { href: '/temoignages', label: 'Témoignages' },
+  // Témoignages : page conservée mais masquée jusqu'à la réception de vrais avis
   { href: '/contact',     label: 'Contact' },
 ];
 

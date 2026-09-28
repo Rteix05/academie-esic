@@ -6,12 +6,6 @@ import { collection, formationToItem, masterclassToItem, type CatalogItem, type 
 import { ArrowRight, BookOpen, Heart, Flame, Quote, Feather, Award, GraduationCap, Users, ShieldCheck, Sparkles, CalendarDays } from 'lucide-react';
 
 // TODO(API) : données de démonstration — remplacer par des appels API réels
-const temoignagesDemo = [
-  { nom: "Ruth M.", formation: "Institut Biblique Théologique", initiales: "RM", citation: "Cette formation a changé ma manière de lire la Bible et de vivre ma foi au quotidien." },
-  { nom: "Samuel K.", formation: "École du Ministère et du Leadership", initiales: "SK", citation: "J'ai appris à conduire avec plus de sagesse et de discernement dans mon ministère." },
-  { nom: "Naomi T.", formation: "Discipulat", initiales: "NT", citation: "Un accompagnement solide qui m'a aidée à comprendre et à assumer mon appel." },
-];
-
 const actualitesDemo = [
   { date: "Septembre 2026", titre: "Ouverture des inscriptions pour la nouvelle session", resume: "Les inscriptions pour l'Institut Biblique Théologique et l'École du Ministère sont désormais ouvertes." },
   { date: "Août 2026", titre: "Nouvelle formation en Leadership chrétien", resume: "Un nouveau programme dédié à la formation de leaders spirituels compétents fait son entrée à l'Académie." },
@@ -277,40 +271,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 5. TÉMOIGNAGES ──────────────────────────────────────────────────── */}
-      <section className="bg-brand-mint py-24 dark:bg-[#0f1f16]">
-        <div className="container-page">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="eyebrow bg-white">Ils témoignent</span>
-            <h2 className="section-title mt-4">Ce que nos étudiants disent de nous</h2>
-          </div>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {temoignagesDemo.map((t) => (
-              <figure key={t.nom} className="card-hover flex flex-col p-8">
-                <div className="flex items-center gap-4">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-forest font-display text-sm font-semibold text-white ring-4 ring-brand-sage">
-                    {t.initiales}
-                  </span>
-                  <figcaption>
-                    <span className="block font-display text-base font-semibold text-brand-forest">{t.nom}</span>
-                    <span className="block text-xs text-brand-muted">{t.formation}</span>
-                  </figcaption>
-                </div>
-                <blockquote className="mt-6 flex-1 text-sm leading-relaxed text-brand-muted">
-                  &ldquo;{t.citation}&rdquo;
-                </blockquote>
-              </figure>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <Link href="/temoignages" className="btn-secondary">
-              Voir tous les témoignages <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Témoignages : section retirée jusqu'à la réception de vrais avis (Académie pas encore lancée) */}
 
       {/* ── 6. ACTUALITÉS ───────────────────────────────────────────────────── */}
       <section className="container-page py-24">
