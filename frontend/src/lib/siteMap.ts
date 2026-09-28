@@ -43,6 +43,7 @@ export const SITE_SECTIONS: SiteSection[] = [
     title: 'Informations',
     links: [
       { href: '/mentions-legales', label: 'Mentions légales' },
+      { href: '/cgu', label: "Conditions générales d'utilisation" },
       { href: '/politique-de-confidentialite', label: 'Politique de confidentialité' },
       { href: '/accessibilite', label: 'Accessibilité' },
       { href: '/plan-du-site', label: 'Plan du site' },

@@ -74,6 +74,7 @@ export default function Footer() {
             </p>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <li><Link href="/mentions-legales" className="underline-offset-4 transition hover:text-white hover:underline">Mentions légales</Link></li>
+              <li><Link href="/cgu" className="underline-offset-4 transition hover:text-white hover:underline">CGU</Link></li>
               <li><Link href="/politique-de-confidentialite" className="underline-offset-4 transition hover:text-white hover:underline">Confidentialité</Link></li>
               <li><Link href="/accessibilite" className="underline-offset-4 transition hover:text-white hover:underline">Accessibilité : non conforme</Link></li>
               <li><Link href="/plan-du-site" className="underline-offset-4 transition hover:text-white hover:underline">Plan du site</Link></li>
