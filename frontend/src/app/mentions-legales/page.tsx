@@ -73,8 +73,13 @@ export default function MentionsLegalesPage() {
           <section>
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">5. Cookies</h2>
             <p>
-              Ce site utilise des cookies techniques nécessaires à son bon fonctionnement (authentification,
-              session utilisateur). Aucun cookie publicitaire ou de tracking tiers n'est utilisé.
+              Ce site utilise uniquement un cookie technique nécessaire à la connexion au compte. Aucun cookie
+              publicitaire ni de mesure d'audience n'est utilisé. Les lecteurs vidéo de services tiers (YouTube,
+              Google Drive, Vimeo), susceptibles de déposer leurs propres cookies, ne sont chargés qu'après votre
+              accord. Voir la{' '}
+              <Link href="/politique-de-confidentialite#cookies" className="font-medium text-brand-emerald underline underline-offset-4">
+                politique de confidentialité
+              </Link>.
             </p>
           </section>
 

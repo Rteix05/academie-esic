@@ -18,7 +18,7 @@
     --bg-card:    20  32  24;    /* vert foncé */
     --bg-subtle:  24  40  30;    /* vert moyen */
     --text-base:  214 237 222;   /* emerald-100 */
-    --text-muted: 107 150 128;   /* vert moyen clair */
+    --text-muted: 138 176 157;   /* vert moyen clair (contraste AA ≥ 4,5:1 aussi sur les cartes sombres) */
     --border:     45  74  53;    /* bordure verte sombre */
   }
 

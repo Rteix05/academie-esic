@@ -1,9 +1,22 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ExternalLink, PlayCircle } from 'lucide-react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { ExternalLink, Play, PlayCircle } from 'lucide-react';
 import { API_URL, apiFetch } from '@/lib/api';
 import { resolvePcloudFile, resolveVideoSource } from '@/lib/videoSource';
+import { PROVIDER_PRIVACY_URL, hasVideoConsent, rememberVideoConsent } from '@/lib/videoConsent';
+
+/** Démarrage automatique après le clic de consentement (YouTube et Vimeo le permettent) */
+function withAutoplay(url: string): string {
+  try {
+    const u = new URL(url);
+    if (/youtube(-nocookie)?\.com$|vimeo\.com$/.test(u.hostname)) u.searchParams.set('autoplay', '1');
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
 
 interface Props {
   /** URL externe (http...) ou nom de fichier local */
@@ -29,6 +42,16 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
   // Lien externe : lecteur intégré (YouTube, Vimeo, Drive), fichier (Dropbox, .mp4), pCloud ou lien simple
   const source = useMemo(() => (isExternal ? resolveVideoSource(src) : null), [src, isExternal]);
   const [fallback, setFallback] = useState(false);
+
+  // ─── Consentement aux lecteurs tiers (cookies YouTube, Google, Vimeo) ────
+  // Le lecteur n'est chargé qu'après un clic, sauf accord mémorisé pour ce service
+  const [thirdPartyAllowed, setThirdPartyAllowed] = useState(() => {
+    const s = isExternal ? resolveVideoSource(src) : null;
+    return s?.kind === 'iframe' && hasVideoConsent(s.provider);
+  });
+  const [startedByClick, setStartedByClick] = useState(false);
+  const [rememberChoice, setRememberChoice] = useState(false);
+  const consentId = useId();
 
   useEffect(() => {
     if (source) {
@@ -163,12 +186,67 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
     );
   }
 
-  // Lecteur officiel de l'hébergeur (YouTube, Vimeo, Google Drive)
+  // Lecteur tiers pas encore autorisé : aucune requête vers le service tant que l'utilisateur n'a pas cliqué
+  if (source?.kind === 'iframe' && !thirdPartyAllowed) {
+    const privacyUrl = PROVIDER_PRIVACY_URL[source.provider];
+    const start = () => {
+      if (rememberChoice) rememberVideoConsent(source.provider);
+      setStartedByClick(true);
+      setThirdPartyAllowed(true);
+    };
+
+    return (
+      <div className="relative flex h-full w-full items-center justify-center overflow-y-auto bg-brand-forest p-5 sm:p-8">
+        <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
+        <div className="relative z-10 flex max-w-md flex-col items-center text-center">
+          {/* Raccourci souris ; au clavier et au lecteur d'écran, c'est le bouton « Lancer la vidéo » ci-dessous */}
+          <button
+            type="button"
+            onClick={start}
+            tabIndex={-1}
+            aria-hidden="true"
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-brand-forest shadow-float transition hover:scale-105"
+          >
+            <Play className="ml-1 h-7 w-7" aria-hidden="true" />
+          </button>
+          <p className="mt-4 font-display text-base font-semibold text-white">Vidéo hébergée par {source.provider}</p>
+          <p className="mt-2 text-sm text-emerald-50">
+            En lançant la vidéo, vous acceptez que {source.provider} dépose des cookies et collecte des données de
+            navigation, conformément à{' '}
+            {privacyUrl ? (
+              <a href={privacyUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline underline-offset-4">
+                sa politique de confidentialité<span className="sr-only"> (nouvelle fenêtre)</span>
+              </a>
+            ) : 'sa politique de confidentialité'}.
+            {' '}
+            <Link href="/politique-de-confidentialite#cookies" className="font-semibold text-white underline underline-offset-4">En savoir plus</Link>
+          </p>
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              id={consentId}
+              type="checkbox"
+              checked={rememberChoice}
+              onChange={(e) => setRememberChoice(e.target.checked)}
+              className="h-4 w-4 shrink-0 cursor-pointer rounded accent-brand-emerald"
+            />
+            <label htmlFor={consentId} className="text-sm text-emerald-50">
+              Mémoriser mon choix pour {source.provider} (6 mois)
+            </label>
+          </div>
+          <button type="button" onClick={start} className="btn mt-5 bg-white px-6 py-3 text-brand-forest shadow-soft hover:-translate-y-0.5">
+            Lancer la vidéo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Lecteur officiel de l'hébergeur (YouTube, Vimeo, Google Drive), après consentement
   if (source?.kind === 'iframe') {
     return (
       <div className="relative h-full w-full select-none overflow-hidden bg-black">
         <iframe
-          src={source.src}
+          src={startedByClick ? withAutoplay(source.src) : source.src}
           title={`Lecteur vidéo ${source.provider}`}
           className={`absolute inset-0 h-full w-full border-0 transition-[filter] duration-300 ${devToolsOpen ? 'blur-2xl' : ''}`}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
