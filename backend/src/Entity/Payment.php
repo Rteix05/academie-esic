@@ -56,6 +56,22 @@ class Payment
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /*
+     * Preuve des consentements recueillis avant le paiement (CGV, article 10).
+     * Null pour les achats antérieurs à leur recueil.
+     */
+
+    /** Version des CGV acceptée par le client pour cette commande */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $cgvVersion = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $cgvAcceptedAt = null;
+
+    /** Demande expresse d'accès immédiat et renonciation au droit de rétractation */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $immediateAccessConsentAt = null;
+
     public function __construct(User $user, ProductType $productType, int $productId, string $label, int $amountCents, string $currency, ?string $stripeSessionId)
     {
         $this->user = $user;
@@ -82,4 +98,17 @@ class Payment
     public function getCurrency(): string { return $this->currency; }
     public function getStripeSessionId(): ?string { return $this->stripeSessionId; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+
+    public function recordConsents(string $cgvVersion, \DateTimeImmutable $cgvAcceptedAt, ?\DateTimeImmutable $immediateAccessConsentAt): static
+    {
+        $this->cgvVersion = mb_substr($cgvVersion, 0, 20);
+        $this->cgvAcceptedAt = $cgvAcceptedAt;
+        $this->immediateAccessConsentAt = $immediateAccessConsentAt;
+
+        return $this;
+    }
+
+    public function getCgvVersion(): ?string { return $this->cgvVersion; }
+    public function getCgvAcceptedAt(): ?\DateTimeImmutable { return $this->cgvAcceptedAt; }
+    public function getImmediateAccessConsentAt(): ?\DateTimeImmutable { return $this->immediateAccessConsentAt; }
 }

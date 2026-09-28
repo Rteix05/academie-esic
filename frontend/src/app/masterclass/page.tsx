@@ -64,7 +64,7 @@ export default function MasterclassPage() {
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
             { icon: ShieldCheck, titre: 'Paiement sécurisé', desc: 'Transactions protégées par Stripe' },
-            { icon: Clock,       titre: 'Accès à vie',        desc: 'Apprenez à votre rythme' },
+            { icon: Clock,       titre: 'Accès immédiat',     desc: 'Apprenez à votre rythme' },
             { icon: BookOpen,    titre: "Supports d'étude",   desc: 'Vidéos et livrets PDF' },
           ].map(({ icon: Icon, titre, desc }) => (
             <li key={titre} className="card flex items-center gap-4 px-5 py-4">

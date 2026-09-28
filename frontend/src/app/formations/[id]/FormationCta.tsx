@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import PurchaseConsent, { usePurchaseConsent } from '@/components/PurchaseConsent';
 
 /**
  * Appel à l'action principal de la fiche formation (partie interactive, côté client) :
@@ -16,6 +17,7 @@ export default function FormationCta({ formationId, price, available }: { format
   const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isFree = !price || price <= 0;
+  const consent = usePurchaseConsent();
 
   useEffect(() => {
     // Non connecté : 401 → pas acquise
@@ -26,13 +28,15 @@ export default function FormationCta({ formationId, price, available }: { format
   }, [formationId]);
 
   const handleCheckout = async () => {
-    setEnrolling(true);
     setError(null);
+    // Formation payante : consentements obligatoires avant le paiement (CGV et accès immédiat)
+    if (!isFree && !consent.validate()) return;
+    setEnrolling(true);
     try {
       // Formation gratuite : inscription directe. Payante : session de paiement Stripe.
       const res = await apiFetch(
         isFree ? `/api/formations/${formationId}/enroll` : `/api/stripe/checkout/formation/${formationId}`,
-        { method: 'POST' },
+        isFree ? { method: 'POST' } : { method: 'POST', body: JSON.stringify(consent.consents) },
       );
       if (res.status === 401) { router.push('/login'); return; }
 
@@ -70,8 +74,9 @@ export default function FormationCta({ formationId, price, available }: { format
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <button onClick={handleCheckout} disabled={enrolling} className="btn bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5">
+    <div className="flex max-w-xl flex-col gap-4">
+      {!isFree && <PurchaseConsent state={consent} tone="dark" />}
+      <button type="button" onClick={handleCheckout} disabled={enrolling} className="btn bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5">
         {enrolling ? (
           <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> {isFree ? 'Inscription…' : 'Redirection vers le paiement…'}</>
         ) : isFree ? "S'inscrire gratuitement" : `S'inscrire — ${price} €`}

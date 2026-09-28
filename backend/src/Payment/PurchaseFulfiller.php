@@ -11,6 +11,7 @@ use App\Entity\Payment;
 use App\Entity\ProductType;
 use App\Entity\RegistrationStatus;
 use App\Entity\User;
+use App\Legal\SalesTerms;
 use App\Mailer\AppMailer;
 use App\Repository\EventRegistrationRepository;
 use App\Repository\PaymentRepository;
@@ -105,6 +106,7 @@ class PurchaseFulfiller
         }
 
         $payment = new Payment($user, ProductType::Formation, $formationId, (string) $formation->getTitle(), $this->amount($session), $this->currency($session), $session->id);
+        $this->applyConsents($payment, $session);
 
         return $this->record($payment)
             ? FulfillmentResult::granted(ProductType::Formation, $formationId)
@@ -146,6 +148,7 @@ class PurchaseFulfiller
         $label = $masterclass->getTitle() . ' — ' . self::MASTERCLASS_OPTIONS[$option];
         $payment = (new Payment($user, ProductType::Masterclass, $masterclassId, $label, $this->amount($session), $this->currency($session), $session->id))
             ->setOption($option);
+        $this->applyConsents($payment, $session);
 
         return $this->record($payment)
             ? FulfillmentResult::granted(ProductType::Masterclass, $masterclassId)
@@ -206,6 +209,35 @@ class PurchaseFulfiller
         }
 
         return true;
+    }
+
+    /**
+     * Recopie dans le paiement les consentements transmis à la création de la session
+     * (version des CGV acceptée, demande d'accès immédiat) : preuve conservée par commande.
+     */
+    private function applyConsents(Payment $payment, Session $session): void
+    {
+        $metadata = $session->metadata ? $session->metadata->toArray() : [];
+        $version = $metadata[SalesTerms::META_CGV_VERSION] ?? null;
+        $acceptedAt = $this->parseDate($metadata[SalesTerms::META_CGV_ACCEPTED_AT] ?? null);
+
+        if (!is_string($version) || $version === '' || !$acceptedAt) {
+            // Session créée sans consentement (ne devrait pas arriver) : à examiner
+            $this->logger->warning('Paiement Stripe sans consentement CGV enregistré', ['session_id' => $session->id]);
+
+            return;
+        }
+
+        $payment->recordConsents($version, $acceptedAt, $this->parseDate($metadata[SalesTerms::META_IMMEDIATE_ACCESS_AT] ?? null));
+    }
+
+    private function parseDate(mixed $value): ?\DateTimeImmutable
+    {
+        if (!is_string($value) || $value === '') {
+            return null;
+        }
+
+        return \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value) ?: null;
     }
 
     private function amount(Session $session): int

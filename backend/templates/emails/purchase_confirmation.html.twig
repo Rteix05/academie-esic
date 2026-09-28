@@ -1,18 +1,42 @@
 {% extends 'emails/layout.html.twig' %}
 
 {% block content %}
-    <h2 style="color:#0F291E;">Merci pour votre achat !</h2>
+    <h2 style="color:#0F291E;">Confirmation de votre commande</h2>
     <p>Bonjour <strong>{{ display_name }}</strong>,</p>
-    <p>Votre achat de <strong>{{ payment.label }}</strong> a bien été enregistré.</p>
+    <p>Nous vous confirmons votre commande :</p>
     <table style="border-collapse:collapse;margin-top:16px;font-size:14px;">
-        <tr><td style="padding:4px 16px 4px 0;color:#888;">Montant payé</td><td><strong>{{ (payment.amountCents / 100)|number_format(2, ',', ' ') }} {{ payment.currency|upper }}</strong></td></tr>
-        <tr><td style="padding:4px 16px 4px 0;color:#888;">Date</td><td>{{ payment.createdAt|date('d/m/Y à H:i') }}</td></tr>
+        <tr><td style="padding:4px 16px 4px 0;color:#666;">Contenu</td><td><strong>{{ payment.label }}</strong></td></tr>
+        <tr><td style="padding:4px 16px 4px 0;color:#666;">Prix payé</td><td><strong>{{ (payment.amountCents / 100)|number_format(2, ',', ' ') }} {{ payment.currency|upper }}</strong></td></tr>
+        <tr><td style="padding:4px 16px 4px 0;color:#666;">Date de commande</td><td>{{ payment.createdAt|date('d/m/Y à H:i') }}</td></tr>
         {% if payment.stripeSessionId %}
-            <tr><td style="padding:4px 16px 4px 0;color:#888;">Référence</td><td style="font-family:monospace;font-size:12px;">{{ payment.stripeSessionId|slice(-12) }}</td></tr>
+            <tr><td style="padding:4px 16px 4px 0;color:#666;">Référence</td><td style="font-family:monospace;font-size:12px;">{{ payment.stripeSessionId|slice(-12) }}</td></tr>
         {% endif %}
     </table>
+    <p style="margin-top:16px;">Votre contenu est maintenant disponible dans votre espace personnel.</p>
+
+    <h3 style="color:#0F291E;font-size:15px;margin-top:24px;">Conditions applicables</h3>
+    {% if payment.cgvVersion %}
+        <p style="font-size:14px;">
+            Vous avez accepté les Conditions Générales de Vente (version du {{ payment.cgvVersion }})
+            le {{ payment.cgvAcceptedAt|date('d/m/Y à H:i') }}.
+            Elles sont consultables à l'adresse : <a href="{{ cgv_url }}" style="color:#047857;">{{ cgv_url }}</a>
+        </p>
+    {% else %}
+        <p style="font-size:14px;">Les Conditions Générales de Vente sont consultables à l'adresse : <a href="{{ cgv_url }}" style="color:#047857;">{{ cgv_url }}</a></p>
+    {% endif %}
+
+    {% if payment.immediateAccessConsentAt %}
+        <p style="font-size:14px;">
+            Le {{ payment.immediateAccessConsentAt|date('d/m/Y à H:i') }}, avant le paiement, vous avez coché la mention suivante :
+        </p>
+        <blockquote style="margin:8px 0 0;padding:10px 14px;border-left:4px solid #047857;background:#F0FDF4;font-size:14px;font-style:italic;">
+            « {{ consent_statement }} »
+        </blockquote>
+    {% endif %}
 {% endblock %}
 
 {% block footer %}
-    <p style="color:#aaa;font-size:12px;margin-top:24px;">Cet email est un justificatif d'achat. Conservez-le pour vos archives.</p>
+    <p style="color:#666;font-size:12px;margin-top:24px;">
+        Cet email confirme votre commande et les conditions acceptées. Conservez-le pour vos archives.
+    </p>
 {% endblock %}

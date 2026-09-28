@@ -221,7 +221,7 @@ export default async function HomePage() {
               <div className="max-w-xl">
                 <span className="eyebrow">Masterclass</span>
                 <h2 className="section-title mt-4">Approfondissez avec nos intervenants</h2>
-                <p className="mt-4 text-brand-muted">Des enseignements premium en vidéo et en PDF, accessibles à vie après achat.</p>
+                <p className="mt-4 text-brand-muted">Des enseignements premium en vidéo et en PDF, accessibles depuis votre espace personnel dès l&apos;achat.</p>
               </div>
               <Link href="/masterclass" className="btn-secondary shrink-0">
                 Voir toutes les masterclass <ArrowRight className="h-4 w-4" aria-hidden="true" />

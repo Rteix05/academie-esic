@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Video, Package, AlertCircle } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import PurchaseConsent, { usePurchaseConsent } from './PurchaseConsent';
 
 interface BoutonPaywallProps {
   masterclassId: number;
@@ -18,13 +19,19 @@ export default function BoutonPaywall({ masterclassId, prices }: BoutonPaywallPr
   const router = useRouter();
   const [loadingOption, setLoadingOption] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const consent = usePurchaseConsent();
 
   const handlePayment = async (option: 'pdf' | 'video' | 'pack') => {
-    setLoadingOption(option);
     setErrorMsg(null);
+    // Consentements obligatoires avant le paiement (CGV et accès immédiat)
+    if (!consent.validate()) return;
+    setLoadingOption(option);
     try {
-      // On envoie l'ID ET l'option choisie au backend (session via cookie httpOnly)
-      const res = await apiFetch(`/api/stripe/checkout/${masterclassId}/${option}`, { method: 'POST' });
+      // On envoie l'option choisie et les consentements au backend (session via cookie httpOnly)
+      const res = await apiFetch(`/api/stripe/checkout/${masterclassId}/${option}`, {
+        method: 'POST',
+        body: JSON.stringify(consent.consents),
+      });
 
       if (!res.ok) {
         if (res.status === 401) {
@@ -70,9 +77,14 @@ export default function BoutonPaywall({ masterclassId, prices }: BoutonPaywallPr
 
   return (
     <div className="flex w-full flex-col gap-2">
+      <div className="mb-3">
+        <PurchaseConsent state={consent} />
+      </div>
+
       {options.map(({ key, price, icon: Icon, label }) => price ? (
         <button
           key={key}
+          type="button"
           onClick={() => handlePayment(key)}
           disabled={loadingOption !== null}
           className="flex w-full items-center justify-between rounded-2xl border border-brand-forest/10 bg-white px-4 py-3.5 text-sm font-medium text-brand-forest transition hover:border-brand-emerald hover:bg-brand-mint disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-emerald-100"
@@ -87,6 +99,7 @@ export default function BoutonPaywall({ masterclassId, prices }: BoutonPaywallPr
 
       {prices.pack && (
         <button
+          type="button"
           onClick={() => handlePayment('pack')}
           disabled={loadingOption !== null}
           className="relative mt-2 flex w-full items-center justify-between rounded-2xl bg-brand-forest px-4 py-4 text-sm text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-brand-emerald disabled:opacity-50"
@@ -109,7 +122,7 @@ export default function BoutonPaywall({ masterclassId, prices }: BoutonPaywallPr
         </p>
       )}
 
-      <p className="mt-3 text-center text-xs text-brand-muted">Paiement sécurisé par Stripe · Accès à vie</p>
+      <p className="mt-3 text-center text-xs text-brand-muted">Paiement sécurisé par Stripe · Accès immédiat depuis votre espace</p>
     </div>
   );
 }

@@ -6,6 +6,7 @@ use App\Entity\Formation;
 use App\Entity\Masterclass;
 use App\Entity\MasterclassPurchase;
 use App\Entity\User;
+use App\Legal\SalesTerms;
 use App\Payment\PurchaseFulfiller;
 use App\Stripe\StripeGateway;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,11 +14,16 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Création des sessions de paiement Stripe Checkout (formations et masterclasses).
  * L'attribution de l'achat est faite ensuite par PurchaseFulfiller (webhook / confirmation).
+ *
+ * Aucun paiement sans les deux consentements du client (CGV, articles 5 et 10) :
+ * acceptation des CGV et demande expresse d'accès immédiat au contenu numérique.
+ * Ils sont transmis dans les métadonnées de la session, puis enregistrés avec le paiement.
  */
 class CheckoutController extends AbstractController
 {
@@ -28,7 +34,7 @@ class CheckoutController extends AbstractController
     ) {}
 
     #[Route('/api/stripe/checkout/formation/{id}', name: 'api_stripe_checkout_formation', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function formation(Formation $formation): JsonResponse
+    public function formation(Formation $formation, Request $request): JsonResponse
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
@@ -54,6 +60,7 @@ class CheckoutController extends AbstractController
         }
 
         return $this->createSession(
+            $request,
             $user,
             (string) $formation->getTitle(),
             null,
@@ -66,7 +73,7 @@ class CheckoutController extends AbstractController
 
     // L'option dans l'URL : /api/stripe/checkout/5/pack
     #[Route('/api/stripe/checkout/{id}/{option}', name: 'api_stripe_checkout', methods: ['POST'], requirements: ['id' => '\d+', 'option' => 'pdf|video|pack'])]
-    public function masterclass(Masterclass $masterclass, string $option, EntityManagerInterface $em): JsonResponse
+    public function masterclass(Masterclass $masterclass, string $option, EntityManagerInterface $em, Request $request): JsonResponse
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
@@ -93,6 +100,7 @@ class CheckoutController extends AbstractController
         }
 
         return $this->createSession(
+            $request,
             $user,
             $masterclass->getTitle() . ' [' . PurchaseFulfiller::MASTERCLASS_OPTIONS[$option] . ']',
             'Accès exclusif aux ressources de la masterclass.',
@@ -106,8 +114,32 @@ class CheckoutController extends AbstractController
     /**
      * @param array<string, string> $metadata
      */
-    private function createSession(User $user, string $name, ?string $description, int $amountCents, array $metadata, string $successPath, string $cancelPath): JsonResponse
+    private function createSession(Request $request, User $user, string $name, ?string $description, int $amountCents, array $metadata, string $successPath, string $cancelPath): JsonResponse
     {
+        // Consentements obligatoires, vérifiés côté serveur (une case cochée côté navigateur ne suffit pas)
+        $body = json_decode($request->getContent() ?: '{}', true);
+        $acceptCgv = is_array($body) && ($body['acceptCgv'] ?? null) === true;
+        $immediateAccess = is_array($body) && ($body['immediateAccess'] ?? null) === true;
+
+        if (!$acceptCgv || !$immediateAccess) {
+            return $this->json([
+                'message' => !$acceptCgv
+                    ? 'Veuillez accepter les conditions générales de vente pour poursuivre.'
+                    : 'Veuillez confirmer votre demande d\'accès immédiat au contenu pour poursuivre.',
+                'missing' => array_values(array_filter([
+                    $acceptCgv ? null : 'acceptCgv',
+                    $immediateAccess ? null : 'immediateAccess',
+                ])),
+            ], 422);
+        }
+
+        $consentedAt = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $metadata += [
+            SalesTerms::META_CGV_VERSION         => SalesTerms::CGV_VERSION,
+            SalesTerms::META_CGV_ACCEPTED_AT     => $consentedAt,
+            SalesTerms::META_IMMEDIATE_ACCESS_AT => $consentedAt,
+        ];
+
         if (!$this->stripe->isConfigured()) {
             return $this->json(['message' => 'Le paiement en ligne est momentanément indisponible.'], 503);
         }
