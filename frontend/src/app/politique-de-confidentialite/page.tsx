@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
@@ -24,7 +25,7 @@ export default function PolitiqueConfidentialitePage() {
             <p>
               L'<strong>Académie E.S.I.C.</strong> est responsable du traitement de vos données personnelles
               collectées via le site <strong>academie-esic.fr</strong>.<br />
-              Contact DPO : <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>
+              Contact DPO : <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-emerald underline underline-offset-4">{CONTACT_EMAIL}</a>
             </p>
           </section>
 
@@ -111,7 +112,7 @@ export default function PolitiqueConfidentialitePage() {
             </ul>
             <p className="mt-4">
               Pour exercer ces droits, contactez-nous à :{' '}
-              <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>.
+              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-emerald underline underline-offset-4">{CONTACT_EMAIL}</a>.
               Vous pouvez également introduire une réclamation auprès de la{' '}
               <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="font-medium text-brand-emerald underline underline-offset-4">CNIL<span className="sr-only"> (nouvelle fenêtre)</span></a>.
             </p>

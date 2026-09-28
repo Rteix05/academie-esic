@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ArrowRight, Mail, MapPin, Check, Clock } from 'lucide-react';
 import { PageHeader } from '@/components/ui';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,15 +34,19 @@ export default function ContactPage() {
 
           <ul className="mt-10 space-y-4">
             {[
-              { icon: Mail,   label: 'Email',            value: 'contact@esic.fr' },
+              { icon: Mail,   label: 'Email',            value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
               { icon: MapPin, label: 'Localisation',     value: 'Paris, France' },
               { icon: Clock,  label: 'Délai de réponse', value: 'Sous 48 heures ouvrées' },
-            ].map(({ icon: Icon, label, value }) => (
+            ].map(({ icon: Icon, label, value, href }: { icon: typeof Mail; label: string; value: string; href?: string }) => (
               <li key={label} className="card flex items-center gap-4 p-5">
                 <span className="icon-tile h-12 w-12 shrink-0"><Icon className="h-5 w-5" aria-hidden="true" /></span>
-                <span>
+                <span className="min-w-0">
                   <span className="block text-xs text-brand-muted">{label}</span>
-                  <span className="block font-display font-semibold text-brand-forest">{value}</span>
+                  {href ? (
+                    <a href={href} className="block break-all font-display font-semibold text-brand-forest underline decoration-brand-emerald/40 underline-offset-4 hover:text-brand-emerald dark:text-emerald-100">{value}</a>
+                  ) : (
+                    <span className="block font-display font-semibold text-brand-forest">{value}</span>
+                  )}
                 </span>
               </li>
             ))}

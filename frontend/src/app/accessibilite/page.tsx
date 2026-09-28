@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/ui';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 export const metadata: Metadata = {
   title: 'Accessibilité',
@@ -66,7 +67,7 @@ export default function AccessibilitePage() {
           <p>
             Si vous n&apos;arrivez pas à accéder à un contenu ou à un service, vous pouvez nous contacter pour être
             orienté vers une alternative accessible ou obtenir le contenu sous une autre forme :{' '}
-            <a href="mailto:contact@academie-esic.fr" className={linkClass}>contact@academie-esic.fr</a>.
+            <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>{CONTACT_EMAIL}</a>.
           </p>
         </section>
 

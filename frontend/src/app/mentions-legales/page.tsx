@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 export const metadata: Metadata = {
   title: 'Mentions légales',
@@ -25,7 +26,7 @@ export default function MentionsLegalesPage() {
               Le site <strong>academie-esic.fr</strong> est édité par l'<strong>Académie E.S.I.C.</strong>,
               association loi 1901 dont le siège social est situé en France.<br />
               Responsable de la publication : Direction de l'Académie E.S.I.C.<br />
-              Contact : <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>
+              Contact : <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-emerald underline underline-offset-4">{CONTACT_EMAIL}</a>
             </p>
           </section>
 
@@ -60,7 +61,7 @@ export default function MentionsLegalesPage() {
             </p>
             <p className="mt-3">
               Pour exercer ces droits, contactez-nous à :{' '}
-              <a href="mailto:contact@academie-esic.fr" className="font-medium text-brand-emerald underline underline-offset-4">contact@academie-esic.fr</a>.
+              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-emerald underline underline-offset-4">{CONTACT_EMAIL}</a>.
               Consultez notre{' '}
               <Link href="/politique-de-confidentialite" className="font-medium text-brand-emerald underline underline-offset-4">
                 politique de confidentialité
