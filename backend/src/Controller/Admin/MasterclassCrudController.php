@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Masterclass;
+use App\Media\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -17,6 +18,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class MasterclassCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private readonly ImageUploader $imageUploader,
+    ) {}
+
     public static function getEntityFqcn(): string
     {
         return Masterclass::class;
@@ -83,16 +88,12 @@ class MasterclassCrudController extends AbstractCrudController
 
     private function handleUploads(Masterclass $mc): void
     {
-        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/';
         // Contenu payant : stocké hors de public/, servi uniquement par ContentController
         $privateDir = $this->getParameter('kernel.project_dir') . '/private/uploads/';
 
         $imageUpload = $mc->getImageUpload();
         if ($imageUpload instanceof UploadedFile) {
-            $ext = $imageUpload->guessExtension() ?? 'jpg';
-            $fileName = uniqid('img_') . '.' . $ext;
-            $imageUpload->move($uploadDir . 'images', $fileName);
-            $mc->setImagePreview($fileName);
+            $mc->setImagePreview($this->imageUploader->store($imageUpload, 'img_'));
         }
 
         $pdfUpload = $mc->getPdfUpload();

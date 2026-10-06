@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Formation;
+use App\Media\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -18,6 +19,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FormationCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private readonly ImageUploader $imageUploader,
+    ) {}
+
     public static function getEntityFqcn(): string
     {
         return Formation::class;
@@ -108,16 +113,12 @@ class FormationCrudController extends AbstractCrudController
 
     private function handleUploads(Formation $f): void
     {
-        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/';
         // Contenu payant : stocké hors de public/, servi uniquement par ContentController
         $privateDir = $this->getParameter('kernel.project_dir') . '/private/uploads/';
 
         $imageUpload = $f->getImageUpload();
         if ($imageUpload instanceof UploadedFile) {
-            $ext = $imageUpload->guessExtension() ?? 'jpg';
-            $fileName = uniqid('img_') . '.' . $ext;
-            $imageUpload->move($uploadDir . 'images', $fileName);
-            $f->setImagePreview($fileName);
+            $f->setImagePreview($this->imageUploader->store($imageUpload, 'img_'));
         }
 
         $pdfUpload = $f->getPdfUpload();
