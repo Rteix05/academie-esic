@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, Library } from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, Library, Download, Loader2 } from 'lucide-react';
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import { Spinner } from '@/components/ui';
 import { apiFetch, fetchMe } from '@/lib/api';
@@ -34,6 +34,7 @@ interface PaymentRecord {
   currency: string;
   purchasedAt: string; // ISO 8601
   reference: string | null;
+  hasInvoice?: boolean;
 }
 
 const PRODUCT_LABELS: Record<PaymentRecord['productType'], string> = {
@@ -233,6 +234,7 @@ export default function DashboardPage() {
                       <th scope="col" className="px-4 pb-3 font-medium">Type</th>
                       <th scope="col" className="px-4 pb-3 font-medium">Montant payé</th>
                       <th scope="col" className="px-4 pb-3 font-medium">Date</th>
+                      <th scope="col" className="px-4 pb-3 font-medium"><span className="sr-only">Facture</span></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -245,6 +247,7 @@ export default function DashboardPage() {
                         <td className="px-4 py-4"><span className="chip">{PRODUCT_LABELS[p.productType]}</span></td>
                         <td className="px-4 py-4 font-display font-semibold text-brand-forest">{formatAmount(p.amount, p.currency)}</td>
                         <td className="px-4 py-4 text-brand-muted">{new Date(p.purchasedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                        <td className="px-4 py-4 text-right">{p.hasInvoice && <InvoiceButton paymentId={p.id} label={p.label} />}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -267,6 +270,40 @@ function Panel({ icon, title, children }: { icon: React.ReactNode; title: string
       </h2>
       {children}
     </section>
+  );
+}
+
+/** Facture PDF générée par Stripe, ouverte dans un nouvel onglet */
+function InvoiceButton({ paymentId, label }: { paymentId: number; label: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const open = async () => {
+    setError(null);
+    setLoading(true);
+    // Onglet ouvert pendant le clic : sinon bloqué par le navigateur après l'appel réseau
+    const tab = window.open('', '_blank');
+    try {
+      const res = await apiFetch(`/api/payment-history/${paymentId}/invoice`);
+      const data: { url?: string; message?: string } = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.message || 'Facture indisponible.');
+      if (tab) { tab.opener = null; tab.location.href = data.url; } else { window.location.assign(data.url); }
+    } catch (err) {
+      tab?.close();
+      setError(err instanceof Error ? err.message : 'Facture indisponible.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button type="button" onClick={open} disabled={loading} className="btn-ghost whitespace-nowrap py-1.5 text-sm" aria-label={`Télécharger la facture : ${label}`}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Download className="h-4 w-4" aria-hidden="true" />}
+        Facture
+      </button>
+      {error && <span role="alert" className="text-xs text-red-700 dark:text-red-300">{error}</span>}
+    </div>
   );
 }
 
