@@ -13,7 +13,10 @@ La présentation du projet, l'installation (Windows, macOS, Linux) et les comman
 | `src/components/ProtectedVideoPlayer.tsx` | Lecteur vidéo protégé (filigrane, consentement aux lecteurs tiers) |
 | `src/components/A11yPreferences.tsx` | Réglages d'affichage (taille du texte, gras) |
 | `src/components/PurchaseConsent.tsx` | Cases CGV et accès immédiat avant paiement |
+| `src/components/InstitutPackCard.tsx` | Achat de l'accès complet à un institut (catalogue) |
+| `src/app/dashboard/cours/[id]/` | Salle de cours : vidéo et support PDF d'une formation acquise |
 | `src/lib/api.ts` | Client de l'API Symfony (cookie de session httpOnly) |
+| `src/lib/institutPacks.ts`, `src/lib/news.ts` | Accès instituts, actualités (rendu serveur, cache 5 min) |
 | `src/lib/legalInfo.ts` | Informations légales affichées dans les CGU / CGV |
 | `scripts/generate-email-icons.mjs` | Icônes Lucide des emails (PNG pour le backend) |
 

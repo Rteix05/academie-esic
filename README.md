@@ -45,12 +45,15 @@ Plateforme web de l'**Académie E.S.I.C.** (École du Savoir et de l'Intelligenc
 - Inscription (acceptation des CGU), connexion, mot de passe oublié.
 - Inscription directe aux formations gratuites.
 - **Achat** de formations et de masterclass (PDF, vidéo ou pack) via **Stripe**, avec acceptation des CGV et consentement à l'accès immédiat (renonciation au droit de rétractation) — preuves enregistrées avec chaque paiement.
-- **Espace personnel** : formations suivies, masterclass débloquées, historique des paiements, profil.
+- **Accès complet à un institut** (Institut Biblique Théologique, École du Ministère et du Leadership) : paiement unique, accès à vie à toutes les formations publiées de l'institut, y compris les futures.
+- **Salle de cours** : vidéo et support PDF de chaque formation acquise.
+- **Espace personnel** : formations suivies, accès instituts, masterclass débloquées, historique des paiements avec **factures PDF** Stripe téléchargeables, profil.
 - **Lecteur vidéo protégé** : filigrane nominatif, vidéos YouTube / Vimeo / Google Drive / Dropbox / pCloud / fichiers ; les lecteurs tiers ne sont chargés qu'après consentement (cookies).
 - **Emails** : bienvenue, confirmation de commande (récapitulatif, CGV acceptées), inscription à une formation, réinitialisation du mot de passe, contact.
 
 ### Administration
-- **Back-office EasyAdmin** (`/admin`) : formations, masterclass (upload vidéo et PDF privés), événements, inscriptions, utilisateurs.
+- **Back-office EasyAdmin** (`/admin`) : formations, masterclass (upload vidéo et PDF privés), événements, inscriptions, **actualités** (accueil et page Actualités, parution programmable), utilisateurs, accès instituts.
+- Images téléversées automatiquement **redimensionnées (1600 px) et converties en WebP**.
 
 ### Sécurité
 - Authentification par **JWT en cookie httpOnly**, contrôle d'origine (anti-CSRF), limitation des tentatives (connexion, inscription, contact…).
@@ -64,7 +67,7 @@ Plateforme web de l'**Académie E.S.I.C.** (École du Savoir et de l'Intelligenc
 |---|---|
 | **Frontend** | [Next.js 16](https://nextjs.org) (App Router, Turbopack), React 19, TypeScript, Tailwind CSS 3, lucide-react, polices Poppins et DM Sans |
 | **Backend** | PHP 8.2+, [Symfony 7.4 LTS](https://symfony.com), API Platform 4, Doctrine ORM 3, LexikJWT, EasyAdmin 5, Symfony Mailer / Twig |
-| **Paiement** | Stripe Checkout + webhooks |
+| **Paiement** | Stripe Checkout (paiements ponctuels, factures automatiques) + webhooks |
 | **Base de données** | MySQL 8 (MariaDB 10.6+ compatible) |
 | **Développement local** | Docker Compose : MySQL, PHP, Node, [MailHog](https://github.com/mailhog/MailHog) (capture des emails) |
 | **Qualité** | PHPUnit 11, ESLint, TypeScript, GitHub Actions (CI), GitGuardian |
@@ -86,7 +89,7 @@ academie-esic/
 │   ├── migrations/          migrations Doctrine
 │   ├── src/                 contrôleurs, entités, paiement, emails, commandes
 │   ├── templates/emails/    emails transactionnels (Twig) et leurs icônes
-│   ├── tests/               tests fonctionnels PHPUnit
+│   ├── tests/               tests PHPUnit (fonctionnels et unitaires)
 │   └── .env.example         modèle de configuration
 ├── frontend/                site Next.js
 │   ├── src/app/             pages (App Router)
@@ -165,7 +168,7 @@ FIXTURES_ADMIN_PASSWORD=<mot de passe du compte admin de démo, 12 caractères m
 ```
 Pour générer une chaîne aléatoire : `openssl rand -hex 32` (macOS / Linux / Git Bash), ou après l'étape 3 : `docker compose exec backend php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"`.
 
-Les clés **Stripe** (`sk_test_…`) sont facultatives en local : sans elles, le paiement affiche simplement « momentanément indisponible ».
+Les clés **Stripe** (`sk_test_…`) sont facultatives en local : sans elles, le paiement affiche simplement « momentanément indisponible ». Pour tester l'**accès complet aux instituts**, renseigner aussi `STRIPE_PRICE_INSTITUT_BIBLIQUE` et `STRIPE_PRICE_ECOLE_MINISTERE` : identifiants `price_…` de prix **ponctuels** (pas récurrents) créés dans le catalogue de produits Stripe en mode test.
 
 **3. Démarrer les conteneurs**
 ```bash
@@ -199,13 +202,16 @@ docker compose logs -f frontend           # suivre les journaux (frontend, backe
 docker compose restart frontend           # appliquer une modification du frontend (Windows hors WSL)
 
 docker compose exec backend php bin/console doctrine:migrations:migrate   # après un « git pull »
+docker compose exec backend php bin/console doctrine:schema:update --force --env=test   # idem, pour la base de test
+docker compose up -d --build backend      # après un « git pull » qui modifie docker/ (nouvelle extension PHP…)
 docker compose exec backend php bin/console cache:clear                   # vider le cache Symfony
 docker compose exec backend php bin/console app:email:preview vous@exemple.fr
                                            # un exemplaire de chaque email → visible sur http://localhost:8025
 ```
 
 - **Emails** : en local, tous les emails sont capturés par MailHog (http://localhost:8025) ; aucun n'est réellement envoyé.
-- **Paiements** : avec des clés Stripe de test, utilisez la carte `4242 4242 4242 4242` (date future, n'importe quel CVC). Pour recevoir les webhooks en local : [Stripe CLI](https://docs.stripe.com/stripe-cli) (`stripe listen --forward-to localhost:8000/api/stripe/webhook`).
+- **Paiements** : avec des clés Stripe de test, utilisez la carte `4242 4242 4242 4242` (date future, n'importe quel CVC). Pour recevoir les webhooks en local : [Stripe CLI](https://docs.stripe.com/stripe-cli) (`stripe listen --forward-to localhost:8000/api/stripe/webhook`) ; reporter dans `STRIPE_WEBHOOK_SECRET` le secret `whsec_…` affiché au démarrage (ou `stripe listen --print-secret`), puis vider le cache Symfony.
+- **Actualités et catalogue** : les pages publiques sont mises en cache 5 minutes ; une actualité ajoutée dans l'admin apparaît sur le site dans ce délai.
 - **Informations légales** (forme juridique, siège, SIREN, médiateur…) : à renseigner dans `frontend/src/lib/legalInfo.ts` ; tant qu'elles manquent, les CGU / CGV affichent des repères « À compléter ».
 - **Workflow Git** : branches `feature/*` créées depuis `develop`, fusion par pull request — voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -232,6 +238,10 @@ La CI GitHub Actions rejoue ces vérifications (et un build de production) sur c
 |---|---|
 | Une modification du frontend n'apparaît pas (Windows, projet sur `C:\`) | `docker compose restart frontend`, ou cloner le projet dans WSL |
 | `Error: ... port is already allocated` | Un autre programme utilise le port (souvent un MySQL local sur 3306) : l'arrêter ou changer le port dans `docker-compose.yml` |
+| `Module not found` sur un fichier pourtant présent (Windows, projet sur `C:\`) | Le serveur de développement n'a pas vu le nouveau fichier : `docker compose restart frontend` |
+| Webhooks Stripe en erreur 400 (« signature invalide ») | `STRIPE_WEBHOOK_SECRET` ne correspond pas au secret de `stripe listen` : le recopier, puis `cache:clear` |
+| Images téléversées non converties en WebP | Extension GD absente : reconstruire l'image (`docker compose up -d --build backend`) |
+| Tests en échec « Table … doesn't exist » après un `git pull` | `doctrine:schema:update --force --env=test` (voir [Au quotidien](#au-quotidien)) |
 | L'API renvoie une erreur 500 après installation | Vérifier `docker compose exec backend composer install` et les clés JWT (étape 4), puis `docker compose logs backend` |
 | Connexion impossible en local | `JWT_COOKIE_SECURE=0` dans `backend/.env` (le cookie sécurisé exige https) |
 | `entrypoint.sh: not found` (Windows) | Le fichier a pris des fins de ligne Windows : `git config core.autocrlf input`, puis `git checkout -- docker/node/entrypoint.sh` et `docker compose up -d --build` |
