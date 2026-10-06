@@ -7,7 +7,7 @@ use Stripe\Checkout\Session;
 use Stripe\Price;
 
 /**
- * Double de StripeGateway pour les tests : sessions Checkout et prix simulés en mémoire,
+ * Double de StripeGateway pour les tests : sessions Checkout, factures et prix simulés en mémoire,
  * vérification de signature des webhooks réelle (secret de test, cf. .env.test).
  */
 class FakeStripeGateway extends StripeGateway
@@ -23,6 +23,9 @@ class FakeStripeGateway extends StripeGateway
     /** Prix ponctuels configurés dans .env.test (montants en centimes) */
     public const PRICES = ['price_test_institut' => 4299, 'price_test_ecole' => 5299];
 
+    /** @var array<string, string> facture PDF par session Checkout */
+    public static array $invoiceUrls = [];
+
     public function __construct()
     {
         parent::__construct('sk_test_fake', self::WEBHOOK_SECRET);
@@ -33,6 +36,7 @@ class FakeStripeGateway extends StripeGateway
     {
         self::$sessions = [];
         self::$createdSessions = [];
+        self::$invoiceUrls = [];
     }
 
     public function createCheckoutSession(array $params): Session
@@ -50,6 +54,11 @@ class FakeStripeGateway extends StripeGateway
     {
         return self::$sessions[$sessionId]
             ?? throw new \RuntimeException('No such checkout.session: ' . $sessionId);
+    }
+
+    public function retrieveInvoiceUrl(string $sessionId): ?string
+    {
+        return self::$invoiceUrls[$sessionId] ?? null;
     }
 
     public function retrievePrice(string $priceId): Price
