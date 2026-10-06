@@ -3,15 +3,17 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt } from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, Library } from 'lucide-react';
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import { Spinner } from '@/components/ui';
 import { apiFetch, fetchMe } from '@/lib/api';
+import { formatDate, type MyInstitutPack } from '@/lib/institutPacks';
 
 interface Formation {
   id: number;
   title: string;
   category: string;
+  access?: 'achat' | 'institut';
 }
 
 interface MasterclassPurchase {
@@ -24,7 +26,7 @@ interface MasterclassPurchase {
 // Paiement encaissé : montant réellement payé, figé au moment de l'achat
 interface PaymentRecord {
   id: number;
-  productType: 'formation' | 'masterclass' | 'event';
+  productType: 'formation' | 'masterclass' | 'event' | 'institut';
   productId: number;
   label: string;
   option: string | null;
@@ -38,6 +40,7 @@ const PRODUCT_LABELS: Record<PaymentRecord['productType'], string> = {
   formation: 'Formation',
   masterclass: 'Masterclass',
   event: 'Événement',
+  institut: 'Accès institut',
 };
 
 function formatAmount(amount: number, currency: string): string {
@@ -49,6 +52,7 @@ export default function DashboardPage() {
   const [mesFormations, setMesFormations] = useState<Formation[]>([]);
   const [mesMasterclasses, setMesMasterclasses] = useState<MasterclassPurchase[]>([]);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
+  const [institutPacks, setInstitutPacks] = useState<MyInstitutPack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
@@ -70,11 +74,13 @@ export default function DashboardPage() {
       load('/api/mes-formations'),
       load('/api/mes-masterclasses'),
       load('/api/payment-history'),
+      load('/api/mes-instituts'),
     ])
-      .then(([formations, masterclasses, history]) => {
+      .then(([formations, masterclasses, history, packs]) => {
         setMesFormations(Array.isArray(formations) ? formations : formations['hydra:member'] || []);
         setMesMasterclasses(Array.isArray(masterclasses) ? masterclasses : []);
         setPaymentHistory(Array.isArray(history) ? history : []);
+        setInstitutPacks(Array.isArray(packs) ? packs : []);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -148,7 +154,10 @@ export default function DashboardPage() {
                       <div className="flex min-w-0 items-center gap-4">
                         <span className="icon-tile h-12 w-12 shrink-0 bg-white dark:bg-white/10"><BookOpen className="h-5 w-5" aria-hidden="true" /></span>
                         <div className="min-w-0">
-                          {formation.category && <span className="text-xs text-brand-muted">{formation.category}</span>}
+                          <span className="text-xs text-brand-muted">
+                            {formation.category}
+                            {formation.access === 'institut' && <>{formation.category && ' · '}Incluse dans votre accès complet</>}
+                          </span>
                           <h3 className="truncate font-display font-semibold text-brand-forest">{formation.title}</h3>
                         </div>
                       </div>
@@ -200,6 +209,15 @@ export default function DashboardPage() {
             </Panel>
         </div>
 
+        {/* Accès complets aux instituts */}
+        {institutPacks.length > 0 && (
+          <div className="mt-6">
+            <Panel icon={<Library className="h-5 w-5" />} title="Mes accès instituts">
+              <InstitutPackList packs={institutPacks} />
+            </Panel>
+          </div>
+        )}
+
         {/* Historique des paiements */}
         <div className="mt-6">
           <Panel icon={<Receipt className="h-5 w-5" />} title="Historique des paiements">
@@ -249,6 +267,22 @@ function Panel({ icon, title, children }: { icon: React.ReactNode; title: string
       </h2>
       {children}
     </section>
+  );
+}
+
+function InstitutPackList({ packs }: { packs: MyInstitutPack[] }) {
+  return (
+    <ul className="space-y-3">
+      {packs.map((p) => (
+        <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
+          <div>
+            <h3 className="font-display font-semibold text-brand-forest">{p.institut}</h3>
+            <p className="mt-1 text-sm text-brand-muted">Toutes les formations de l&apos;institut, à vie · acheté le {formatDate(p.purchasedAt)}</p>
+          </div>
+          <Link href="/formations" className="btn-secondary py-2">Voir les formations</Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 

@@ -4,9 +4,10 @@ namespace App\Tests\Double;
 
 use App\Stripe\StripeGateway;
 use Stripe\Checkout\Session;
+use Stripe\Price;
 
 /**
- * Double de StripeGateway pour les tests : sessions Checkout simulées en mémoire,
+ * Double de StripeGateway pour les tests : sessions Checkout et prix simulés en mémoire,
  * vérification de signature des webhooks réelle (secret de test, cf. .env.test).
  */
 class FakeStripeGateway extends StripeGateway
@@ -18,6 +19,9 @@ class FakeStripeGateway extends StripeGateway
 
     /** @var array<int, array<string, mixed>> paramètres reçus par createCheckoutSession */
     public static array $createdSessions = [];
+
+    /** Prix ponctuels configurés dans .env.test (montants en centimes) */
+    public const PRICES = ['price_test_institut' => 4299, 'price_test_ecole' => 5299];
 
     public function __construct()
     {
@@ -46,6 +50,18 @@ class FakeStripeGateway extends StripeGateway
     {
         return self::$sessions[$sessionId]
             ?? throw new \RuntimeException('No such checkout.session: ' . $sessionId);
+    }
+
+    public function retrievePrice(string $priceId): Price
+    {
+        if (!isset(self::PRICES[$priceId])) {
+            throw new \Stripe\Exception\InvalidRequestException('No such price: ' . $priceId);
+        }
+
+        return Price::constructFrom([
+            'id' => $priceId, 'object' => 'price', 'active' => true, 'currency' => 'eur',
+            'unit_amount' => self::PRICES[$priceId], 'type' => 'one_time', 'recurring' => null,
+        ]);
     }
 
     /**

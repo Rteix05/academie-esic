@@ -6,6 +6,7 @@ use App\Entity\Formation;
 use App\Entity\Masterclass;
 use App\Entity\MasterclassPurchase;
 use App\Entity\User;
+use App\Institut\FormationAccess;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -47,14 +48,15 @@ class ContentController extends AbstractController
     }
 
     #[Route('/api/content/formation/{id}/pdf', name: 'api_content_formation_pdf', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function formationPdf(Formation $formation): Response
+    public function formationPdf(Formation $formation, FormationAccess $access): Response
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
             return $this->json(['message' => 'Non autorisé.'], 401);
         }
 
-        if (!$user->getFormations()->contains($formation)) {
+        // Formation acquise ou incluse dans un accès complet à son institut
+        if (!$access->canAccess($user, $formation)) {
             return $this->json(['message' => 'Accès non autorisé — formation non acquise.'], 403);
         }
 

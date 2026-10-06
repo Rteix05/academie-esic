@@ -5,15 +5,18 @@ namespace App\Payment;
 use App\Entity\Event;
 use App\Entity\EventRegistration;
 use App\Entity\Formation;
+use App\Entity\InstitutAccess;
 use App\Entity\Masterclass;
 use App\Entity\MasterclassPurchase;
 use App\Entity\Payment;
 use App\Entity\ProductType;
 use App\Entity\RegistrationStatus;
 use App\Entity\User;
+use App\Institut\InstitutPack;
 use App\Legal\SalesTerms;
 use App\Mailer\AppMailer;
 use App\Repository\EventRegistrationRepository;
+use App\Repository\InstitutAccessRepository;
 use App\Repository\PaymentRepository;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -43,6 +46,7 @@ class PurchaseFulfiller
         private readonly UserRepository $userRepository,
         private readonly PaymentRepository $paymentRepository,
         private readonly EventRegistrationRepository $registrationRepository,
+        private readonly InstitutAccessRepository $institutAccesses,
         private readonly AppMailer $mailer,
         private readonly LoggerInterface $logger,
     ) {}
@@ -75,7 +79,8 @@ class PurchaseFulfiller
             !empty($metadata['event_id'])       => $this->fulfillEvent($session, $user, (int) $metadata['event_id']),
             !empty($metadata['formation_id'])   => $this->fulfillFormation($session, $user, (int) $metadata['formation_id']),
             !empty($metadata['masterclass_id']) => $this->fulfillMasterclass($session, $user, (int) $metadata['masterclass_id'], $metadata['option'] ?? null),
-            default                             => FulfillmentResult::invalid('Type d\'achat inconnu.'),
+            !empty($metadata[InstitutPack::META]) => $this->fulfillInstitut($session, $user, (string) $metadata[InstitutPack::META]),
+            default                            => FulfillmentResult::invalid('Type d\'achat inconnu.'),
         };
     }
 
@@ -155,6 +160,30 @@ class PurchaseFulfiller
             : FulfillmentResult::already(ProductType::Masterclass, $masterclassId);
     }
 
+    private function fulfillInstitut(Session $session, User $user, string $packValue): FulfillmentResult
+    {
+        $pack = InstitutPack::tryFrom($packValue);
+        if (!$pack) {
+            $this->logger->critical('Paiement Stripe reçu pour un institut inconnu', ['session_id' => $session->id, 'pack' => $packValue]);
+
+            return FulfillmentResult::invalid('Institut inconnu.', ProductType::Institut);
+        }
+
+        // Déjà acheté (doublon de paiement) : l'accès existe, le paiement est tout de même enregistré
+        $access = $this->institutAccesses->findOwned($user, $pack);
+        if (!$access) {
+            $access = new InstitutAccess($user, $pack, (string) $session->id);
+            $this->em->persist($access);
+        }
+
+        $payment = new Payment($user, ProductType::Institut, $pack->productId(), $pack->label(), $this->amount($session), $this->currency($session), $session->id);
+        $this->applyConsents($payment, $session);
+
+        return $this->record($payment)
+            ? FulfillmentResult::granted(ProductType::Institut, $pack->productId())
+            : FulfillmentResult::already(ProductType::Institut, $pack->productId());
+    }
+
     private function fulfillEvent(Session $session, User $user, int $eventId): FulfillmentResult
     {
         $event = $this->em->find(Event::class, $eventId);
@@ -217,27 +246,16 @@ class PurchaseFulfiller
      */
     private function applyConsents(Payment $payment, Session $session): void
     {
-        $metadata = $session->metadata ? $session->metadata->toArray() : [];
-        $version = $metadata[SalesTerms::META_CGV_VERSION] ?? null;
-        $acceptedAt = $this->parseDate($metadata[SalesTerms::META_CGV_ACCEPTED_AT] ?? null);
+        $consents = SalesTerms::consentsFromMetadata($session->metadata ? $session->metadata->toArray() : []);
 
-        if (!is_string($version) || $version === '' || !$acceptedAt) {
+        if (!$consents) {
             // Session créée sans consentement (ne devrait pas arriver) : à examiner
             $this->logger->warning('Paiement Stripe sans consentement CGV enregistré', ['session_id' => $session->id]);
 
             return;
         }
 
-        $payment->recordConsents($version, $acceptedAt, $this->parseDate($metadata[SalesTerms::META_IMMEDIATE_ACCESS_AT] ?? null));
-    }
-
-    private function parseDate(mixed $value): ?\DateTimeImmutable
-    {
-        if (!is_string($value) || $value === '') {
-            return null;
-        }
-
-        return \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value) ?: null;
+        $payment->recordConsents($consents['version'], $consents['acceptedAt'], $consents['immediateAccessAt']);
     }
 
     private function amount(Session $session): int

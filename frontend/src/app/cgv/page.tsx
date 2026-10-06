@@ -85,6 +85,7 @@ export default function CgvPage() {
             'des vidéos ;',
             'des documents PDF ;',
             'des packs comprenant plusieurs formats ;',
+            "des accès complets donnant accès à l'ensemble des formations d'un institut (article 9.2) ;",
             "tout autre contenu numérique présenté comme disponible à l'achat sur le site.",
           ]} />
           <p>Chaque fiche produit présente les caractéristiques essentielles du contenu proposé, son prix et ses modalités d&apos;accès.</p>
@@ -107,7 +108,8 @@ export default function CgvPage() {
         <LegalArticle id="commande" title="5. Commande">
           <p>
             Les contenus sont achetés à l&apos;unité, directement depuis leur fiche sur le site : chaque commande porte
-            sur un seul contenu.
+            sur un seul contenu. Les accès complets aux instituts sont achetés depuis le catalogue des formations, selon
+            le même parcours ; chaque commande porte sur un seul institut.
           </p>
           <p>Pour effectuer une commande, le client :</p>
           <LegalList items={[
@@ -173,6 +175,7 @@ export default function CgvPage() {
         </LegalArticle>
 
         <LegalArticle id="duree" title="9. Durée d'accès aux contenus">
+          <h3 className="font-display font-semibold text-brand-forest">9.1 Contenus achetés à l&apos;unité</h3>
           <p>Sauf indication contraire lors de la commande, l&apos;achat donne accès au contenu selon les modalités indiquées sur la fiche du produit.</p>
           <p>
             Lorsqu&apos;aucune durée déterminée n&apos;est annoncée, l&apos;Académie s&apos;efforce de maintenir
@@ -184,6 +187,20 @@ export default function CgvPage() {
             décision judiciaire ou de la perte des droits nécessaires à sa diffusion.
           </p>
           <p>Lorsque cela est possible, l&apos;Académie informe les utilisateurs concernés dans un délai raisonnable.</p>
+
+          <h3 className="pt-2 font-display font-semibold text-brand-forest">9.2 Accès complet à un institut</h3>
+          <p>
+            L&apos;accès complet à un institut est acheté en une seule fois, au prix affiché lors de la commande, sans
+            abonnement ni prélèvement ultérieur.
+          </p>
+          <p>
+            Il donne accès, sans limitation de durée, à l&apos;ensemble des formations publiées de l&apos;institut choisi,
+            y compris celles publiées après l&apos;achat. Les formations retirées du catalogue par l&apos;Académie ne sont
+            plus proposées ; les dispositions de l&apos;article 9.1 relatives au maintien des contenus s&apos;appliquent.
+          </p>
+          <p>
+            L&apos;accès complet est attaché au compte du client : il est personnel et ne peut être ni cédé ni partagé.
+          </p>
         </LegalArticle>
 
         <LegalArticle id="retractation" title="10. Droit de rétractation">
