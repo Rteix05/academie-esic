@@ -4,12 +4,14 @@ namespace App\Stripe;
 
 use Stripe\Checkout\Session;
 use Stripe\Event;
+use Stripe\Invoice;
+use Stripe\Price;
 use Stripe\StripeClient;
 use Stripe\Webhook;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Point d'accès unique à l'API Stripe (clé secrète, sessions Checkout, webhooks).
+ * Point d'accès unique à l'API Stripe (clé secrète, sessions Checkout, prix, webhooks).
  * Remplacé par un double en test : aucun appel réseau dans la suite PHPUnit.
  */
 class StripeGateway
@@ -43,6 +45,29 @@ class StripeGateway
     public function retrieveCheckoutSession(string $sessionId): Session
     {
         return $this->client()->checkout->sessions->retrieve($sessionId);
+    }
+
+    /**
+     * Facture PDF générée par Stripe pour une session Checkout payée (cf. invoice_creation).
+     * Lien signé par Stripe, consultable sans compte Stripe.
+     *
+     * @return string|null null si la session n'a pas de facture (paiement antérieur à la facturation automatique)
+     */
+    public function retrieveInvoiceUrl(string $sessionId): ?string
+    {
+        $session = $this->client()->checkout->sessions->retrieve($sessionId, ['expand' => ['invoice']]);
+        $invoice = $session->invoice;
+
+        if (!$invoice instanceof Invoice) {
+            return null;
+        }
+
+        return $invoice->invoice_pdf ?: ($invoice->hosted_invoice_url ?: null);
+    }
+
+    public function retrievePrice(string $priceId): Price
+    {
+        return $this->client()->prices->retrieve($priceId);
     }
 
     /**

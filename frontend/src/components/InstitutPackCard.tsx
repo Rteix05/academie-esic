@@ -1,0 +1,94 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, CheckCircle, Library, Loader2 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
+import { formatPrice, offerAnchor, type InstitutPackOffer } from '@/lib/institutPacks';
+import PurchaseConsent, { usePurchaseConsent } from './PurchaseConsent';
+
+/**
+ * Carte d'accès complet à un institut (catalogue des formations) : paiement unique, accès à vie.
+ * L'achat passe par les mêmes consentements que les autres achats (CGV, accès immédiat),
+ * affichés au premier clic puis vérifiés par le backend.
+ */
+export default function InstitutPackCard({ offer, owned }: { offer: InstitutPackOffer; owned: boolean }) {
+  const router = useRouter();
+  const consent = usePurchaseConsent();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const buy = async () => {
+    setError(null);
+    if (!open) { setOpen(true); return; }
+    if (!consent.validate()) return;
+    setLoading(true);
+    try {
+      const res = await apiFetch(`/api/stripe/checkout/institut/${offer.pack}`, {
+        method: 'POST',
+        body: JSON.stringify(consent.consents),
+      });
+      if (res.status === 401) { router.push('/login'); return; }
+
+      const data: { url?: string; message?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || `Erreur serveur (${res.status})`);
+      if (!data.url) throw new Error('URL de paiement manquante.');
+      window.location.assign(data.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible d'initialiser le paiement.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section
+      id={offerAnchor(offer.pack)}
+      aria-labelledby={`${offerAnchor(offer.pack)}-titre`}
+      className="scroll-mt-24 rounded-4xl bg-brand-mint p-6 sm:p-8 dark:bg-[#10231a]"
+    >
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-4">
+          <span className="icon-tile h-12 w-12 shrink-0 bg-white dark:bg-white/10"><Library className="h-5 w-5" aria-hidden="true" /></span>
+          <div>
+            <h3 id={`${offerAnchor(offer.pack)}-titre`} className="font-display text-lg font-semibold text-brand-forest">
+              Accès complet à l&apos;institut
+            </h3>
+            <p className="mt-1 text-sm text-brand-muted">
+              Toutes les formations de l&apos;{offer.institut}, y compris celles publiées par la suite. Un seul paiement,
+              accès à vie.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+          <p className="font-display text-brand-forest">
+            <span className="text-3xl font-semibold">{formatPrice(offer.amount, offer.currency)}</span>
+            <span className="text-sm text-brand-muted"> paiement unique</span>
+          </p>
+          {owned ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="chip bg-white dark:bg-white/10"><CheckCircle className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Accès complet acquis</span>
+              <Link href="/dashboard" className="btn-secondary py-2">Mon espace</Link>
+            </div>
+          ) : (
+            <button type="button" onClick={buy} disabled={loading} aria-expanded={open} className="btn-primary">
+              {loading ? (
+                <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Redirection vers le paiement…</>
+              ) : open ? 'Confirmer et payer' : "Acheter l'accès complet"}
+              <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {open && !owned && (
+        <div className="mt-6 max-w-2xl border-t border-brand-forest/10 pt-5 dark:border-white/10">
+          <PurchaseConsent state={consent} />
+        </div>
+      )}
+      {error && <p role="alert" className="mt-4 rounded-2xl bg-red-50 px-4 py-2 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-200">{error}</p>}
+    </section>
+  );
+}

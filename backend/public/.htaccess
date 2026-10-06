@@ -38,4 +38,6 @@ DirectoryIndex index.php
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
+    # HTTPS obligatoire (HSTS) : uniquement sur une requête HTTPS, y compris derrière le proxy Cloudways
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" "expr=%{HTTPS} == 'on' || %{HTTP:X-Forwarded-Proto} == 'https'"
 </IfModule>

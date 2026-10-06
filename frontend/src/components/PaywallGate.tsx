@@ -87,7 +87,7 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
             ) : (
               <div className="relative flex h-full w-full items-center justify-center">
                 {mc.imagePreview && (
-                  <img src={uploadUrl(mc.imagePreview)} alt="" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-30 blur-[6px]" />
+                  <img src={uploadUrl(mc.imagePreview)} alt="" decoding="async" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-30 blur-[6px]" />
                 )}
                 <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
                 <div className="relative z-10 flex flex-col items-center p-6 text-center">
