@@ -2,14 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ContentCard } from '@/components/catalog/ContentCard';
 import { SERVER_API_URL } from '@/lib/api';
+import { fetchNews, formatNewsDate } from '@/lib/news';
 import { collection, formationToItem, masterclassToItem, type CatalogItem, type FormationDto, type MasterclassDto } from '@/lib/catalog';
 import { ArrowRight, BookOpen, Heart, Flame, Quote, Feather, Award, GraduationCap, Users, ShieldCheck, Sparkles, CalendarDays } from 'lucide-react';
-
-// TODO(API) : données de démonstration — remplacer par des appels API réels
-const actualitesDemo = [
-  { date: "Septembre 2026", titre: "Ouverture des inscriptions pour la nouvelle session", resume: "Les inscriptions pour l'Institut Biblique Théologique et l'École du Ministère sont désormais ouvertes." },
-  { date: "Août 2026", titre: "Nouvelle formation en Leadership chrétien", resume: "Un nouveau programme dédié à la formation de leaders spirituels compétents fait son entrée à l'Académie." },
-];
 
 const atouts = [
   { icon: GraduationCap, titre: "Enseignants qualifiés" },
@@ -53,9 +48,10 @@ function highlights(items: CatalogItem[], count: number): CatalogItem[] {
 }
 
 export default async function HomePage() {
-  const [formationDtos, masterclassDtos] = await Promise.all([
+  const [formationDtos, masterclassDtos, actualites] = await Promise.all([
     getCatalog<FormationDto>('/api/formations'),
     getCatalog<MasterclassDto>('/api/masterclasses'),
+    fetchNews(2),
   ]);
   const formationsUne = highlights(formationDtos.map(formationToItem), 4);
   const masterclassesUne = highlights(masterclassDtos.map(masterclassToItem), 3);
@@ -273,8 +269,8 @@ export default async function HomePage() {
 
       {/* Témoignages : section retirée jusqu'à la réception de vrais avis (Académie pas encore lancée) */}
 
-      {/* ── 6. ACTUALITÉS ───────────────────────────────────────────────────── */}
-      <section className="container-page py-24">
+      {/* ── 6. ACTUALITÉS (saisies dans l'admin ; section masquée s'il n'y en a pas) ── */}
+      {actualites.length > 0 && <section className="container-page py-24">
         <div className="flex flex-col items-center justify-between gap-6 text-center md:flex-row md:items-end md:text-left">
           <div>
             <span className="eyebrow">À la une</span>
@@ -286,18 +282,18 @@ export default async function HomePage() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
-          {actualitesDemo.map((a) => (
-            <article key={a.titre} className="card-hover flex gap-6 p-8">
+          {actualites.map((a) => (
+            <article key={a.id} className="card-hover flex gap-6 p-8">
               <span className="icon-tile shrink-0"><CalendarDays className="h-6 w-6" aria-hidden="true" /></span>
               <div>
-                <p className="font-display text-xs font-semibold text-brand-emerald">{a.date}</p>
-                <h3 className="mt-2 font-display text-lg font-semibold text-brand-forest">{a.titre}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{a.resume}</p>
+                <p className="font-display text-xs font-semibold text-brand-emerald"><time dateTime={a.publishedAt}>{formatNewsDate(a.publishedAt)}</time></p>
+                <h3 className="mt-2 font-display text-lg font-semibold text-brand-forest">{a.title}</h3>
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-brand-muted">{a.summary}</p>
               </div>
             </article>
           ))}
         </div>
-      </section>
+      </section>}
     </div>
   );
 }

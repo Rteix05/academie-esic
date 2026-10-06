@@ -47,6 +47,9 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(EventCrudController::class, 'Événements', 'fas fa-calendar-alt');
         yield MenuItem::linkTo(EventRegistrationCrudController::class, 'Inscriptions', 'fas fa-ticket-alt');
 
+        yield MenuItem::section('Contenus');
+        yield MenuItem::linkTo(NewsCrudController::class, 'Actualités', 'fas fa-newspaper');
+
         yield MenuItem::section('Membres');
         yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fas fa-users');
         yield MenuItem::linkTo(InstitutAccessCrudController::class, 'Accès instituts', 'fas fa-university');

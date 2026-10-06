@@ -68,6 +68,7 @@ security:
         - { path: ^/api/masterclasses, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/events, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/institut-packs, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/actualites, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/stripe/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/api/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/api/reset-password, roles: PUBLIC_ACCESS }
