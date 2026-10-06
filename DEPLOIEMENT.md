@@ -15,7 +15,7 @@ Les deux domaines partagent le même site (`academie-esic.fr`) : le cookie de se
 2. **Application** : type « Custom PHP ».
    - Application Settings → **Webroot** : `public_html/backend/public`
    - Application Settings → **Varnish : désactivé** (il pourrait servir des réponses d'API en cache)
-   - Extensions PHP requises : `intl`, `pdo_mysql`, `zip`, `sodium` (Settings & Packages)
+   - Extensions PHP requises : `intl`, `pdo_mysql`, `zip`, `sodium`, `gd` avec WebP (optimisation des images téléversées) et `exif` (Settings & Packages)
 3. **Domaine** : `api.academie-esic.fr` (enregistrement DNS A vers l'IP du serveur), puis **SSL Certificate → Let's Encrypt** et redirection HTTPS forcée.
 4. **Code** : Deployment via Git → dépôt GitHub, branche `main`, chemin `public_html`.
 5. **Configuration** (SSH, une seule fois) :

@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Event;
+use App\Media\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -19,6 +20,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class EventCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private readonly ImageUploader $imageUploader,
+    ) {}
+
     public static function getEntityFqcn(): string
     {
         return Event::class;
@@ -74,13 +79,7 @@ class EventCrudController extends AbstractCrudController
     {
         $imageUpload = $event->getImageUpload();
         if ($imageUpload instanceof UploadedFile) {
-            $ext      = $imageUpload->guessExtension() ?? 'jpg';
-            $fileName = uniqid('evt_') . '.' . $ext;
-            $imageUpload->move(
-                $this->getParameter('kernel.project_dir') . '/public/uploads/images',
-                $fileName
-            );
-            $event->setImageFile($fileName);
+            $event->setImageFile($this->imageUploader->store($imageUpload, 'evt_'));
         }
     }
 }

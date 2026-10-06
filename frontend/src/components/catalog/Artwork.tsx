@@ -71,7 +71,15 @@ export default function Artwork({
     <div className={`${fill ? 'absolute inset-0' : 'relative'} overflow-hidden ${item.image ? 'bg-brand-forest' : p.bg} ${className}`}>
       {item.image ? (
         // eslint-disable-next-line @next/next/no-img-element -- images servies par le backend (domaine variable)
-        <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img
+          src={item.image}
+          alt=""
+          // Grand visuel en haut de page : chargé en priorité ; vignettes : à l'approche de l'écran
+          loading={size === 'hero' ? 'eager' : 'lazy'}
+          fetchPriority={size === 'hero' ? 'high' : 'auto'}
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
       ) : (
         size === 'hero' ? (
           // Grand format : illustration sur la moitié droite (la gauche porte le texte du hero)

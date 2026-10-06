@@ -45,7 +45,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2' # même version que docker/php/Dockerfile
-          extensions: intl, pdo_mysql, zip
+          extensions: intl, pdo_mysql, zip, gd, exif
           coverage: none
           tools: composer:v2
 
