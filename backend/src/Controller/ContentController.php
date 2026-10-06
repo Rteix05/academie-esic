@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
- * Téléchargement des supports PDF payants, stockés hors de public/.
+ * Contenus payants : supports PDF (stockés hors de public/) et contenu de la salle de cours.
  * Requiert JWT + droit d'accès au contenu.
  */
 class ContentController extends AbstractController
@@ -47,6 +47,30 @@ class ContentController extends AbstractController
         return $this->servePdf($masterclass->getPdfFile(), $masterclass->getTitle());
     }
 
+    /**
+     * Contenu de la salle de cours : lien vidéo (jamais exposé par l'API publique)
+     * et présence d'un support PDF, pour un élève ayant accès à la formation.
+     */
+    #[Route('/api/content/formation/{id}', name: 'api_content_formation', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function formationContent(Formation $formation, FormationAccess $access): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['message' => 'Non autorisé.'], 401);
+        }
+
+        if (!$access->canAccess($user, $formation)) {
+            return $this->json(['message' => 'Accès non autorisé — formation non acquise.'], 403);
+        }
+
+        $pdf = $formation->getPdfFile();
+
+        return $this->json([
+            'video'        => $formation->getVideoUrl() ?: null,
+            'pdfAvailable' => $pdf !== null && $pdf !== '' && is_file($this->pdfPath($pdf)),
+        ]);
+    }
+
     #[Route('/api/content/formation/{id}/pdf', name: 'api_content_formation_pdf', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function formationPdf(Formation $formation, FormationAccess $access): Response
     {
@@ -69,7 +93,7 @@ class ContentController extends AbstractController
             return $this->json(['message' => 'Aucun PDF disponible.'], 404);
         }
 
-        $filePath = $this->projectDir . '/private/uploads/pdfs/' . basename($fileName);
+        $filePath = $this->pdfPath($fileName);
         if (!is_file($filePath)) {
             return $this->json(['message' => 'Fichier PDF introuvable sur le serveur.'], 404);
         }
@@ -83,5 +107,10 @@ class ContentController extends AbstractController
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $downloadName);
 
         return $response;
+    }
+
+    private function pdfPath(string $fileName): string
+    {
+        return $this->projectDir . '/private/uploads/pdfs/' . basename($fileName);
     }
 }

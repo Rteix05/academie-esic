@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Award, Clock, GraduationCap, Play } from 'lucide-react';
+import { Clock, Download, FileText, GraduationCap, Loader2, PlayCircle, Video } from 'lucide-react';
+import ProtectedVideoPlayer from '@/components/ProtectedVideoPlayer';
 import { ErrorState, Spinner } from '@/components/ui';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, fetchMe } from '@/lib/api';
 
 interface Formation {
   id: number;
@@ -16,33 +17,41 @@ interface Formation {
   category: string;
 }
 
+/** Contenu payant, communiqué uniquement aux élèves ayant accès à la formation */
+interface CourseContent {
+  video: string | null;
+  pdfAvailable: boolean;
+}
+
 export default function SalleDeCoursPage() {
   const router = useRouter();
   const params = useParams(); // Permet de récupérer l'ID dans l'URL
   const formationId = params.id;
 
   const [formation, setFormation] = useState<Formation | null>(null);
+  const [content, setContent] = useState<CourseContent | null>(null);
+  const [viewer, setViewer] = useState<{ email: string; name?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Accès réservé aux élèves qui possèdent la formation (session via cookie httpOnly)
-    apiFetch('/api/mes-formations')
+    // 1. Contenu du cours : le backend vérifie l'accès (formation acquise ou accès complet à l'institut)
+    apiFetch(`/api/content/formation/${formationId}`)
       .then(async (res) => {
         if (res.status === 401) { router.push('/login'); return Promise.reject(null); }
-        const owned: { id: number }[] = res.ok ? await res.json() : [];
-        if (!owned.some((f) => f.id === Number(formationId))) {
-          throw new Error("Vous n'avez pas accès à ce cours.");
-        }
+        if (res.status === 403) throw new Error("Vous n'avez pas accès à ce cours.");
+        if (!res.ok) throw new Error('Impossible de charger le contenu de ce cours.');
+        const courseContent: CourseContent = await res.json();
 
-        // 2. On récupère les détails de CETTE formation précise
+        // 2. Présentation de la formation (catalogue public)
         const detail = await apiFetch(`/api/formations/${formationId}`, {
           headers: { Accept: 'application/ld+json, application/json' },
         });
-        if (!detail.ok) throw new Error("Impossible de charger le contenu de ce cours.");
-        return detail.json();
+        if (!detail.ok) throw new Error('Impossible de charger le contenu de ce cours.');
+        return [courseContent, await detail.json()] as const;
       })
-      .then((data) => {
+      .then(([courseContent, data]) => {
+        setContent(courseContent);
         setFormation(data);
         setIsLoading(false);
       })
@@ -51,13 +60,18 @@ export default function SalleDeCoursPage() {
         setError(err.message);
         setIsLoading(false);
       });
+
+    // Filigrane du lecteur vidéo
+    fetchMe().then((me) => {
+      if (me) setViewer({ email: me.email, name: [me.firstName, me.lastName].filter(Boolean).join(' ') || undefined });
+    });
   }, [formationId, router]);
 
   if (isLoading) {
     return <Spinner label="Chargement de votre salle de cours…" />;
   }
 
-  if (error || !formation) {
+  if (error || !formation || !content) {
     return (
       <div className="container-page py-24">
         <ErrorState message={error || 'Cours introuvable'} />
@@ -68,11 +82,7 @@ export default function SalleDeCoursPage() {
     );
   }
 
-  const chapitres = [
-    { titre: 'Introduction et fondamentaux', actif: true },
-    { titre: 'Mise en pratique', actif: false },
-    { titre: 'Validation des acquis', actif: false },
-  ];
+  const hasMaterials = !!content.video || content.pdfAvailable;
 
   return (
     <div className="pb-8">
@@ -95,15 +105,20 @@ export default function SalleDeCoursPage() {
 
       <section className="container-page mt-10 grid items-start gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          {/* Lecteur (à venir) */}
-          <div className="relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-4xl bg-brand-forest shadow-float">
-            <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
-            <div aria-hidden="true" className="absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-brand-emerald/20" />
-            <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm">
-              <Play className="ml-1 h-8 w-8" aria-hidden="true" />
-            </span>
-            <p className="relative mt-4 font-display text-sm font-medium text-emerald-100/80">Lecteur vidéo bientôt disponible</p>
-          </div>
+          {content.video ? (
+            <div className="relative aspect-video overflow-hidden rounded-4xl bg-brand-forest shadow-float">
+              <ProtectedVideoPlayer src={content.video} userEmail={viewer?.email} userName={viewer?.name} />
+            </div>
+          ) : (
+            <div className="relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-4xl bg-brand-forest px-6 text-center shadow-float">
+              <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
+              <div aria-hidden="true" className="absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-brand-emerald/20" />
+              <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white/15 text-white"><Video className="h-7 w-7" aria-hidden="true" /></span>
+              <p className="relative mt-4 font-display text-sm font-medium text-emerald-100/80">
+                {content.pdfAvailable ? 'Ce cours se suit à partir de son support PDF.' : 'Les supports de ce cours seront bientôt disponibles.'}
+              </p>
+            </div>
+          )}
 
           <div className="card p-7 sm:p-9">
             <h2 className="font-display text-xl font-semibold text-brand-forest">À propos de ce module</h2>
@@ -111,30 +126,62 @@ export default function SalleDeCoursPage() {
           </div>
         </div>
 
-        {/* Plan du cursus */}
+        {/* Supports du cours */}
         <aside className="card p-6 lg:sticky lg:top-28">
-          <h2 className="font-display text-lg font-semibold text-brand-forest">Plan du cursus</h2>
-          <ol className="mt-5 space-y-2">
-            {chapitres.map((c, i) => (
-              <li key={c.titre} className={`flex items-center gap-3 rounded-2xl p-3 ${c.actif ? 'bg-brand-mint dark:bg-white/5' : ''}`}>
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-semibold ${c.actif ? 'bg-brand-forest text-white' : 'bg-gray-100 text-brand-muted dark:bg-white/5'}`}>
-                  {i + 1}
-                </span>
-                <span>
-                  <span className="block text-xs text-brand-muted">Chapitre {i + 1}</span>
-                  <span className={`block text-sm ${c.actif ? 'font-semibold text-brand-forest' : 'text-brand-ink'}`}>{c.titre}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-6 border-t border-brand-forest/5 pt-6 dark:border-white/10">
-            <button disabled className="btn w-full bg-gray-100 py-3 text-brand-muted dark:bg-white/5">
-              <Award className="h-4 w-4" aria-hidden="true" /> Obtenir mon certificat
-            </button>
-            <p className="mt-2 text-center text-xs text-brand-muted">Disponible à la fin du cursus</p>
-          </div>
+          <h2 className="font-display text-lg font-semibold text-brand-forest">Supports du cours</h2>
+          {hasMaterials ? (
+            <ul className="mt-5 space-y-3">
+              {content.video && (
+                <li className="flex items-center gap-3 rounded-2xl bg-brand-mint p-3 dark:bg-white/5">
+                  <span className="icon-tile h-10 w-10 shrink-0 bg-white dark:bg-white/10"><PlayCircle className="h-5 w-5" aria-hidden="true" /></span>
+                  <span className="text-sm font-medium text-brand-forest">Vidéo du cours</span>
+                </li>
+              )}
+              {content.pdfAvailable && (
+                <li><PdfDownload formationId={formation.id} title={formation.title} /></li>
+              )}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-brand-muted">Les supports de ce cours seront bientôt disponibles.</p>
+          )}
         </aside>
       </section>
     </div>
+  );
+}
+
+/** Support PDF servi par une route protégée (cookie de session) : récupéré en blob puis téléchargé */
+function PdfDownload({ formationId, title }: { formationId: number; title: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const download = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await apiFetch(`/api/content/formation/${formationId}/pdf`, { headers: { Accept: 'application/pdf' } });
+      if (!res.ok) throw new Error('Impossible de télécharger le support pour le moment.');
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title || 'support'}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Impossible de télécharger le support pour le moment.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button type="button" onClick={download} disabled={loading} className="flex w-full items-center gap-3 rounded-2xl bg-brand-mint p-3 text-left transition hover:bg-brand-sage dark:bg-white/5 dark:hover:bg-white/10">
+        <span className="icon-tile h-10 w-10 shrink-0 bg-white dark:bg-white/10"><FileText className="h-5 w-5" aria-hidden="true" /></span>
+        <span className="flex-1 text-sm font-medium text-brand-forest">Support PDF</span>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin text-brand-muted" aria-hidden="true" /> : <Download className="h-4 w-4 text-brand-muted" aria-hidden="true" />}
+      </button>
+      {error && <p role="alert" className="mt-2 text-xs text-red-700 dark:text-red-300">{error}</p>}
+    </>
   );
 }
