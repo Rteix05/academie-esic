@@ -70,7 +70,7 @@ export default async function FormationDetailPage({ params }: { params: Promise<
         </>}
         facts={facts}
         actions={<>
-          <FormationCta formationId={formation.id} price={formation.price ?? 0} available={item.available} />
+          <FormationCta formationId={formation.id} price={formation.price ?? 0} available={item.available} institut={formation.institut} />
           <a href="#programme" className="btn border border-white/30 px-6 py-3 text-white hover:bg-white/10">Voir le programme</a>
         </>}
       />

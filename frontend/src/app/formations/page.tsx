@@ -8,6 +8,8 @@ import { EmptyState, ErrorState, PageHeader } from '@/components/ui';
 import Billboard, { BillboardSkeleton } from '@/components/catalog/Billboard';
 import Carousel, { CarouselSkeleton, assignSharedIds, itemKey } from '@/components/catalog/Carousel';
 import CategoryNav from '@/components/catalog/CategoryNav';
+import SubscriptionOfferCard from '@/components/SubscriptionOfferCard';
+import { fetchMySubscriptions, fetchSubscriptionOffers, type SubscriptionOffer } from '@/lib/subscriptions';
 
 // Ordre éditorial des sous-catégories (les autres suivent par ordre alphabétique)
 const CATEGORY_ORDER = [
@@ -29,6 +31,8 @@ interface InstituteSection {
 export default function FormationsPage() {
   const [formations, setFormations] = useState<FormationDto[]>([]);
   const [ownedIds, setOwnedIds]     = useState<number[]>([]);
+  const [offers, setOffers]         = useState<SubscriptionOffer[]>([]);
+  const [subscribedPlans, setSubscribedPlans] = useState<string[]>([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState<string | null>(null);
 
@@ -53,6 +57,9 @@ export default function FormationsPage() {
       .then((r) => (r.ok ? r.json() : []))
       .then((list: { id: number }[]) => setOwnedIds(Array.isArray(list) ? list.map((f) => f.id) : []))
       .catch(() => {});
+    // Abonnements mensuels par institut (offres publiques, abonnements actifs si connecté)
+    fetchSubscriptionOffers().then(setOffers);
+    fetchMySubscriptions().then((subs) => setSubscribedPlans(subs.filter((s) => s.active).map((s) => s.plan)));
   }, []);
 
   const { featured, owned, all, sections, sharing } = useMemo(() => {
@@ -160,6 +167,9 @@ export default function FormationsPage() {
                     <span className="eyebrow">{section.subtitle}</span>
                     <h2 className="mt-2 font-display text-2xl font-semibold text-brand-forest sm:text-3xl">{section.key}</h2>
                   </header>
+                  {offers.filter((o) => o.institut === section.key).map((offer) => (
+                    <SubscriptionOfferCard key={offer.plan} offer={offer} subscribed={subscribedPlans.includes(offer.plan)} />
+                  ))}
                   {section.rows.map((row: CatalogRow) => (
                     <Carousel
                       key={row.key}

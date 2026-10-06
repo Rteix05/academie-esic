@@ -2,14 +2,17 @@
 
 namespace App\Stripe;
 
+use Stripe\BillingPortal\Session as PortalSession;
 use Stripe\Checkout\Session;
 use Stripe\Event;
+use Stripe\Price;
 use Stripe\StripeClient;
+use Stripe\Subscription;
 use Stripe\Webhook;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Point d'accès unique à l'API Stripe (clé secrète, sessions Checkout, webhooks).
+ * Point d'accès unique à l'API Stripe (clé secrète, sessions Checkout, abonnements, webhooks).
  * Remplacé par un double en test : aucun appel réseau dans la suite PHPUnit.
  */
 class StripeGateway
@@ -43,6 +46,22 @@ class StripeGateway
     public function retrieveCheckoutSession(string $sessionId): Session
     {
         return $this->client()->checkout->sessions->retrieve($sessionId);
+    }
+
+    public function retrieveSubscription(string $subscriptionId): Subscription
+    {
+        return $this->client()->subscriptions->retrieve($subscriptionId);
+    }
+
+    public function retrievePrice(string $priceId): Price
+    {
+        return $this->client()->prices->retrieve($priceId);
+    }
+
+    /** Portail client Stripe : moyen de paiement, factures, résiliation de l'abonnement */
+    public function createBillingPortalSession(string $customerId, string $returnUrl): PortalSession
+    {
+        return $this->client()->billingPortal->sessions->create(['customer' => $customerId, 'return_url' => $returnUrl]);
     }
 
     /**

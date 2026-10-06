@@ -217,27 +217,16 @@ class PurchaseFulfiller
      */
     private function applyConsents(Payment $payment, Session $session): void
     {
-        $metadata = $session->metadata ? $session->metadata->toArray() : [];
-        $version = $metadata[SalesTerms::META_CGV_VERSION] ?? null;
-        $acceptedAt = $this->parseDate($metadata[SalesTerms::META_CGV_ACCEPTED_AT] ?? null);
+        $consents = SalesTerms::consentsFromMetadata($session->metadata ? $session->metadata->toArray() : []);
 
-        if (!is_string($version) || $version === '' || !$acceptedAt) {
+        if (!$consents) {
             // Session créée sans consentement (ne devrait pas arriver) : à examiner
             $this->logger->warning('Paiement Stripe sans consentement CGV enregistré', ['session_id' => $session->id]);
 
             return;
         }
 
-        $payment->recordConsents($version, $acceptedAt, $this->parseDate($metadata[SalesTerms::META_IMMEDIATE_ACCESS_AT] ?? null));
-    }
-
-    private function parseDate(mixed $value): ?\DateTimeImmutable
-    {
-        if (!is_string($value) || $value === '') {
-            return null;
-        }
-
-        return \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value) ?: null;
+        $payment->recordConsents($consents['version'], $consents['acceptedAt'], $consents['immediateAccessAt']);
     }
 
     private function amount(Session $session): int

@@ -49,6 +49,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Membres');
         yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fas fa-users');
+        yield MenuItem::linkTo(SubscriptionCrudController::class, 'Abonnements', 'fas fa-sync-alt');
 
         yield MenuItem::section('');
         yield MenuItem::linkToUrl('← Retour au site', 'fas fa-arrow-left', $_ENV['FRONTEND_URL'] ?? '');

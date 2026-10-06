@@ -116,29 +116,12 @@ class CheckoutController extends AbstractController
      */
     private function createSession(Request $request, User $user, string $name, ?string $description, int $amountCents, array $metadata, string $successPath, string $cancelPath): JsonResponse
     {
-        // Consentements obligatoires, vérifiés côté serveur (une case cochée côté navigateur ne suffit pas)
-        $body = json_decode($request->getContent() ?: '{}', true);
-        $acceptCgv = is_array($body) && ($body['acceptCgv'] ?? null) === true;
-        $immediateAccess = is_array($body) && ($body['immediateAccess'] ?? null) === true;
-
-        if (!$acceptCgv || !$immediateAccess) {
-            return $this->json([
-                'message' => !$acceptCgv
-                    ? 'Veuillez accepter les conditions générales de vente pour poursuivre.'
-                    : 'Veuillez confirmer votre demande d\'accès immédiat au contenu pour poursuivre.',
-                'missing' => array_values(array_filter([
-                    $acceptCgv ? null : 'acceptCgv',
-                    $immediateAccess ? null : 'immediateAccess',
-                ])),
-            ], 422);
+        $missing = SalesTerms::missingConsents($request);
+        if ($missing) {
+            return $this->json(SalesTerms::missingConsentsResponse($missing), 422);
         }
 
-        $consentedAt = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-        $metadata += [
-            SalesTerms::META_CGV_VERSION         => SalesTerms::CGV_VERSION,
-            SalesTerms::META_CGV_ACCEPTED_AT     => $consentedAt,
-            SalesTerms::META_IMMEDIATE_ACCESS_AT => $consentedAt,
-        ];
+        $metadata += SalesTerms::consentMetadata();
 
         if (!$this->stripe->isConfigured()) {
             return $this->json(['message' => 'Le paiement en ligne est momentanément indisponible.'], 503);
