@@ -3,3 +3,11 @@
     Require all denied
 </FilesMatch>
 Options -Indexes -ExecCGI
+
+# Noms de fichiers uniques (régénérés à chaque téléversement) : mise en cache longue durée
+# par les navigateurs et le cache de Cloudways
+<IfModule mod_headers.c>
+    <FilesMatch "\.(webp|jpe?g|png|gif|avif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
