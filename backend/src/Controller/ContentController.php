@@ -6,7 +6,7 @@ use App\Entity\Formation;
 use App\Entity\Masterclass;
 use App\Entity\MasterclassPurchase;
 use App\Entity\User;
-use App\Subscription\FormationAccess;
+use App\Institut\FormationAccess;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -55,7 +55,7 @@ class ContentController extends AbstractController
             return $this->json(['message' => 'Non autorisé.'], 401);
         }
 
-        // Formation acquise ou incluse dans un abonnement actif
+        // Formation acquise ou incluse dans un accès complet à son institut
         if (!$access->canAccess($user, $formation)) {
             return $this->json(['message' => 'Accès non autorisé — formation non acquise.'], 403);
         }

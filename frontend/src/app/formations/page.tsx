@@ -8,8 +8,8 @@ import { EmptyState, ErrorState, PageHeader } from '@/components/ui';
 import Billboard, { BillboardSkeleton } from '@/components/catalog/Billboard';
 import Carousel, { CarouselSkeleton, assignSharedIds, itemKey } from '@/components/catalog/Carousel';
 import CategoryNav from '@/components/catalog/CategoryNav';
-import SubscriptionOfferCard from '@/components/SubscriptionOfferCard';
-import { fetchMySubscriptions, fetchSubscriptionOffers, type SubscriptionOffer } from '@/lib/subscriptions';
+import InstitutPackCard from '@/components/InstitutPackCard';
+import { fetchInstitutPackOffers, fetchMyInstitutPacks, type InstitutPackOffer } from '@/lib/institutPacks';
 
 // Ordre éditorial des sous-catégories (les autres suivent par ordre alphabétique)
 const CATEGORY_ORDER = [
@@ -31,8 +31,8 @@ interface InstituteSection {
 export default function FormationsPage() {
   const [formations, setFormations] = useState<FormationDto[]>([]);
   const [ownedIds, setOwnedIds]     = useState<number[]>([]);
-  const [offers, setOffers]         = useState<SubscriptionOffer[]>([]);
-  const [subscribedPlans, setSubscribedPlans] = useState<string[]>([]);
+  const [offers, setOffers]         = useState<InstitutPackOffer[]>([]);
+  const [ownedPacks, setOwnedPacks] = useState<string[]>([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState<string | null>(null);
 
@@ -57,9 +57,9 @@ export default function FormationsPage() {
       .then((r) => (r.ok ? r.json() : []))
       .then((list: { id: number }[]) => setOwnedIds(Array.isArray(list) ? list.map((f) => f.id) : []))
       .catch(() => {});
-    // Abonnements mensuels par institut (offres publiques, abonnements actifs si connecté)
-    fetchSubscriptionOffers().then(setOffers);
-    fetchMySubscriptions().then((subs) => setSubscribedPlans(subs.filter((s) => s.active).map((s) => s.plan)));
+    // Accès complets aux instituts (offres publiques, accès achetés si connecté)
+    fetchInstitutPackOffers().then(setOffers);
+    fetchMyInstitutPacks().then((packs) => setOwnedPacks(packs.map((p) => p.pack)));
   }, []);
 
   const { featured, owned, all, sections, sharing } = useMemo(() => {
@@ -168,7 +168,7 @@ export default function FormationsPage() {
                     <h2 className="mt-2 font-display text-2xl font-semibold text-brand-forest sm:text-3xl">{section.key}</h2>
                   </header>
                   {offers.filter((o) => o.institut === section.key).map((offer) => (
-                    <SubscriptionOfferCard key={offer.plan} offer={offer} subscribed={subscribedPlans.includes(offer.plan)} />
+                    <InstitutPackCard key={offer.pack} offer={offer} owned={ownedPacks.includes(offer.pack)} />
                   ))}
                   {section.rows.map((row: CatalogRow) => (
                     <Carousel

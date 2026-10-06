@@ -85,7 +85,7 @@ export default function CgvPage() {
             'des vidéos ;',
             'des documents PDF ;',
             'des packs comprenant plusieurs formats ;',
-            "des abonnements mensuels donnant accès à l'ensemble des formations d'un institut (article 9.2) ;",
+            "des accès complets donnant accès à l'ensemble des formations d'un institut (article 9.2) ;",
             "tout autre contenu numérique présenté comme disponible à l'achat sur le site.",
           ]} />
           <p>Chaque fiche produit présente les caractéristiques essentielles du contenu proposé, son prix et ses modalités d&apos;accès.</p>
@@ -108,8 +108,8 @@ export default function CgvPage() {
         <LegalArticle id="commande" title="5. Commande">
           <p>
             Les contenus sont achetés à l&apos;unité, directement depuis leur fiche sur le site : chaque commande porte
-            sur un seul contenu. Les abonnements mensuels sont souscrits depuis le catalogue des formations, selon le
-            même parcours ; chaque souscription porte sur un seul institut.
+            sur un seul contenu. Les accès complets aux instituts sont achetés depuis le catalogue des formations, selon
+            le même parcours ; chaque commande porte sur un seul institut.
           </p>
           <p>Pour effectuer une commande, le client :</p>
           <LegalList items={[
@@ -188,32 +188,18 @@ export default function CgvPage() {
           </p>
           <p>Lorsque cela est possible, l&apos;Académie informe les utilisateurs concernés dans un délai raisonnable.</p>
 
-          <h3 className="pt-2 font-display font-semibold text-brand-forest">9.2 Abonnements mensuels</h3>
+          <h3 className="pt-2 font-display font-semibold text-brand-forest">9.2 Accès complet à un institut</h3>
           <p>
-            L&apos;abonnement donne accès, pendant toute sa durée, à l&apos;ensemble des formations publiées de
-            l&apos;institut choisi, y compris celles ajoutées en cours d&apos;abonnement. Il n&apos;emporte pas
-            l&apos;acquisition définitive de ces formations : l&apos;accès prend fin avec l&apos;abonnement.
+            L&apos;accès complet à un institut est acheté en une seule fois, au prix affiché lors de la commande, sans
+            abonnement ni prélèvement ultérieur.
           </p>
           <p>
-            L&apos;abonnement est conclu pour une durée indéterminée, sans engagement, par périodes d&apos;un mois
-            renouvelées automatiquement. Le prix mensuel affiché lors de la souscription est prélevé à la souscription
-            puis à chaque date anniversaire, sur le moyen de paiement enregistré auprès de Stripe.
+            Il donne accès, sans limitation de durée, à l&apos;ensemble des formations publiées de l&apos;institut choisi,
+            y compris celles publiées après l&apos;achat. Les formations retirées du catalogue par l&apos;Académie ne sont
+            plus proposées ; les dispositions de l&apos;article 9.1 relatives au maintien des contenus s&apos;appliquent.
           </p>
           <p>
-            Le client peut résilier son abonnement à tout moment, sans frais ni justification, depuis son espace
-            personnel (« Gérer mon abonnement »). La résiliation prend effet à la fin de la période mensuelle en cours,
-            déjà payée : l&apos;accès est maintenu jusqu&apos;à cette date et aucun nouveau prélèvement n&apos;est
-            effectué. La période entamée n&apos;est pas remboursée.
-          </p>
-          <p>
-            En cas d&apos;échec d&apos;un prélèvement, de nouvelles tentatives sont effectuées pendant quelques jours ;
-            le client est invité à mettre à jour son moyen de paiement. À défaut de paiement, l&apos;abonnement prend fin
-            et l&apos;accès aux formations correspondantes est fermé.
-          </p>
-          <p>
-            Toute modification du prix de l&apos;abonnement est portée à la connaissance du client avant son application,
-            qui ne peut intervenir qu&apos;à compter de l&apos;échéance suivante ; le client peut résilier son abonnement
-            s&apos;il ne l&apos;accepte pas.
+            L&apos;accès complet est attaché au compte du client : il est personnel et ne peut être ni cédé ni partagé.
           </p>
         </LegalArticle>
 

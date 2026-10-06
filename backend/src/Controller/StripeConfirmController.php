@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\ProductType;
 use App\Entity\User;
+use App\Institut\InstitutPack;
 use App\Payment\FulfillmentResult;
 use App\Payment\PurchaseFulfiller;
 use App\Stripe\StripeGateway;
-use App\Subscription\SubscriptionManager;
 use Psr\Log\LoggerInterface;
 use Stripe\Checkout\Session;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,15 +25,14 @@ class StripeConfirmController extends AbstractController
     public function __construct(
         private readonly StripeGateway $stripe,
         private readonly PurchaseFulfiller $fulfiller,
-        private readonly SubscriptionManager $subscriptions,
         private readonly LoggerInterface $logger,
     ) {}
 
-    /** Formations, masterclasses et abonnements */
+    /** Formations, masterclasses et accès aux instituts */
     #[Route('/api/stripe/confirm', name: 'api_stripe_confirm', methods: ['POST'])]
     public function confirm(Request $request): JsonResponse
     {
-        return $this->handle($request, [ProductType::Formation, ProductType::Masterclass, ProductType::Subscription]);
+        return $this->handle($request, [ProductType::Formation, ProductType::Masterclass, ProductType::Institut]);
     }
 
     /** Événements payants */
@@ -83,15 +82,7 @@ class StripeConfirmController extends AbstractController
             return $this->json(['message' => 'Type d\'achat non géré par cet endpoint.'], 400);
         }
 
-        try {
-            $result = ($session->mode ?? null) === 'subscription'
-                ? $this->subscriptions->fulfillCheckout($session)
-                : $this->fulfiller->fulfill($session);
-        } catch (\Throwable $e) {
-            $this->logger->error('Stripe confirm : abonnement illisible', ['session_id' => $sessionId, 'error' => $e->getMessage()]);
-
-            return $this->json(['message' => 'Confirmation momentanément impossible : votre accès sera activé sous peu.'], 503);
-        }
+        $result = $this->fulfiller->fulfill($session);
 
         return match ($result->status) {
             FulfillmentResult::GRANTED, FulfillmentResult::ALREADY => $this->json([
@@ -112,8 +103,8 @@ class StripeConfirmController extends AbstractController
             !empty($metadata['event_id'])       => ProductType::Event,
             !empty($metadata['formation_id'])   => ProductType::Formation,
             !empty($metadata['masterclass_id']) => ProductType::Masterclass,
-            !empty($metadata[SubscriptionManager::META_PLAN]) => ProductType::Subscription,
-            default                             => null,
+            !empty($metadata[InstitutPack::META]) => ProductType::Institut,
+            default                            => null,
         };
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Subscription;
+namespace App\Institut;
 
 use App\Stripe\StripeGateway;
 use Psr\Log\LoggerInterface;
@@ -9,13 +9,13 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * Prix Stripe des formules d'abonnement.
+ * Prix Stripe des accès complets aux instituts.
  *
  * Les identifiants de prix (price_…) sont fournis par variables d'environnement : ils diffèrent
  * entre le mode test et la production. Le montant affiché est lu dans Stripe (mis en cache)
- * pour rester identique au montant réellement prélevé.
+ * pour rester identique au montant réellement payé.
  */
-class SubscriptionCatalog
+class InstitutCatalog
 {
     private const CACHE_TTL = 3600;
 
@@ -30,35 +30,35 @@ class SubscriptionCatalog
         #[Autowire('%env(default::STRIPE_PRICE_ECOLE_MINISTERE)%')] ?string $ecoleMinisterePriceId,
     ) {
         $this->priceIds = [
-            SubscriptionPlan::InstitutBiblique->value => $institutBibliquePriceId ?: null,
-            SubscriptionPlan::EcoleMinistere->value   => $ecoleMinisterePriceId ?: null,
+            InstitutPack::InstitutBiblique->value => $institutBibliquePriceId ?: null,
+            InstitutPack::EcoleMinistere->value   => $ecoleMinisterePriceId ?: null,
         ];
     }
 
-    public function priceId(SubscriptionPlan $plan): ?string
+    public function priceId(InstitutPack $pack): ?string
     {
-        return $this->priceIds[$plan->value];
+        return $this->priceIds[$pack->value];
     }
 
     /**
-     * Offre affichée sur le site. Null si la formule n'est pas configurée ou si son prix
-     * Stripe est introuvable, inactif ou non mensuel (la souscription est alors indisponible).
+     * Offre affichée sur le site. Null si l'accès n'est pas configuré ou si son prix
+     * Stripe est introuvable, inactif ou récurrent (l'achat est alors indisponible).
      *
-     * @return array{plan: string, institut: string, label: string, amount: float, currency: string, interval: string}|null
+     * @return array{pack: string, institut: string, label: string, amount: float, currency: string}|null
      */
-    public function offer(SubscriptionPlan $plan): ?array
+    public function offer(InstitutPack $pack): ?array
     {
-        $priceId = $this->priceId($plan);
+        $priceId = $this->priceId($pack);
         if (!$priceId || !$this->stripe->isConfigured()) {
             return null;
         }
 
-        $price = $this->cache->get('subscription_price_' . md5($priceId), function (ItemInterface $item) use ($priceId) {
+        $price = $this->cache->get('institut_price_' . md5($priceId), function (ItemInterface $item) use ($priceId) {
             $item->expiresAfter(self::CACHE_TTL);
             try {
                 $price = $this->stripe->retrievePrice($priceId);
             } catch (\Throwable $e) {
-                $this->logger->error('Stripe : prix d\'abonnement introuvable', ['price' => $priceId, 'error' => $e->getMessage()]);
+                $this->logger->error('Stripe : prix d\'accès institut introuvable', ['price' => $priceId, 'error' => $e->getMessage()]);
                 $item->expiresAfter(60); // nouvel essai rapide
 
                 return null;
@@ -66,23 +66,22 @@ class SubscriptionCatalog
 
             return [
                 'active'   => (bool) $price->active,
+                'type'     => (string) $price->type,
                 'amount'   => (int) $price->unit_amount,
                 'currency' => (string) $price->currency,
-                'interval' => (string) ($price->recurring?->interval ?? ''),
             ];
         });
 
-        if (!$price || !$price['active'] || $price['interval'] !== 'month' || $price['amount'] <= 0) {
+        if (!$price || !$price['active'] || $price['type'] !== 'one_time' || $price['amount'] <= 0) {
             return null;
         }
 
         return [
-            'plan'     => $plan->value,
-            'institut' => $plan->institut(),
-            'label'    => $plan->label(),
+            'pack'     => $pack->value,
+            'institut' => $pack->institut(),
+            'label'    => $pack->label(),
             'amount'   => $price['amount'] / 100,
             'currency' => strtoupper($price['currency']),
-            'interval' => $price['interval'],
         ];
     }
 }

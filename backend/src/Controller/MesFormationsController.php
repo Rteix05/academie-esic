@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Subscription\FormationAccess;
+use App\Institut\FormationAccess;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,7 +12,7 @@ class MesFormationsController extends AbstractController
 {
     /**
      * Formations accessibles : acquises (achat, inscription gratuite) ou incluses
-     * dans un abonnement actif ('access' indique l'origine du droit).
+     * dans un accès complet à un institut ('access' indique l'origine du droit).
      */
     #[Route('/api/mes-formations', name: 'api_mes_formations', methods: ['GET'])]
     public function index(FormationAccess $access): JsonResponse

@@ -76,7 +76,7 @@ final class SalesTerms
     }
 
     /**
-     * Consentements lus dans les métadonnées Stripe (session ou abonnement).
+     * Consentements lus dans les métadonnées Stripe de la session.
      *
      * @param array<string, mixed> $metadata
      * @return array{version: string, acceptedAt: \DateTimeImmutable, immediateAccessAt: ?\DateTimeImmutable}|null null si absents

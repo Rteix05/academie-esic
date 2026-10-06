@@ -3,17 +3,17 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, Library } from 'lucide-react';
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import { Spinner } from '@/components/ui';
 import { apiFetch, fetchMe } from '@/lib/api';
-import { formatDate, type MySubscription } from '@/lib/subscriptions';
+import { formatDate, type MyInstitutPack } from '@/lib/institutPacks';
 
 interface Formation {
   id: number;
   title: string;
   category: string;
-  access?: 'achat' | 'abonnement';
+  access?: 'achat' | 'institut';
 }
 
 interface MasterclassPurchase {
@@ -26,7 +26,7 @@ interface MasterclassPurchase {
 // Paiement encaissé : montant réellement payé, figé au moment de l'achat
 interface PaymentRecord {
   id: number;
-  productType: 'formation' | 'masterclass' | 'event' | 'subscription';
+  productType: 'formation' | 'masterclass' | 'event' | 'institut';
   productId: number;
   label: string;
   option: string | null;
@@ -40,7 +40,7 @@ const PRODUCT_LABELS: Record<PaymentRecord['productType'], string> = {
   formation: 'Formation',
   masterclass: 'Masterclass',
   event: 'Événement',
-  subscription: 'Abonnement',
+  institut: 'Accès institut',
 };
 
 function formatAmount(amount: number, currency: string): string {
@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const [mesFormations, setMesFormations] = useState<Formation[]>([]);
   const [mesMasterclasses, setMesMasterclasses] = useState<MasterclassPurchase[]>([]);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
-  const [subscriptions, setSubscriptions] = useState<MySubscription[]>([]);
+  const [institutPacks, setInstitutPacks] = useState<MyInstitutPack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
@@ -74,13 +74,13 @@ export default function DashboardPage() {
       load('/api/mes-formations'),
       load('/api/mes-masterclasses'),
       load('/api/payment-history'),
-      load('/api/mes-abonnements'),
+      load('/api/mes-instituts'),
     ])
-      .then(([formations, masterclasses, history, subs]) => {
+      .then(([formations, masterclasses, history, packs]) => {
         setMesFormations(Array.isArray(formations) ? formations : formations['hydra:member'] || []);
         setMesMasterclasses(Array.isArray(masterclasses) ? masterclasses : []);
         setPaymentHistory(Array.isArray(history) ? history : []);
-        setSubscriptions(Array.isArray(subs) ? subs : []);
+        setInstitutPacks(Array.isArray(packs) ? packs : []);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -156,7 +156,7 @@ export default function DashboardPage() {
                         <div className="min-w-0">
                           <span className="text-xs text-brand-muted">
                             {formation.category}
-                            {formation.access === 'abonnement' && <>{formation.category && ' · '}Incluse dans votre abonnement</>}
+                            {formation.access === 'institut' && <>{formation.category && ' · '}Incluse dans votre accès complet</>}
                           </span>
                           <h3 className="truncate font-display font-semibold text-brand-forest">{formation.title}</h3>
                         </div>
@@ -209,11 +209,11 @@ export default function DashboardPage() {
             </Panel>
         </div>
 
-        {/* Abonnements */}
-        {subscriptions.length > 0 && (
+        {/* Accès complets aux instituts */}
+        {institutPacks.length > 0 && (
           <div className="mt-6">
-            <Panel icon={<RefreshCw className="h-5 w-5" />} title="Mes abonnements">
-              <SubscriptionList subscriptions={subscriptions} />
+            <Panel icon={<Library className="h-5 w-5" />} title="Mes accès instituts">
+              <InstitutPackList packs={institutPacks} />
             </Panel>
           </div>
         )}
@@ -270,57 +270,20 @@ function Panel({ icon, title, children }: { icon: React.ReactNode; title: string
   );
 }
 
-function SubscriptionList({ subscriptions }: { subscriptions: MySubscription[] }) {
-  const [opening, setOpening] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Portail Stripe : moyen de paiement, factures et résiliation
-  const openPortal = async () => {
-    setError(null);
-    setOpening(true);
-    try {
-      const res = await apiFetch('/api/stripe/portal', { method: 'POST' });
-      const data: { url?: string; message?: string } = await res.json().catch(() => ({}));
-      if (!res.ok || !data.url) throw new Error(data.message || "Impossible d'ouvrir la gestion de l'abonnement.");
-      window.location.assign(data.url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Impossible d'ouvrir la gestion de l'abonnement.");
-      setOpening(false);
-    }
-  };
-
+function InstitutPackList({ packs }: { packs: MyInstitutPack[] }) {
   return (
-    <div className="space-y-4">
-      <ul className="space-y-3">
-        {subscriptions.map((s) => (
-          <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
-            <div>
-              <h3 className="font-display font-semibold text-brand-forest">{s.institut}</h3>
-              <p className="mt-1 text-sm text-brand-muted">{subscriptionDetail(s)}</p>
-            </div>
-            <span className={`chip ${s.active ? (s.status === 'past_due' ? 'bg-amber-100 text-amber-900' : 'bg-brand-sage') : ''}`}>
-              {!s.active ? 'Terminé' : s.status === 'past_due' ? 'Paiement en attente' : s.cancelAt ? 'Résilié' : 'Actif'}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={openPortal} disabled={opening} className="btn-secondary">
-          {opening && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-          Gérer mon abonnement
-        </button>
-        <span className="text-xs text-brand-muted">Carte bancaire, factures, résiliation</span>
-      </div>
-      {error && <p role="alert" className="rounded-2xl bg-red-50 px-4 py-2 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-200">{error}</p>}
-    </div>
+    <ul className="space-y-3">
+      {packs.map((p) => (
+        <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
+          <div>
+            <h3 className="font-display font-semibold text-brand-forest">{p.institut}</h3>
+            <p className="mt-1 text-sm text-brand-muted">Toutes les formations de l&apos;institut, à vie · acheté le {formatDate(p.purchasedAt)}</p>
+          </div>
+          <Link href="/formations" className="btn-secondary py-2">Voir les formations</Link>
+        </li>
+      ))}
+    </ul>
   );
-}
-
-function subscriptionDetail(s: MySubscription): string {
-  if (!s.active) return s.endedAt ? `Terminé le ${formatDate(s.endedAt)}` : 'Abonnement terminé';
-  if (s.status === 'past_due') return "Le dernier prélèvement a échoué : mettez à jour votre moyen de paiement pour conserver l'accès.";
-  if (s.cancelAt) return `Accès jusqu'au ${formatDate(s.cancelAt)}, sans renouvellement`;
-  return s.currentPeriodEnd ? `Prochain renouvellement le ${formatDate(s.currentPeriodEnd)}` : 'Abonnement actif';
 }
 
 function EmptyPanel({ text, href, cta }: { text: string; href: string; cta: string }) {
