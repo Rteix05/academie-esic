@@ -179,6 +179,21 @@ final class PurchaseTest extends ApiTestCase
         self::assertCount(1, $this->em()->getRepository(Payment::class)->findBy(['user' => $user->getId()]));
     }
 
+    public function testStripeEndpointsAreRateLimited(): void
+    {
+        $this->createUser();
+        $this->login();
+
+        for ($i = 0; $i < 20; $i++) {
+            $this->jsonRequest('POST', '/api/stripe/confirm', ['session_id' => 'cs_test_inconnu']);
+            self::assertNotSame(429, $this->client->getResponse()->getStatusCode());
+        }
+
+        // 21e appel dans la minute : refusé avant tout appel à Stripe
+        $this->jsonRequest('POST', '/api/stripe/confirm', ['session_id' => 'cs_test_inconnu']);
+        self::assertResponseStatusCodeSame(429);
+    }
+
     public function testWebhookRejectsInvalidSignature(): void
     {
         $this->postWebhook('checkout.session.completed', FakeStripeGateway::sessionData('cs_x', [], 100), secret: 'whsec_faux');
