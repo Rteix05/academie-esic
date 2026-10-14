@@ -34,7 +34,10 @@ class EventCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('title', 'Titre de l\'événement'),
-            TextEditorField::new('description', 'Description')->hideOnIndex(),
+            TextEditorField::new('description', 'Description')->hideOnIndex()
+                // Obligatoire, mais vérifié par le serveur : le champ HTML de l'éditeur est masqué
+                // et un « required » bloquerait l'envoi sans afficher de message
+                ->setRequired(false),
             TextField::new('location', 'Lieu (ou "En ligne")'),
             DateTimeField::new('startDate', 'Date de début'),
             DateTimeField::new('endDate', 'Date de fin'),
