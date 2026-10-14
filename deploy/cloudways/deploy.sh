@@ -25,6 +25,22 @@ echo "→ Compilation des variables d'environnement (.env.local.php, plus rapide
 rm -f .env.local.php
 composer dump-env prod
 
+echo "→ Vérification des secrets de production"
+# Une variable oubliée dans .env.local reprend la valeur publique de .env.example : on refuse de déployer
+php -r '
+$env = require ".env.local.php";
+$public = ["APP_SECRET", "JWT_PASSPHRASE", "VIDEO_TOKEN_SECRET", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"];
+$errors = [];
+foreach ($env as $key => $value) {
+    if (str_contains((string) $value, "À_REMPLIR")) $errors[] = "$key contient encore « À_REMPLIR »";
+}
+foreach ($public as $key) {
+    $value = (string) ($env[$key] ?? "");
+    if ($value === "" || str_starts_with($value, "change-me") || str_ends_with($value, "_xxx")) $errors[] = "$key est vide ou garde la valeur d’exemple de .env.example";
+}
+if ($errors) { fwrite(STDERR, implode(PHP_EOL, $errors) . PHP_EOL . "Complétez backend/.env.local puis relancez." . PHP_EOL); exit(1); }
+'
+
 echo "→ Dossiers de fichiers téléversés"
 mkdir -p public/uploads/images private/uploads/pdfs private/uploads/videos var/log
 
