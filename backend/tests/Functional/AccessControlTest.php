@@ -73,6 +73,25 @@ final class AccessControlTest extends ApiTestCase
         self::assertResponseRedirects('/login');
     }
 
+    public function testAdminLogoutRequiresCsrfToken(): void
+    {
+        $admin = $this->createUser('admin@test.fr', ['ROLE_ADMIN']);
+        $this->client->loginUser($admin, 'main');
+
+        // Lien forgé par un site tiers (sans jeton) : la session reste ouverte
+        $this->client->request('GET', '/logout');
+        $this->client->request('GET', '/admin/formation');
+        self::assertResponseIsSuccessful();
+
+        // Lien « Déconnexion » du back-office : il porte le jeton et déconnecte bien
+        $crawler = $this->client->request('GET', '/admin/formation');
+        $logout = $crawler->filter('a[href*="/logout"]')->first()->attr('href');
+        self::assertStringContainsString('_csrf_token=', (string) $logout);
+        $this->client->request('GET', $logout);
+        $this->client->request('GET', '/admin/formation');
+        self::assertResponseRedirects('/login');
+    }
+
     public function testAdminIsForbiddenToStudents(): void
     {
         $this->createUser('eleve@test.fr');

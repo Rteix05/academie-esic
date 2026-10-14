@@ -56,6 +56,8 @@ security:
             logout:
                 path: app_logout
                 target: app_login
+                # Jeton CSRF dans le lien « Déconnexion » : un site tiers ne peut pas déconnecter l'admin
+                enable_csrf: true
 
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }

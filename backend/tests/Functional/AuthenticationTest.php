@@ -75,6 +75,21 @@ final class AuthenticationTest extends ApiTestCase
         self::assertResponseStatusCodeSame(401);
     }
 
+    public function testLogoutRevokesTokenCopiedBeforehand(): void
+    {
+        $this->createUser();
+        $this->login();
+        $copiedToken = $this->client->getCookieJar()->get('BEARER')->getValue();
+
+        $this->jsonRequest('POST', '/api/logout');
+        self::assertResponseStatusCodeSame(204);
+
+        // Le token copié (ex. volé) avant la déconnexion n'est plus accepté
+        $this->client->getCookieJar()->clear();
+        $this->client->request('GET', '/api/me', server: ['HTTP_AUTHORIZATION' => 'Bearer ' . $copiedToken]);
+        self::assertResponseStatusCodeSame(401);
+    }
+
     public function testPasswordChangeInvalidatesOtherSessionsAndRenewsCurrentOne(): void
     {
         $this->createUser();

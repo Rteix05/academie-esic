@@ -32,3 +32,9 @@ lexik_jwt_authentication:
 
     # Le token n'est plus renvoyé dans le corps de la réponse de login
     remove_token_from_body_when_cookies_used: true
+
+    # Déconnexion : le token est révoqué (liste de blocage en cache jusqu'à son expiration),
+    # un cookie copié avant la déconnexion n'ouvre plus la session
+    blocklist_token:
+        enabled: true
+        cache: cache.app
