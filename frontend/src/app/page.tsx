@@ -267,8 +267,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Témoignages : section retirée jusqu'à la réception de vrais avis (Académie pas encore lancée) */}
-
       {/* ── 6. ACTUALITÉS (saisies dans l'admin ; section masquée s'il n'y en a pas) ── */}
       {actualites.length > 0 && <section className="container-page py-24">
         <div className="flex flex-col items-center justify-between gap-6 text-center md:flex-row md:items-end md:text-left">

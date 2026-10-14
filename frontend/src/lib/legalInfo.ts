@@ -12,7 +12,7 @@ export const LEGAL_INFO = {
   rna: 'W911002465',
   /** Uniquement pour une société (laisser null pour une association) */
   capitalSocial: null as string | null,
-  siege: "11 rue de l'Église, 28310 Rouvray-Saint-Denis" as string | null,
+  siege: '10 rue du 11 Novembre 1918, 91580 Étrechy' as string | null,
   siren: 'SIREN 845 359 298 — SIRET 845 359 298 00013' as string | null,
   /** Numéro de TVA intracommunautaire, ou mention « TVA non applicable, art. 293 B du CGI » */
   tva: null as string | null,
@@ -27,7 +27,7 @@ export const LEGAL_INFO = {
   /** Hébergeurs (mentions légales, art. 6 LCEN) */
   hebergeurs: [
     { role: 'Site (frontend)', nom: 'Vercel Inc.', adresse: '440 N Barranca Ave #4133, Covina, CA 91723, États-Unis' as string | null, url: 'https://vercel.com' },
-    { role: 'API, back-office et fichiers', nom: 'Cloudways, LLC', adresse: null as string | null, url: 'https://www.cloudways.com' },
+    { role: 'API, back-office et fichiers', nom: 'Cloudways, LLC (groupe DigitalOcean)', adresse: '105 Edgeview Drive, Suite 425, Broomfield, CO 80021, États-Unis' as string | null, url: 'https://www.cloudways.com' },
   ],
   /** Dates de mise à jour / d'entrée en vigueur (ex. « 1er novembre 2026 ») */
   dateCgu: null as string | null,
