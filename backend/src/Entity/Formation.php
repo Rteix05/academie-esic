@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Ignore;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FormationRepository::class)]
 // Lecture seule : l'écriture passe exclusivement par l'admin EasyAdmin
@@ -28,18 +29,26 @@ class Formation
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     private ?float $price = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $duration = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $level = null;
 
     #[ORM\Column(length: 255)]
@@ -158,9 +167,10 @@ class Formation
         return $this->category;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(?string $category): static
     {
-        $this->category = $category;
+        // Sous-catégorie facultative dans le back-office, colonne non nulle en base
+        $this->category = $category ?? '';
 
         return $this;
     }

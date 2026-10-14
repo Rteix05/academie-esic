@@ -34,7 +34,10 @@ class MasterclassCrudController extends AbstractCrudController
 
             TextField::new('title', 'Titre de la Masterclass'),
             TextField::new('speakerName', 'Expert / Formateur'),
-            TextEditorField::new('description', 'Description')->hideOnIndex(),
+            TextEditorField::new('description', 'Description')->hideOnIndex()
+                // Obligatoire, mais vérifié par le serveur : le champ HTML de l'éditeur est masqué
+                // et un « required » bloquerait l'envoi sans afficher de message
+                ->setRequired(false),
 
             // Image de prévisualisation — upload depuis le PC local
             Field::new('imageUpload', 'Image de prévisualisation (upload)')

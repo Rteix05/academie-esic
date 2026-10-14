@@ -100,12 +100,12 @@ final class AuthenticationTest extends ApiTestCase
 
         for ($i = 0; $i < 5; $i++) {
             $this->jsonRequest('POST', '/api/login_check', ['username' => 'eleve@test.fr', 'password' => self::validPassword() . 'x']);
-            self::assertStringContainsString('Invalid credentials', (string) $this->client->getResponse()->getContent());
+            self::assertStringContainsString('Identifiants invalides', (string) $this->client->getResponse()->getContent());
         }
 
         // 6e tentative bloquée, même avec le bon mot de passe (Lexik répond 401 avec un message dédié)
         $this->jsonRequest('POST', '/api/login_check', ['username' => 'eleve@test.fr', 'password' => self::validPassword()]);
         self::assertResponseStatusCodeSame(401);
-        self::assertStringContainsStringIgnoringCase('too many', (string) $this->client->getResponse()->getContent());
+        self::assertStringContainsStringIgnoringCase('tentatives de connexion', (string) $this->client->getResponse()->getContent());
     }
 }

@@ -238,4 +238,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->resetTokenExpiresAt = $resetTokenExpiresAt;
         return $this;
     }
+
+    /** Libellé affiché dans les listes déroulantes du back-office (inscriptions, accès instituts) */
+    public function __toString(): string
+    {
+        $name = trim($this->firstName . ' ' . $this->lastName);
+
+        return $name !== '' ? $name . ' <' . $this->email . '>' : (string) $this->email;
+    }
 }

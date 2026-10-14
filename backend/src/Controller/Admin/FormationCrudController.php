@@ -53,7 +53,10 @@ class FormationCrudController extends AbstractCrudController
             ])->setRequired(false),
 
             TextField::new('title', 'Titre de la formation'),
-            TextEditorField::new('description', 'Contenu de la formation')->hideOnIndex(),
+            TextEditorField::new('description', 'Contenu de la formation')->hideOnIndex()
+                // Obligatoire, mais vérifié par le serveur : le champ HTML de l'éditeur est masqué
+                // et un « required » bloquerait l'envoi sans afficher de message
+                ->setRequired(false),
 
             // — Détails pédagogiques —
             TextEditorField::new('objectives', 'Objectifs de la formation')->hideOnIndex()->setRequired(false),
