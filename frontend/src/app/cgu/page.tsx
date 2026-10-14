@@ -71,7 +71,8 @@ export default function CguPage() {
         <LegalArticle id="editeur" title="2. Éditeur du site">
           <p>Le site academie-esic.fr est édité par :</p>
           <LegalIdentity rows={[
-            { label: 'Dénomination', value: L.nom },
+            { label: 'Dénomination', value: `${L.structure}, éditrice de l'${L.nom}` },
+            { label: 'N° RNA', value: L.rna },
             { label: 'Forme juridique', value: <LegalValue value={L.formeJuridique} label="forme juridique" /> },
             { label: 'Capital social', value: <LegalValue value={L.capitalSocial} label="le cas échéant" /> },
             { label: 'Siège social', value: <LegalValue value={L.siege} label="adresse complète" /> },

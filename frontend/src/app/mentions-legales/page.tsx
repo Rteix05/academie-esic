@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL } from '@/lib/contact';
+import { LEGAL_INFO as L } from '@/lib/legalInfo';
+import { LegalValue } from '@/components/legal';
 
 export const metadata: Metadata = {
   title: 'Mentions légales',
@@ -15,7 +17,7 @@ export default function MentionsLegalesPage() {
           <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
           <Link href="/" className="relative text-sm font-medium text-brand-muted transition hover:text-brand-emerald">← Retour à l'accueil</Link>
           <h1 className="relative mt-5 font-display text-4xl font-semibold text-brand-forest sm:text-5xl">Mentions légales</h1>
-          <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : juillet 2026</p>
+          <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : octobre 2026</p>
         </div>
 
         <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
@@ -23,19 +25,28 @@ export default function MentionsLegalesPage() {
           <section>
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Éditeur du site</h2>
             <p>
-              Le site <strong>academie-esic.fr</strong> est édité par l'<strong>Académie E.S.I.C.</strong>,
-              association loi 1901 dont le siège social est situé en France.<br />
-              Responsable de la publication : Direction de l'Académie E.S.I.C.<br />
+              Le site <strong>academie-esic.fr</strong> est édité par <strong>{L.structure}</strong>,{' '}
+              {L.formeJuridique?.toLowerCase()}, qui porte l'<strong>{L.nom}</strong>.<br />
+              Siège social : <LegalValue value={L.siege} label="adresse complète" /><br />
+              {L.siren} — N° RNA : {L.rna}<br />
+              Téléphone : <LegalValue value={L.telephone} label="numéro" /><br />
+              Directeur de la publication : <LegalValue value={L.directeurPublication} label="nom" /><br />
               Contact : <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-emerald underline underline-offset-4">{CONTACT_EMAIL}</a>
             </p>
           </section>
 
           <section>
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">2. Hébergement</h2>
-            <p>
-              Ce site est hébergé par des prestataires d'hébergement cloud (serveurs localisés dans l'Union Européenne).
-              Les coordonnées précises de l'hébergeur sont disponibles sur demande à l'adresse email indiquée ci-dessus.
-            </p>
+            <ul className="list-disc space-y-2 pl-5">
+              {L.hebergeurs.map((h) => (
+                <li key={h.nom}>
+                  <strong>{h.role}</strong> : {h.nom}, <LegalValue value={h.adresse} label="adresse de l'hébergeur" /> —{' '}
+                  <a href={h.url} target="_blank" rel="noopener noreferrer" className="font-medium text-brand-emerald underline underline-offset-4">
+                    {h.url.replace('https://', '')}<span className="sr-only"> (nouvelle fenêtre)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section>

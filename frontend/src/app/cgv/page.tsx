@@ -66,7 +66,8 @@ export default function CgvPage() {
 
         <LegalArticle id="vendeur" title="2. Identification du vendeur">
           <LegalIdentity rows={[
-            { label: 'Dénomination', value: L.nom },
+            { label: 'Dénomination', value: `${L.structure}, éditrice de l'${L.nom}` },
+            { label: 'N° RNA', value: L.rna },
             { label: 'Forme juridique', value: <LegalValue value={L.formeJuridique} label="forme juridique" /> },
             { label: 'Siège social', value: <LegalValue value={L.siege} label="adresse complète" /> },
             { label: 'SIREN / SIRET', value: <LegalValue value={L.siren} label="numéro" /> },
@@ -389,7 +390,7 @@ export default function CgvPage() {
           <div className="space-y-3 rounded-2xl border border-brand-forest/15 p-5 dark:border-white/15">
             <p>
               À l&apos;attention de :<br />
-              {L.nom}<br />
+              {L.structure} — {L.nom}<br />
               <LegalValue value={L.siege} label="adresse complète" /><br />
               Email : {CONTACT_EMAIL}
             </p>
