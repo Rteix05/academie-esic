@@ -49,6 +49,24 @@ final class AccessControlTest extends ApiTestCase
         self::assertSame(50, (int) $member['pricePack']);
     }
 
+    public function testCatalogHidesUnpublishedContent(): void
+    {
+        $published = $this->createFormation();
+        $draft = $this->createFormation(published: false);
+        $draftEvent = $this->createEvent()->setIsPublished(false);
+        $this->em()->flush();
+
+        $this->client->request('GET', '/api/formations', server: ['HTTP_ACCEPT' => 'application/ld+json']);
+        $ids = array_column($this->responseJson()['member'], 'id');
+        self::assertContains($published->getId(), $ids);
+        self::assertNotContains($draft->getId(), $ids);
+
+        foreach (['/api/formations/' . $draft->getId(), '/api/events/' . $draftEvent->getId()] as $uri) {
+            $this->client->request('GET', $uri, server: ['HTTP_ACCEPT' => 'application/ld+json']);
+            self::assertResponseStatusCodeSame(404, "$uri (brouillon) ne doit pas être exposé");
+        }
+    }
+
     public function testAdminRequiresLogin(): void
     {
         $this->client->request('GET', '/admin');

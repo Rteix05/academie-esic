@@ -38,6 +38,10 @@ DirectoryIndex index.php
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
+    # Anti-clickjacking (back-office /admin, page /login) : l'API n'est jamais affichée dans un cadre externe
+    Header unset X-Frame-Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Content-Security-Policy "frame-ancestors 'self'"
     # HTTPS obligatoire (HSTS) : uniquement sur une requête HTTPS, y compris derrière le proxy Cloudways
     Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" "expr=%{HTTPS} == 'on' || %{HTTP:X-Forwarded-Proto} == 'https'"
 </IfModule>
