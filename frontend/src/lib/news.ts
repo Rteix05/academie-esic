@@ -1,4 +1,4 @@
-import { SERVER_API_URL } from '@/lib/api';
+import { serverFetch } from '@/lib/api';
 
 /** Actualité publiée depuis l'admin */
 export interface NewsItem {
@@ -14,7 +14,7 @@ export interface NewsItem {
  */
 export async function fetchNews(limit?: number): Promise<NewsItem[]> {
   try {
-    const res = await fetch(`${SERVER_API_URL}/api/actualites${limit ? `?limit=${limit}` : ''}`, { next: { revalidate: 300 } });
+    const res = await serverFetch(`/api/actualites${limit ? `?limit=${limit}` : ''}`, { next: { revalidate: 300 } });
     const data = res.ok ? await res.json() : [];
     return Array.isArray(data) ? data : [];
   } catch {

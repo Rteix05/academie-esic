@@ -6,7 +6,7 @@ import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import DetailHero, { HeroTag } from '@/components/catalog/DetailHero';
 import Carousel from '@/components/catalog/Carousel';
 import FormationCta from './FormationCta';
-import { SERVER_API_URL } from '@/lib/api';
+import { serverFetch } from '@/lib/api';
 import { collection, formationToItem, masterclassToItem, similarItems, type FormationDto, type MasterclassDto } from '@/lib/catalog';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 // du catalogue de se transformer en hero (transition partagée).
 async function getJson<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${SERVER_API_URL}${path}`, { cache: 'no-store', headers: { Accept: 'application/ld+json' } });
+    const res = await serverFetch(path, { cache: 'no-store', headers: { Accept: 'application/ld+json' } });
     return res.ok ? ((await res.json()) as T) : null;
   } catch {
     return null;
