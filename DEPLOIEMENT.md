@@ -46,6 +46,7 @@ Pas de worker Messenger ni de tâche cron à prévoir : les emails partent de fa
 ## 3. Services externes
 
 - **Stripe** (mode live) : webhook `https://api.academie-esic.fr/api/stripe/webhook` avec les événements `checkout.session.completed`, `checkout.session.async_payment_succeeded` et `checkout.session.expired` ; reporter le secret `whsec_…` dans `.env.local`.
+- **Accès complets aux instituts** (mode live) : dans le catalogue de produits Stripe, créer un prix **ponctuel** (paiement unique, pas récurrent) pour l'Institut Biblique Théologique et pour l'École du Ministère et du Leadership, puis reporter leurs identifiants `price_…` dans `STRIPE_PRICE_INSTITUT_BIBLIQUE` et `STRIPE_PRICE_ECOLE_MINISTERE` (`.env.local`). Sans eux, l'offre n'est simplement pas affichée.
 - **SMTP** : Brevo, Mailjet ou l'add-on Elastic Email de Cloudways. Authentifier le domaine (SPF, DKIM, DMARC), sinon les emails de réinitialisation tomberont en spam.
 
 ## 4. Sauvegardes
