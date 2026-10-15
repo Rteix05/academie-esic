@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ContentCard } from '@/components/catalog/ContentCard';
-import { SERVER_API_URL } from '@/lib/api';
+import { serverFetch } from '@/lib/api';
 import { fetchNews, formatNewsDate } from '@/lib/news';
 import { collection, formationToItem, masterclassToItem, type CatalogItem, type FormationDto, type MasterclassDto } from '@/lib/catalog';
 import { ArrowRight, BookOpen, Heart, Flame, Quote, Feather, Award, GraduationCap, Users, ShieldCheck, Sparkles, CalendarDays } from 'lucide-react';
@@ -32,7 +32,7 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 // Catalogue public mis en cache 5 minutes (page servie instantanément, données fraîches)
 async function getCatalog<T>(path: string): Promise<T[]> {
   try {
-    const res = await fetch(`${SERVER_API_URL}${path}`, { next: { revalidate: 300 }, headers: { Accept: 'application/ld+json' } });
+    const res = await serverFetch(path, { next: { revalidate: 300 }, headers: { Accept: 'application/ld+json' } });
     return res.ok ? collection<T>(await res.json()) : [];
   } catch {
     return [];

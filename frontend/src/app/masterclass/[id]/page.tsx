@@ -5,7 +5,7 @@ import PaywallGate from '@/components/PaywallGate';
 import DetailHero, { HeroTag } from '@/components/catalog/DetailHero';
 import Carousel from '@/components/catalog/Carousel';
 import MasterclassCta from './MasterclassCta';
-import { SERVER_API_URL } from '@/lib/api';
+import { serverFetch } from '@/lib/api';
 import { collection, formationToItem, masterclassFromPrice, masterclassToItem, similarItems, type FormationDto, type MasterclassDto } from '@/lib/catalog';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 // complète, ce qui permet à la carte du catalogue de se transformer en hero.
 async function getJson<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${SERVER_API_URL}${path}`, { cache: 'no-store', headers: { Accept: 'application/ld+json' } });
+    const res = await serverFetch(path, { cache: 'no-store', headers: { Accept: 'application/ld+json' } });
     return res.ok ? ((await res.json()) as T) : null;
   } catch {
     return null;

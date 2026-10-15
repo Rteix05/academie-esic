@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { SERVER_API_URL } from '@/lib/api';
+import { serverFetch } from '@/lib/api';
 import { collection, formationToItem, masterclassToItem, type CatalogItem, type FormationDto, type MasterclassDto } from '@/lib/catalog';
 
 const BASE = 'https://academie-esic.fr';
@@ -9,7 +9,7 @@ export const revalidate = 3600;
 
 async function getCatalog<T>(path: string): Promise<T[]> {
   try {
-    const res = await fetch(`${SERVER_API_URL}${path}`, { next: { revalidate }, headers: { Accept: 'application/ld+json' } });
+    const res = await serverFetch(path, { next: { revalidate }, headers: { Accept: 'application/ld+json' } });
     return res.ok ? collection<T>(await res.json()) : [];
   } catch {
     return []; // API injoignable : sitemap limité aux pages fixes plutôt qu'une erreur

@@ -6,6 +6,7 @@ import ConditionalFooter from '@/components/ConditionalFooter';
 import Script from 'next/script';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { A11Y_BOOT_SCRIPT, A11yProvider } from '@/components/A11yPreferences';
+import { DEMO_MODE } from '@/lib/api';
 
 // Titres, navigation, boutons : géométrique et arrondie
 const poppins = Poppins({
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
     title: 'Académie E.S.I.C. — Formations & Masterclass',
     description: 'Équipement · Spiritualité · Identité · Croissance.',
   },
-  robots: {
+  robots: DEMO_MODE ? { index: false, follow: false } : {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
@@ -71,6 +72,12 @@ export default function RootLayout({
           <a href="#contenu-principal" className="skip-link">
             Aller au contenu principal
           </a>
+
+          {DEMO_MODE && (
+            <p className="bg-amber-100 px-4 py-2 text-center text-sm font-medium text-amber-900">
+              Version de démonstration : contenus fictifs, connexion et paiement désactivés.
+            </p>
+          )}
 
           <ConditionalNavbar />
 
