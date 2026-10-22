@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional;
 
+use App\Entity\ContactMessage;
 use App\Entity\EventRegistration;
 use App\Entity\Formation;
 use App\Entity\RegistrationStatus;
@@ -60,6 +61,22 @@ final class BackOfficeTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Événement test');
+    }
+
+    public function testContactMessagesAreListedWithUnhandledBadge(): void
+    {
+        $this->em()->persist(new ContactMessage('Marie Test', 'marie@test.fr', 'formation', 'Bonjour, une question sur la session.'));
+        $this->em()->persist((new ContactMessage('Paul Test', 'paul@test.fr', 'autre', 'Message déjà traité.'))->setIsHandled(true));
+        $this->em()->flush();
+
+        $this->loginAsAdmin();
+        $this->client->request('GET', '/admin/contact-message');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Marie Test');
+        self::assertSelectorTextContains('body', 'Question sur une formation');
+        // Pastille du menu : un seul message en attente
+        self::assertSelectorTextSame('.ea-sidebar-badge', '1');
     }
 
     public function testBackOfficeIsInFrench(): void

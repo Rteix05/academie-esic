@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\ContactMessage;
 use App\Mailer\AppMailer;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,8 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Formulaire de contact du site : transmet le message à l'Académie (réponse directe au visiteur)
- * et envoie un accusé de réception au visiteur.
+ * Formulaire de contact du site : enregistre le message (rubrique Messages de l'admin), le transmet
+ * à l'Académie par email (réponse directe au visiteur) et envoie un accusé de réception au visiteur.
  *
  * Anti-spam : limitation de débit par IP et champ piège (« website ») invisible pour les humains,
  * que seuls les robots remplissent.
@@ -28,6 +30,7 @@ class ContactController extends AbstractController
         AppMailer $mailer,
         RateLimiterFactoryInterface $contactLimiter,
         LoggerInterface $logger,
+        EntityManagerInterface $em,
     ): JsonResponse {
         $limit = $contactLimiter->create($request->getClientIp())->consume();
         if (!$limit->isAccepted()) {
@@ -86,8 +89,12 @@ class ContactController extends AbstractController
             ], 422);
         }
 
+        // Conservé avant tout envoi : le message reste lisible dans l'admin même si l'email échoue
+        $em->persist(new ContactMessage($fields['name'], $fields['email'], $fields['subject'], $fields['message']));
+        $em->flush();
+
         if (!$mailer->sendContactMessage($fields['name'], $fields['email'], $fields['subject'], $fields['message'])) {
-            return $this->json(['message' => 'Votre message n\'a pas pu être envoyé. Réessayez ou écrivez-nous directement par email.'], 502);
+            $logger->warning('Formulaire de contact : message enregistré, mais emails non envoyés', ['email' => $fields['email']]);
         }
 
         return $this->json(['message' => 'Votre message a bien été envoyé.']);
