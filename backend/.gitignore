@@ -27,3 +27,8 @@
 ###> contenu payant (uploads privés) ###
 /private/
 ###< contenu payant ###
+
+###> fichiers téléversés (propres à chaque serveur) ###
+/public/uploads/*
+!/public/uploads/.htaccess
+###< fichiers téléversés ###

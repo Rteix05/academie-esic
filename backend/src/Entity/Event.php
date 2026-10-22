@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use App\Repository\EventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: 'event')]
@@ -25,18 +26,23 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $location = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?\DateTimeImmutable $endDate = null;
 
     // Défaut en chaîne : MySQL le relit ainsi, un entier provoquerait un faux écart de schéma permanent
@@ -92,4 +98,10 @@ class Event
 
     public function getImageUpload(): mixed { return $this->imageUpload; }
     public function setImageUpload(mixed $imageUpload): static { $this->imageUpload = $imageUpload; return $this; }
+
+    /** Libellé affiché dans les listes déroulantes du back-office (inscriptions) */
+    public function __toString(): string
+    {
+        return (string) $this->title;
+    }
 }

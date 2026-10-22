@@ -28,7 +28,7 @@ security:
         # Routes réellement publiques et sans aucune opération d'écriture sensible.
         # Attention : "security: false" désactive aussi access_control pour ces chemins.
         api_public:
-            pattern: ^/api/(register|stripe/webhook|forgot-password|reset-password|video-stream)
+            pattern: ^/api/(register|contact|stripe/webhook|forgot-password|reset-password|video-stream)
             stateless: true
             security: false
 
@@ -56,6 +56,8 @@ security:
             logout:
                 path: app_logout
                 target: app_login
+                # Jeton CSRF dans le lien « Déconnexion » : un site tiers ne peut pas déconnecter l'admin
+                enable_csrf: true
 
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
@@ -63,9 +65,12 @@ security:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/logout, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/contact, roles: PUBLIC_ACCESS }
         - { path: ^/api/formations, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/masterclasses, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/events, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/institut-packs, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/actualites, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/stripe/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/api/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/api/reset-password, roles: PUBLIC_ACCESS }

@@ -1,0 +1,16 @@
+{% extends 'emails/layout.html.twig' %}
+{% import 'emails/_components.html.twig' as ui %}
+
+{% block content %}
+    <p style="margin:24px 4px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1C2C24;">
+        Bonjour <strong>{{ display_name }}</strong>,<br>
+        votre inscription est confirmée. La formation est dès maintenant accessible depuis votre espace personnel.
+    </p>
+
+    {{ ui.card('Votre inscription', [
+        { label: 'Formation', value: formation.title },
+        { label: 'Niveau', value: formation.level|default('—') },
+        { label: 'Durée', value: formation.duration|default('—') },
+        { label: 'Date', value: 'now'|date('d/m/Y à H:i') },
+    ], { label: 'Prix', value: 'Gratuit' }) }}
+{% endblock %}

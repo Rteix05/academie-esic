@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Clock, GraduationCap } from 'lucide-react';
-import { apiFetch } from '@/lib/api';
+import { Clock, Download, FileText, GraduationCap, Loader2, PlayCircle, Video } from 'lucide-react';
+import ProtectedVideoPlayer from '@/components/ProtectedVideoPlayer';
+import { ErrorState, Spinner } from '@/components/ui';
+import { apiFetch, fetchMe } from '@/lib/api';
 
 interface Formation {
   id: number;
@@ -15,33 +17,41 @@ interface Formation {
   category: string;
 }
 
+/** Contenu payant, communiqué uniquement aux élèves ayant accès à la formation */
+interface CourseContent {
+  video: string | null;
+  pdfAvailable: boolean;
+}
+
 export default function SalleDeCoursPage() {
   const router = useRouter();
   const params = useParams(); // Permet de récupérer l'ID dans l'URL
   const formationId = params.id;
 
   const [formation, setFormation] = useState<Formation | null>(null);
+  const [content, setContent] = useState<CourseContent | null>(null);
+  const [viewer, setViewer] = useState<{ email: string; name?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Accès réservé aux élèves qui possèdent la formation (session via cookie httpOnly)
-    apiFetch('/api/mes-formations')
+    // 1. Contenu du cours : le backend vérifie l'accès (formation acquise ou accès complet à l'institut)
+    apiFetch(`/api/content/formation/${formationId}`)
       .then(async (res) => {
         if (res.status === 401) { router.push('/login'); return Promise.reject(null); }
-        const owned: { id: number }[] = res.ok ? await res.json() : [];
-        if (!owned.some((f) => f.id === Number(formationId))) {
-          throw new Error("Vous n'avez pas accès à ce cours.");
-        }
+        if (res.status === 403) throw new Error("Vous n'avez pas accès à ce cours.");
+        if (!res.ok) throw new Error('Impossible de charger le contenu de ce cours.');
+        const courseContent: CourseContent = await res.json();
 
-        // 2. On récupère les détails de CETTE formation précise
+        // 2. Présentation de la formation (catalogue public)
         const detail = await apiFetch(`/api/formations/${formationId}`, {
           headers: { Accept: 'application/ld+json, application/json' },
         });
-        if (!detail.ok) throw new Error("Impossible de charger le contenu de ce cours.");
-        return detail.json();
+        if (!detail.ok) throw new Error('Impossible de charger le contenu de ce cours.');
+        return [courseContent, await detail.json()] as const;
       })
-      .then((data) => {
+      .then(([courseContent, data]) => {
+        setContent(courseContent);
         setFormation(data);
         setIsLoading(false);
       })
@@ -50,97 +60,128 @@ export default function SalleDeCoursPage() {
         setError(err.message);
         setIsLoading(false);
       });
+
+    // Filigrane du lecteur vidéo
+    fetchMe().then((me) => {
+      if (me) setViewer({ email: me.email, name: [me.firstName, me.lastName].filter(Boolean).join(' ') || undefined });
+    });
   }, [formationId, router]);
 
   if (isLoading) {
-    return <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center text-[#0F291E] font-medium">Chargement de votre salle de cours...</div>;
+    return <Spinner label="Chargement de votre salle de cours…" />;
   }
 
-  if (error || !formation) {
+  if (error || !formation || !content) {
     return (
-      <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center p-6">
-        <div className="p-6 bg-red-50 text-red-700 rounded-2xl mb-6">{error || "Cours introuvable"}</div>
-        <Link href="/dashboard" className="px-6 py-3 bg-[#0F291E] text-white rounded-full text-sm font-bold">Retour au Dashboard</Link>
+      <div className="container-page py-24">
+        <ErrorState message={error || 'Cours introuvable'} />
+        <div className="mt-6 text-center">
+          <Link href="/dashboard" className="btn-secondary">Retour à mon espace</Link>
+        </div>
       </div>
     );
   }
 
-  return (
-    <main className="min-h-screen bg-[#FBFBFA] text-[#1C2C24] font-sans antialiased">
-      
-      {/* Navbar minimaliste pour rester concentré */}
-      <nav className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-sm font-bold text-gray-500 hover:text-[#0F291E] transition flex items-center gap-2">
-            ← Retour au tableau de bord
-          </Link>
-        </div>
-        <div className="text-xs font-bold tracking-widest text-emerald-700 uppercase bg-emerald-50 px-3 py-1 rounded-full">
-          {formation.category}
-        </div>
-      </nav>
+  const hasMaterials = !!content.video || content.pdfAvailable;
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* En-tête du cours */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-black text-[#0F291E] mb-3">{formation.title}</h1>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> Durée : {formation.duration}</span>
-            <span className="flex items-center gap-1"><GraduationCap className="w-4 h-4" /> Niveau : {formation.level}</span>
+  return (
+    <div className="pb-8">
+      <section className="container-page pt-4">
+        <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 dark:bg-[#10231a]">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
+          <nav aria-label="Fil d'Ariane" className="relative flex flex-wrap items-center gap-2 text-sm text-brand-muted">
+            <Link href="/dashboard" className="font-medium transition hover:text-brand-emerald">Mon espace</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" className="max-w-[260px] truncate font-medium text-brand-forest">{formation.title}</span>
+          </nav>
+          {formation.category && <span className="chip relative mt-6 bg-white dark:bg-white/5">{formation.category}</span>}
+          <h1 className="relative mt-4 font-display text-3xl font-semibold text-brand-forest sm:text-4xl">{formation.title}</h1>
+          <div className="relative mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-muted">
+            {formation.duration && <span className="flex items-center gap-2"><Clock className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> {formation.duration}</span>}
+            {formation.level && <span className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Niveau : {formation.level}</span>}
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Lecteur Vidéo (Simulé) et Description */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="aspect-video bg-gray-900 rounded-2xl flex flex-col items-center justify-center shadow-lg relative overflow-hidden group">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-emerald-500 transition cursor-pointer">
-                <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white border-b-8 border-b-transparent ml-1"></div>
-              </div>
-              <p className="text-white/50 text-xs mt-4 font-medium tracking-widest uppercase">Lecteur vidéo en cours de développement</p>
+      <section className="container-page mt-10 grid items-start gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          {content.video ? (
+            <div className="relative aspect-video overflow-hidden rounded-4xl bg-brand-forest shadow-float">
+              <ProtectedVideoPlayer src={content.video} userEmail={viewer?.email} userName={viewer?.name} />
             </div>
-
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-              <h2 className="text-xl font-bold text-[#0F291E] mb-4">À propos de ce module</h2>
-              <p className="text-gray-600 leading-relaxed font-light whitespace-pre-wrap">
-                {formation.description}
+          ) : (
+            <div className="relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-4xl bg-brand-forest px-6 text-center shadow-float">
+              <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
+              <div aria-hidden="true" className="absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-brand-emerald/20" />
+              <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white/15 text-white"><Video className="h-7 w-7" aria-hidden="true" /></span>
+              <p className="relative mt-4 font-display text-sm font-medium text-emerald-100/80">
+                {content.pdfAvailable ? 'Ce cours se suit à partir de son support PDF.' : 'Les supports de ce cours seront bientôt disponibles.'}
               </p>
             </div>
+          )}
+
+          <div className="card p-7 sm:p-9">
+            <h2 className="font-display text-xl font-semibold text-brand-forest">À propos de ce module</h2>
+            <div className="rich-text mt-4" dangerouslySetInnerHTML={{ __html: formation.description }} />
           </div>
-
-          {/* Sidebar - Plan du cours */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm h-fit">
-            <h3 className="text-lg font-bold text-[#0F291E] mb-6 border-b border-gray-100 pb-4">Plan du cursus</h3>
-            
-            <div className="space-y-3">
-              {/* Leçons simulées (Dans le futur, elles viendront de la BDD) */}
-              <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl cursor-pointer">
-                <p className="text-xs font-bold text-emerald-800 uppercase tracking-wide mb-1">Chapitre 1</p>
-                <p className="text-sm font-semibold text-[#0F291E]">Introduction et fondamentaux</p>
-              </div>
-              
-              <div className="p-3 hover:bg-gray-50 border border-transparent hover:border-gray-100 rounded-xl transition cursor-pointer">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Chapitre 2</p>
-                <p className="text-sm font-medium text-gray-700">Mise en pratique</p>
-              </div>
-
-              <div className="p-3 hover:bg-gray-50 border border-transparent hover:border-gray-100 rounded-xl transition cursor-pointer">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Chapitre 3</p>
-                <p className="text-sm font-medium text-gray-700">Validation des acquis</p>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-gray-100">
-              <button className="w-full py-3 bg-gray-100 text-gray-400 text-xs font-bold uppercase tracking-wider rounded-full cursor-not-allowed">
-                Obtenir mon certificat
-              </button>
-              <p className="text-center text-[10px] text-gray-400 mt-2">Disponible à la fin du cursus</p>
-            </div>
-          </div>
-
         </div>
-      </div>
-    </main>
+
+        {/* Supports du cours */}
+        <aside className="card p-6 lg:sticky lg:top-28">
+          <h2 className="font-display text-lg font-semibold text-brand-forest">Supports du cours</h2>
+          {hasMaterials ? (
+            <ul className="mt-5 space-y-3">
+              {content.video && (
+                <li className="flex items-center gap-3 rounded-2xl bg-brand-mint p-3 dark:bg-white/5">
+                  <span className="icon-tile h-10 w-10 shrink-0 bg-white dark:bg-white/10"><PlayCircle className="h-5 w-5" aria-hidden="true" /></span>
+                  <span className="text-sm font-medium text-brand-forest">Vidéo du cours</span>
+                </li>
+              )}
+              {content.pdfAvailable && (
+                <li><PdfDownload formationId={formation.id} title={formation.title} /></li>
+              )}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-brand-muted">Les supports de ce cours seront bientôt disponibles.</p>
+          )}
+        </aside>
+      </section>
+    </div>
+  );
+}
+
+/** Support PDF servi par une route protégée (cookie de session) : récupéré en blob puis téléchargé */
+function PdfDownload({ formationId, title }: { formationId: number; title: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const download = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await apiFetch(`/api/content/formation/${formationId}/pdf`, { headers: { Accept: 'application/pdf' } });
+      if (!res.ok) throw new Error('Impossible de télécharger le support pour le moment.');
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title || 'support'}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Impossible de télécharger le support pour le moment.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button type="button" onClick={download} disabled={loading} className="flex w-full items-center gap-3 rounded-2xl bg-brand-mint p-3 text-left transition hover:bg-brand-sage dark:bg-white/5 dark:hover:bg-white/10">
+        <span className="icon-tile h-10 w-10 shrink-0 bg-white dark:bg-white/10"><FileText className="h-5 w-5" aria-hidden="true" /></span>
+        <span className="flex-1 text-sm font-medium text-brand-forest">Support PDF</span>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin text-brand-muted" aria-hidden="true" /> : <Download className="h-4 w-4 text-brand-muted" aria-hidden="true" />}
+      </button>
+      {error && <p role="alert" className="mt-2 text-xs text-red-700 dark:text-red-300">{error}</p>}
+    </>
   );
 }

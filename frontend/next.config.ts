@@ -1,15 +1,20 @@
 import type { NextConfig } from "next";
+import pkg from "./package.json";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
+// URL publique de l'API Symfony (ex. https://api.esich.fr) — inlinée au build
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000').replace(/\/$/, '');
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  // Version du site (package.json), affichée dans le pied de page ; mise à jour à chaque release / hotfix
+  env: {
+    APP_VERSION: pkg.version,
+  },
   async redirects() {
     return [
-      {
-        source: '/admin',
-        destination: `${BACKEND_URL}/admin`,
-        permanent: false,
-      },
+      // Événements temporairement retirés du site (le backend et les données sont conservés)
+      { source: '/evenements/:path*', destination: '/formations', permanent: false },
+      // Le back-office EasyAdmin est servi par Symfony
       {
         source: '/admin/:path*',
         destination: `${BACKEND_URL}/admin/:path*`,
@@ -17,11 +22,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async rewrites() {
+  async headers() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'http://backend:8000/api/:path*',
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // HTTPS obligatoire : ignoré par les navigateurs en HTTP (développement local)
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
       },
     ];
   },

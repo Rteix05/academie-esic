@@ -8,6 +8,28 @@
 
 export const API_URL = (process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000').replace(/\/$/, '');
 
+/**
+ * URL du backend pour les requêtes faites CÔTÉ SERVEUR (composants serveur Next).
+ * Dans Docker, « localhost » désigne le conteneur frontend lui-même : il faut passer par
+ * le nom du service (docker-compose définit BACKEND_INTERNAL_URL=http://backend:8000).
+ * Hors Docker (npm run dev sur la machine), l'URL publique suffit.
+ */
+export const SERVER_API_URL = (process.env.BACKEND_INTERNAL_URL ?? API_URL).replace(/\/$/, '');
+
+/** Démo sans backend : données fictives (cf. lib/demo.ts), inlinée au build */
+export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === '1';
+
+/** Requête de rendu serveur (composants serveur Next) vers l'API */
+export async function serverFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  if (DEMO_MODE) return (await import('./demo')).demoResponse(path, init);
+  return fetch(`${SERVER_API_URL}${path}`, init);
+}
+
+/** URL publique d'une image téléversée dans le back-office */
+export function uploadUrl(fileName: string): string {
+  return `${API_URL}/uploads/images/${fileName}`;
+}
+
 /** Événement navigateur émis quand l'état de connexion change (login, logout, session expirée) */
 export const AUTH_EVENT = 'esic:auth-changed';
 
@@ -24,7 +46,9 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
     headers.set('Content-Type', 'application/json');
   }
 
-  const res = await fetch(`${API_URL}${path}`, { ...init, headers, credentials: 'include' });
+  const res = DEMO_MODE
+    ? (await import('./demo')).demoResponse(path, init)
+    : await fetch(`${API_URL}${path}`, { ...init, headers, credentials: 'include' });
 
   // Session absente ou expirée : on prévient l'interface (Navbar, pages protégées)
   if (res.status === 401) notifyAuthChanged(false);

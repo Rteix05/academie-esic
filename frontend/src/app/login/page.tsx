@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import AuthShell, { FormMessage } from '@/components/AuthShell';
 import { apiFetch, fetchMe, notifyAuthChanged } from '@/lib/api';
 
 export default function LoginPage() {
@@ -51,89 +53,52 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FBFBFA] flex flex-col justify-center items-center p-6 text-[#1C2C24] font-sans antialiased selection:bg-emerald-100">
-      
-      {/* Bouton retour discret */}
-      <div className="absolute top-8 left-8">
-        <Link href="/" className="text-sm font-medium text-gray-500 hover:text-[#0F291E] transition">
-          ← Retour à l'accueil
-        </Link>
-      </div>
+    <AuthShell
+      title="Bon retour parmi nous"
+      subtitle="Connectez-vous pour retrouver vos formations et masterclasses."
+      footer={<>Pas encore de compte ?{' '}<Link href="/register" className="font-semibold text-brand-emerald hover:underline">Inscrivez-vous</Link></>}
+    >
+      {error && <FormMessage tone="error">{error}</FormMessage>}
 
-      <div className="w-full max-w-md bg-white border border-gray-100 rounded-3xl p-10 shadow-sm">
-        
-        {/* En-tête du formulaire */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-[#0F291E] tracking-tight">
-            Espace Élève
-          </h1>
-          <p className="text-sm text-gray-500 mt-2">
-            Connectez-vous pour accéder à vos masterclasses.
-          </p>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="field-label" htmlFor="email">Adresse email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="field"
+            placeholder="vous@exemple.fr"
+          />
         </div>
 
-        {/* Affichage des erreurs */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 text-sm font-medium rounded-xl text-center">
-            {error}
-          </div>
-        )}
-
-        {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider" htmlFor="email">
-              Adresse Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white transition"
-              placeholder="eleve@esic.fr"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider" htmlFor="password">
-                Mot de passe
-              </label>
-              <Link href="/forgot-password" className="text-xs text-emerald-700 font-semibold hover:underline">
-                Mot de passe oublié ?
-              </Link>
-            </div>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white transition"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-4 bg-[#0F291E] text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-emerald-900 transition shadow-md disabled:opacity-70 disabled:cursor-not-allowed mt-4"
-          >
-            {isLoading ? 'Connexion...' : 'Se connecter'}
-          </button>
-        </form>
-        {/* Lien vers l'inscription */}
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-500">
-            Pas encore de compte ?{' '}
-            <Link href="/register" className="text-emerald-700 font-bold hover:underline">
-              Inscrivez-vous
+        <div>
+          <div className="flex items-center justify-between">
+            <label className="field-label" htmlFor="password">Mot de passe</label>
+            <Link href="/forgot-password" className="mb-2 text-sm font-medium text-brand-emerald hover:underline">
+              Mot de passe oublié ?
             </Link>
-          </p>
+          </div>
+          <input
+            id="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="field"
+            placeholder="••••••••"
+          />
         </div>
-      </div>
-    </main>
+
+        <button type="submit" disabled={isLoading} className="btn-primary w-full justify-between py-4">
+          {isLoading ? 'Connexion…' : 'Se connecter'}
+          <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+        </button>
+      </form>
+    </AuthShell>
   );
 }

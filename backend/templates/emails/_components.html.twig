@@ -1,0 +1,53 @@
+{#
+    Composants des emails (encarts gris arrondis façon « détail de commande »).
+    Usage : {% import 'emails/_components.html.twig' as ui %}
+#}
+
+{# Encart avec titre et lignes « libellé / valeur » ; total : dernière ligne mise en avant #}
+{% macro card(title, rows, total = null) %}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;background-color:#F6F7F5;border-radius:16px;">
+        <tr>
+            <td style="padding:20px 24px;font-family:Arial,Helvetica,sans-serif;">
+                {% if title %}
+                    <div style="font-size:15px;font-weight:bold;color:#0F291E;margin-bottom:10px;">{{ title }}</div>
+                {% endif %}
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    {% for row in rows %}
+                        <tr>
+                            <td style="font-family:Arial,Helvetica,sans-serif;padding:5px 0;font-size:14px;color:#5B6660;vertical-align:top;">{{ row.label }}</td>
+                            <td style="font-family:Arial,Helvetica,sans-serif;padding:5px 0 5px 12px;font-size:14px;color:#1C2C24;text-align:right;vertical-align:top;">{{ row.value }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% if total %}
+                        <tr>
+                            <td style="font-family:Arial,Helvetica,sans-serif;padding:12px 0 0 0;border-top:1px solid #E5E7E3;font-size:15px;font-weight:bold;color:#0F291E;">{{ total.label }}</td>
+                            <td style="font-family:Arial,Helvetica,sans-serif;padding:12px 0 0 12px;border-top:1px solid #E5E7E3;font-size:17px;font-weight:bold;color:#0F291E;text-align:right;">{{ total.value }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+        </tr>
+    </table>
+{% endmacro %}
+
+{# Encart de texte libre (paragraphes déjà échappés passés via le bloc appelant) #}
+{% macro note(title, text) %}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;background-color:#F6F7F5;border-radius:16px;">
+        <tr>
+            <td style="padding:20px 24px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#3F4A44;">
+                {% if title %}<div style="font-size:15px;font-weight:bold;color:#0F291E;margin-bottom:8px;">{{ title }}</div>{% endif %}
+                {{ text|nl2br }}
+            </td>
+        </tr>
+    </table>
+{% endmacro %}
+
+{# Citation mise en avant (mention cochée, message du visiteur) #}
+{% macro quote(text) %}
+    <div style="margin-top:10px;padding:12px 16px;border-left:4px solid #047857;background-color:#FFFFFF;border-radius:8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;font-style:italic;color:#1C2C24;">{{ text|nl2br }}</div>
+{% endmacro %}
+
+{# Montant en centimes → « 29,00 EUR » #}
+{% macro amount(cents, currency) -%}
+    {{ (cents / 100)|number_format(2, ',', ' ') }} {{ currency|upper }}
+{%- endmacro %}

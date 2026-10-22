@@ -1,146 +1,141 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, MapPin, Check } from 'lucide-react';
+import { ArrowRight, Mail, MapPin, Check, Clock } from 'lucide-react';
+import { PageHeader } from '@/components/ui';
+import { CONTACT_EMAIL } from '@/lib/contact';
+import { apiFetch } from '@/lib/api';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess]       = useState(false);
+  const [error, setError]               = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Envoi à l'API : notification à l'Académie + accusé de réception par email au visiteur
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     setIsSubmitting(true);
-    setTimeout(() => { setIsSubmitting(false); setIsSuccess(true); }, 1500);
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    try {
+      const res = await apiFetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: data.get('name'),
+          email: data.get('email'),
+          subject: data.get('subject'),
+          message: data.get('message'),
+          website: data.get('website'), // champ piège anti-robots, toujours vide pour un humain
+        }),
+      });
+      const body: { message?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.message || "Votre message n'a pas pu être envoyé.");
+      form.reset();
+      setIsSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Votre message n'a pas pu être envoyé.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <main className="min-h-screen bg-[#FBFBFA] text-[#0F291E] font-sans antialiased overflow-x-hidden">
+    <div className="overflow-x-hidden">
+      <PageHeader
+        eyebrow="Nous contacter"
+        title="Comment pouvons-nous vous aider ?"
+        lead="Une question sur nos formations, besoin d'aide avec votre compte ou une proposition de partenariat : notre équipe est là pour vous répondre."
+      />
 
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="bg-[#0F291E] text-white py-28 px-8 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1.5px,transparent_1.5px)] bg-[size:26px_26px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#059669]/10 blur-[130px] rounded-full pointer-events-none" />
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-[#059669] text-xs uppercase tracking-[0.2em] font-semibold mb-8">
-            <span className="w-8 h-px bg-[#059669]" aria-hidden="true"></span>
-            Nous contacter
-            <span className="w-8 h-px bg-[#059669]" aria-hidden="true"></span>
-          </div>
-          <h1 className="font-display text-5xl md:text-6xl font-bold leading-tight mb-6">
-            Comment pouvons-nous vous aider ?
-          </h1>
-          <p className="text-emerald-100/70 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Une question sur nos formations, besoin d&apos;aide avec votre compte ou une proposition de partenariat — notre équipe est là pour vous répondre.
-          </p>
-        </div>
-      </section>
-
-      {/* ── CONTENU ──────────────────────────────────────────────────────── */}
-      <div className="max-w-6xl mx-auto px-8 py-20 grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-
-        {/* Informations */}
+      <section className="container-page grid items-start gap-10 py-20 lg:grid-cols-[0.8fr_1.2fr]">
+        {/* Coordonnées */}
         <div>
-          <p className="text-[#059669] text-xs font-bold uppercase tracking-[0.22em] mb-6">Coordonnées</p>
-          <h2 className="font-display text-3xl font-bold text-[#0F291E] mb-8">Écrivez-nous</h2>
-          <p className="text-[#4B5563] leading-relaxed mb-12">
-            Nous lisons chaque message avec attention et nous nous efforçons de répondre dans les meilleurs délais.
-          </p>
+          <span className="eyebrow">Coordonnées</span>
+          <h2 className="section-title mt-4">Écrivez-nous</h2>
+          <p className="section-lead">Nous lisons chaque message avec attention et nous nous efforçons de répondre dans les meilleurs délais.</p>
 
-          <div className="space-y-6">
-            <div className="flex items-center gap-5">
-              <div className="w-12 h-12 bg-[#F0FDF4] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
-                <Mail className="w-5 h-5 text-[#059669]" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-widest mb-1">Email</p>
-                <p className="font-bold text-[#0F291E]">contact@esic.fr</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-5">
-              <div className="w-12 h-12 bg-[#F0FDF4] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 text-[#059669]" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-widest mb-1">Localisation</p>
-                <p className="font-bold text-[#0F291E]">Paris, France</p>
-              </div>
-            </div>
-          </div>
+          <ul className="mt-10 space-y-4">
+            {[
+              { icon: Mail,   label: 'Email',            value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
+              { icon: MapPin, label: 'Localisation',     value: 'Paris, France' },
+              { icon: Clock,  label: 'Délai de réponse', value: 'Sous 48 heures ouvrées' },
+            ].map(({ icon: Icon, label, value, href }: { icon: typeof Mail; label: string; value: string; href?: string }) => (
+              <li key={label} className="card flex items-center gap-4 p-5">
+                <span className="icon-tile h-12 w-12 shrink-0"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+                <span className="min-w-0">
+                  <span className="block text-xs text-brand-muted">{label}</span>
+                  {href ? (
+                    <a href={href} className="block break-all font-display font-semibold text-brand-forest underline decoration-brand-emerald/40 underline-offset-4 hover:text-brand-emerald dark:text-emerald-100">{value}</a>
+                  ) : (
+                    <span className="block font-display font-semibold text-brand-forest">{value}</span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Formulaire */}
-        <div className="bg-white border border-[#E5E7EB] p-10">
+        <div className="card p-8 sm:p-10">
           {isSuccess ? (
-            <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
-              <div className="w-16 h-16 bg-[#F0FDF4] border border-[#E5E7EB] flex items-center justify-center mb-2">
-                <Check className="w-8 h-8 text-[#059669]" />
-              </div>
-              <h2 className="font-display text-2xl font-bold text-[#0F291E]">Message envoyé !</h2>
-              <p className="text-[#4B5563]">Nous reviendrons vers vous dans les plus brefs délais.</p>
-              <button
-                onClick={() => setIsSuccess(false)}
-                className="mt-6 px-6 py-3 border border-[#E5E7EB] text-[#0F291E] text-xs font-bold uppercase tracking-widest hover:bg-[#F0FDF4] transition"
-              >
+            <div className="flex flex-col items-center py-10 text-center" role="status">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
+                <Check className="h-8 w-8" aria-hidden="true" />
+              </span>
+              <h2 className="mt-5 font-display text-2xl font-semibold text-brand-forest">Message envoyé !</h2>
+              <p className="mt-2 text-brand-muted">Un accusé de réception vient de vous être envoyé par email. Nous vous répondrons dans les meilleurs délais.</p>
+              <button type="button" onClick={() => setIsSuccess(false)} className="btn-secondary mt-8">
                 Envoyer un autre message
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <form onSubmit={handleSubmit} className="relative space-y-5">
+              <p className="text-sm text-brand-muted">Les champs suivis d'un astérisque (*) sont obligatoires.</p>
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-[#4B5563] uppercase tracking-widest mb-2">Nom complet</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-3 bg-[#FBFBFA] border border-[#E5E7EB] focus:border-[#059669] focus:ring-0 outline-none text-sm text-[#0F291E] placeholder:text-[#4B5563]/40 transition"
-                    placeholder="Jean Dupont"
-                  />
+                  <label className="field-label" htmlFor="name">Nom complet<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
+                  <input id="name" name="name" type="text" required maxLength={100} autoComplete="name" className="field" placeholder="Jean Dupont" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-[#4B5563] uppercase tracking-widest mb-2">Email</label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full px-4 py-3 bg-[#FBFBFA] border border-[#E5E7EB] focus:border-[#059669] focus:ring-0 outline-none text-sm text-[#0F291E] placeholder:text-[#4B5563]/40 transition"
-                    placeholder="jean@exemple.com"
-                  />
+                  <label className="field-label" htmlFor="email">Email<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
+                  <input id="email" name="email" type="email" required maxLength={180} autoComplete="email" className="field" placeholder="jean@exemple.com" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-[#4B5563] uppercase tracking-widest mb-2">Sujet</label>
-                <select className="w-full px-4 py-3 bg-[#FBFBFA] border border-[#E5E7EB] focus:border-[#059669] focus:ring-0 outline-none text-sm text-[#0F291E] transition">
-                  <option>Question sur une formation</option>
-                  <option>Problème technique</option>
-                  <option>Partenariat</option>
-                  <option>Autre</option>
+                <label className="field-label" htmlFor="subject">Sujet</label>
+                <select id="subject" name="subject" className="field" defaultValue="formation">
+                  <option value="formation">Question sur une formation</option>
+                  <option value="technique">Problème technique</option>
+                  <option value="partenariat">Partenariat</option>
+                  <option value="autre">Autre</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-[#4B5563] uppercase tracking-widest mb-2">Message</label>
-                <textarea
-                  required
-                  rows={5}
-                  className="w-full px-4 py-3 bg-[#FBFBFA] border border-[#E5E7EB] focus:border-[#059669] focus:ring-0 outline-none text-sm text-[#0F291E] placeholder:text-[#4B5563]/40 resize-none transition"
-                  placeholder="Comment pouvons-nous vous aider ?"
-                />
+                <label className="field-label" htmlFor="message">Message<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
+                <textarea id="message" name="message" required minLength={10} maxLength={5000} rows={6} className="field resize-none" placeholder="Comment pouvons-nous vous aider ?" />
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-4 bg-[#0F291E] text-[#FBFBFA] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#059669] hover:text-[#0F291E] transition disabled:opacity-50"
-              >
+              {/* Champ piège anti-robots : invisible et ignoré par les humains et les lecteurs d'écran */}
+              <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                <label htmlFor="website">Ne pas remplir ce champ</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
+
+              {error && (
+                <p role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-200">{error}</p>
+              )}
+
+              <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-between py-4">
                 {isSubmitting ? 'Envoi en cours…' : 'Envoyer le message'}
+                <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
               </button>
             </form>
           )}
         </div>
-
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
-
-

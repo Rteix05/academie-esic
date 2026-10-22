@@ -49,9 +49,46 @@ final class AccessControlTest extends ApiTestCase
         self::assertSame(50, (int) $member['pricePack']);
     }
 
+    public function testCatalogHidesUnpublishedContent(): void
+    {
+        $published = $this->createFormation();
+        $draft = $this->createFormation(published: false);
+        $draftEvent = $this->createEvent()->setIsPublished(false);
+        $this->em()->flush();
+
+        $this->client->request('GET', '/api/formations', server: ['HTTP_ACCEPT' => 'application/ld+json']);
+        $ids = array_column($this->responseJson()['member'], 'id');
+        self::assertContains($published->getId(), $ids);
+        self::assertNotContains($draft->getId(), $ids);
+
+        foreach (['/api/formations/' . $draft->getId(), '/api/events/' . $draftEvent->getId()] as $uri) {
+            $this->client->request('GET', $uri, server: ['HTTP_ACCEPT' => 'application/ld+json']);
+            self::assertResponseStatusCodeSame(404, "$uri (brouillon) ne doit pas être exposé");
+        }
+    }
+
     public function testAdminRequiresLogin(): void
     {
         $this->client->request('GET', '/admin');
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testAdminLogoutRequiresCsrfToken(): void
+    {
+        $admin = $this->createUser('admin@test.fr', ['ROLE_ADMIN']);
+        $this->client->loginUser($admin, 'main');
+
+        // Lien forgé par un site tiers (sans jeton) : la session reste ouverte
+        $this->client->request('GET', '/logout');
+        $this->client->request('GET', '/admin/formation');
+        self::assertResponseIsSuccessful();
+
+        // Lien « Déconnexion » du back-office : il porte le jeton et déconnecte bien
+        $crawler = $this->client->request('GET', '/admin/formation');
+        $logout = $crawler->filter('a[href*="/logout"]')->first()->attr('href');
+        self::assertStringContainsString('_csrf_token=', (string) $logout);
+        $this->client->request('GET', $logout);
+        $this->client->request('GET', '/admin/formation');
         self::assertResponseRedirects('/login');
     }
 

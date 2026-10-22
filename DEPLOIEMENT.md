@@ -1,0 +1,63 @@
+# Mise en production
+
+Architecture cible :
+
+| Domaine | Hébergement | Contenu |
+|---|---|---|
+| `esich.fr` | Vercel | Frontend Next.js (Cloudways n'exécute pas Node.js) |
+| `api.esich.fr` | Cloudways | API Symfony, back-office `/admin`, fichiers téléversés |
+
+Les deux domaines partagent le même site (`esich.fr`) : le cookie de session httpOnly en `SameSite=Lax` fonctionne sans configuration particulière.
+
+## 1. Cloudways (backend)
+
+1. **Serveur** : PHP 8.2 ou plus récent, **MySQL 8.0** de préférence (identique au développement ; MariaDB 10.6+ est compatible).
+2. **Application** : type « Custom PHP ».
+   - Application Settings → **Webroot** : `public_html/backend/public`
+   - Application Settings → **Varnish : désactivé** (il pourrait servir des réponses d'API en cache)
+   - Extensions PHP requises : `intl`, `pdo_mysql`, `zip`, `sodium`, `gd` avec WebP (optimisation des images téléversées) et `exif` (Settings & Packages)
+3. **Domaine** : `api.esich.fr` (enregistrement DNS A vers l'IP du serveur), puis **SSL Certificate → Let's Encrypt** et redirection HTTPS forcée.
+4. **Code** : Deployment via Git → dépôt GitHub, branche `main`, chemin `public_html`.
+5. **Configuration** (SSH, une seule fois) :
+   ```bash
+   cd applications/<app>/public_html
+   cp deploy/cloudways/env.prod.example backend/.env.local
+   nano backend/.env.local   # remplir chaque « À_REMPLIR »
+   ```
+6. **Déploiement** (après chaque pull) :
+   ```bash
+   bash deploy/cloudways/deploy.sh
+   ```
+   Le script installe les dépendances sans les outils de dev, compile la configuration, génère les clés JWT au premier passage, applique les migrations, installe les assets du back-office et préchauffe le cache.
+7. **Premier administrateur** (SSH, après le premier déploiement) :
+   ```bash
+   php backend/bin/console app:create-admin admin@esich.fr
+   ```
+   Le mot de passe (12 caractères minimum, dont une lettre et un chiffre) est demandé deux fois, sans s'afficher. Sur un compte existant, la commande lui donne le rôle administrateur et remplace son mot de passe.
+
+Pas de worker Messenger ni de tâche cron à prévoir : les emails partent de façon synchrone.
+
+## 2. Vercel (frontend)
+
+- Nouveau projet depuis le dépôt GitHub, **Root Directory : `frontend`**.
+- Variable d'environnement (Production) : `NEXT_PUBLIC_BACKEND_URL=https://api.esich.fr`.
+  Elle est intégrée au moment du build : il faut redéployer après l'avoir modifiée.
+- Domaines : `esich.fr` (principal) et `www.esich.fr` redirigé vers l'apex.
+
+## 3. Services externes
+
+- **Stripe** (mode live) : webhook `https://api.esich.fr/api/stripe/webhook` avec les événements `checkout.session.completed`, `checkout.session.async_payment_succeeded` et `checkout.session.expired` ; reporter le secret `whsec_…` dans `.env.local`.
+- **Accès complets aux instituts** (mode live) : dans le catalogue de produits Stripe, créer un prix **ponctuel** (paiement unique, pas récurrent) pour l'Institut Biblique Théologique et pour l'École du Ministère et du Leadership, puis reporter leurs identifiants `price_…` dans `STRIPE_PRICE_INSTITUT_BIBLIQUE` et `STRIPE_PRICE_ECOLE_MINISTERE` (`.env.local`). Sans eux, l'offre n'est simplement pas affichée.
+- **SMTP** : Brevo, Mailjet ou l'add-on Elastic Email de Cloudways. Authentifier le domaine (SPF, DKIM, DMARC), sinon les emails de réinitialisation tomberont en spam.
+
+## 4. Sauvegardes
+
+- Cloudways → Backups : sauvegarde quotidienne du serveur (base + fichiers).
+- À sauvegarder impérativement : la base, `backend/public/uploads/` (images), `backend/private/` (PDF et vidéos payants) et `backend/config/jwt/`.
+
+## 5. Vérifications après mise en ligne
+
+- `https://api.esich.fr/api/formations` renvoie 200 ; une URL inconnue renvoie une erreur JSON sans trace.
+- Connexion depuis le site : le cookie `BEARER` porte les attributs `Secure`, `HttpOnly` et `SameSite=Lax`.
+- Paiement test : un achat réel à petit prix, puis remboursement depuis Stripe.
+- Mot de passe oublié : l'email arrive bien dans la boîte de réception.

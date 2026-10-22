@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
@@ -10,35 +10,22 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center px-6 text-center gap-8 font-sans">
-        <div className="w-20 h-20 bg-red-50 border border-red-100 rounded-3xl flex items-center justify-center">
-          <AlertTriangle className="w-9 h-9 text-red-500" />
-        </div>
-
-        <div>
-          <p className="text-xs font-bold text-red-500 uppercase tracking-widest mb-3">Erreur inattendue</p>
-          <h1 className="text-4xl font-black text-[#0F291E] tracking-tight mb-4">
-            Une erreur est survenue
-          </h1>
-          <p className="text-gray-500 text-base max-w-md mx-auto">
-            Nous nous excusons pour la gêne. Vous pouvez réessayer ou revenir à l'accueil.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <button
-            onClick={reset}
-            className="px-6 py-3 bg-[#0F291E] text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-emerald-900 transition shadow-md"
-          >
-            Réessayer
+    <div className="container-page py-16">
+      <div className="card mx-auto max-w-xl px-6 py-16 text-center">
+        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-500">
+          <AlertTriangle className="h-9 w-9" aria-hidden="true" />
+        </span>
+        <h1 className="mt-6 font-display text-3xl font-semibold text-brand-forest">Une erreur est survenue</h1>
+        <p className="mx-auto mt-3 max-w-md text-brand-muted">
+          Nous nous excusons pour la gêne. Vous pouvez réessayer ou revenir à l&apos;accueil.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <button onClick={reset} className="btn-primary-plain">
+            <RefreshCw className="h-4 w-4" aria-hidden="true" /> Réessayer
           </button>
-          <Link
-            href="/"
-            className="px-6 py-3 bg-white border border-gray-200 text-[#0F291E] text-sm font-bold uppercase tracking-wider rounded-full hover:bg-gray-50 transition"
-          >
-            Retour à l'accueil
-          </Link>
+          <Link href="/" className="btn-secondary">Retour à l&apos;accueil</Link>
         </div>
+      </div>
     </div>
   );
 }

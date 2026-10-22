@@ -1,0 +1,18 @@
+{% extends 'emails/layout.html.twig' %}
+{% import 'emails/_components.html.twig' as ui %}
+
+{% block content %}
+    <p style="margin:24px 4px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1C2C24;">
+        Bonjour,<br>
+        votre compte a bien été créé avec l'adresse <strong>{{ account_email }}</strong>. Nous sommes heureux de vous compter
+        parmi les membres de l'Académie.
+    </p>
+
+    {{ ui.card('Pour bien commencer', [
+        { label: '1. Découvrir', value: 'Parcourez les formations et masterclass' },
+        { label: '2. Rejoindre', value: 'Inscrivez-vous à un parcours ou débloquez une masterclass' },
+        { label: '3. Apprendre', value: 'Retrouvez vos contenus dans votre espace personnel' },
+    ]) }}
+
+    {{ ui.note('Sécurité de votre compte', "Si vous n'êtes pas à l'origine de cette inscription, écrivez-nous à " ~ contact_email ~ " : nous supprimerons ce compte.") }}
+{% endblock %}
