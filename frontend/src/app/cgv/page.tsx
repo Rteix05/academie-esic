@@ -57,7 +57,7 @@ export default function CgvPage() {
           <p>
             Les présentes Conditions Générales de Vente (« CGV ») régissent les ventes réalisées par l&apos;Académie
             E.S.I.C. auprès des utilisateurs et consommateurs souhaitant acheter des formations, masterclass ou autres
-            contenus numériques proposés sur <strong>academie-esic.fr</strong>.
+            contenus numériques proposés sur <strong>esich.fr</strong>.
           </p>
           <p>Elles s&apos;appliquent à toute commande effectuée sur le site.</p>
           <p>Avant toute commande, le client est invité à prendre connaissance des présentes CGV et à les accepter.</p>

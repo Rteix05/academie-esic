@@ -4,8 +4,8 @@ Plateforme web de l'**Académie E.S.I.C.** (École du Savoir et de l'Intelligenc
 
 | | |
 |---|---|
-| Site public | Next.js — `academie-esic.fr` (Vercel) |
-| API et back-office | Symfony — `api.academie-esic.fr` (Cloudways) |
+| Site public | Next.js — `esich.fr` (Vercel) |
+| API et back-office | Symfony — `api.esich.fr` (Cloudways) |
 | Workflow Git | gitflow — voir [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Mise en production | voir [DEPLOIEMENT.md](DEPLOIEMENT.md) |
 
@@ -76,7 +76,7 @@ Plateforme web de l'**Académie E.S.I.C.** (École du Savoir et de l'Intelligenc
 ## Architecture et organisation du dépôt
 
 ```
-Navigateur ──► Next.js (academie-esic.fr) ──► API Symfony (api.academie-esic.fr) ──► MySQL
+Navigateur ──► Next.js (esich.fr) ──► API Symfony (api.esich.fr) ──► MySQL
                                                     │                 │
                                                     ├─► Stripe        └─► SMTP (emails)
                                                     └─► /admin (EasyAdmin)

@@ -25,7 +25,7 @@ export default function MentionsLegalesPage() {
           <section>
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Éditeur du site</h2>
             <p>
-              Le site <strong>academie-esic.fr</strong> est édité par <strong>{L.structure}</strong>,{' '}
+              Le site <strong>esich.fr</strong> est édité par <strong>{L.structure}</strong>,{' '}
               {L.formeJuridique?.toLowerCase()}, qui porte l'<strong>{L.nom}</strong>.<br />
               Siège social : <LegalValue value={L.siege} label="adresse complète" /><br />
               {L.siren} — N° RNA : {L.rna}<br />

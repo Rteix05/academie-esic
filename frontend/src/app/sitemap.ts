@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { serverFetch } from '@/lib/api';
 import { collection, formationToItem, masterclassToItem, type CatalogItem, type FormationDto, type MasterclassDto } from '@/lib/catalog';
 
-const BASE = 'https://academie-esic.fr';
+const BASE = 'https://esich.fr';
 
 // Sitemap régénéré au plus toutes les heures : les nouvelles fiches y apparaissent sans redéploiement
 export const revalidate = 3600;

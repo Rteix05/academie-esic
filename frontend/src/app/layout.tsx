@@ -30,11 +30,11 @@ export const metadata: Metadata = {
   },
   description:
     "Équipement · Spiritualité · Identité · Croissance. Formations professionnelles et masterclass pour fortifier votre marche et approfondir votre connaissance.",
-  metadataBase: new URL("https://academie-esic.fr"),
+  metadataBase: new URL("https://esich.fr"),
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://academie-esic.fr',
+    url: 'https://esich.fr',
     siteName: 'Académie E.S.I.C.',
     title: 'Académie E.S.I.C. — Formations & Masterclass',
     description: 'Équipement · Spiritualité · Identité · Croissance. Formations et masterclass pour approfondir votre foi.',

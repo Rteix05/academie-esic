@@ -25,7 +25,7 @@ export default function PolitiqueConfidentialitePage() {
             <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Responsable du traitement</h2>
             <p>
               L'<strong>Académie E.S.I.C.</strong> est responsable du traitement de vos données personnelles
-              collectées via le site <strong>academie-esic.fr</strong>.<br />
+              collectées via le site <strong>esich.fr</strong>.<br />
               Contact DPO : <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-emerald underline underline-offset-4">{CONTACT_EMAIL}</a>
             </p>
           </section>
