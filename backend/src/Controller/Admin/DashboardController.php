@@ -27,14 +27,17 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Académie E.S.I.C.');
+            ->setTitle('Académie E.S.I.C.')
+            // Thème clair unique, aux couleurs du site (admin-theme.css)
+            ->disableDarkMode();
     }
 
     public function configureAssets(): Assets
     {
         return Assets::new()
-            ->addCssFile('/admin-theme.css')
-            ->addHtmlContentToHead('<script>document.documentElement.setAttribute("data-bs-theme","dark");</script>');
+            // Polices du site public : Poppins (titres) et DM Sans (texte)
+            ->addHtmlContentToHead('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">')
+            ->addCssFile('/admin-theme.css');
     }
 
     public function configureMenuItems(): iterable
