@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional;
 
+use App\Entity\ContactMessage;
 use App\Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -38,6 +39,19 @@ final class ContactTest extends ApiTestCase
         self::assertEmailHtmlBodyContains($acknowledgement, 'la prochaine session');
     }
 
+    public function testMessageIsStoredForTheBackOffice(): void
+    {
+        $this->jsonRequest('POST', '/api/contact', self::MESSAGE);
+        self::assertResponseIsSuccessful();
+
+        $stored = $this->em()->getRepository(ContactMessage::class)->findAll();
+        self::assertCount(1, $stored);
+        self::assertSame('marie.test@example.fr', $stored[0]->getEmail());
+        self::assertSame('Question sur une formation', $stored[0]->getSubjectLabel());
+        self::assertStringContainsString('la prochaine session', $stored[0]->getMessage());
+        self::assertFalse($stored[0]->isHandled());
+    }
+
     public function testMessageIsEscapedInEmails(): void
     {
         $this->jsonRequest('POST', '/api/contact', ['message' => 'Test <script>alert(1)</script> <b>gras</b>'] + self::MESSAGE);
@@ -59,6 +73,7 @@ final class ContactTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
         self::assertSame($field, $this->responseJson()['errors'][0]['field']);
         self::assertEmailCount(0);
+        self::assertSame(0, $this->em()->getRepository(ContactMessage::class)->count([]));
     }
 
     /** @return iterable<string, array{array<string, string>, string}> */
@@ -76,6 +91,7 @@ final class ContactTest extends ApiTestCase
         $this->jsonRequest('POST', '/api/contact', ['website' => 'https://spam.example'] + self::MESSAGE);
         self::assertResponseIsSuccessful(); // le robot ne doit pas savoir qu'il a été détecté
         self::assertEmailCount(0);
+        self::assertSame(0, $this->em()->getRepository(ContactMessage::class)->count([]));
     }
 
     public function testContactIsRateLimited(): void

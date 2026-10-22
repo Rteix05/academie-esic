@@ -22,8 +22,11 @@ final class CourseContentTest extends ApiTestCase
         $this->login();
         $this->client->request('GET', '/api/content/formation/' . $formation->getId());
         self::assertResponseIsSuccessful();
+        $content = $this->responseJson();
+        self::assertSame(self::VIDEO, $content['video']);
         // Le fichier PDF de test n'existe pas sur le disque : non proposé au téléchargement
-        self::assertSame(['video' => self::VIDEO, 'pdfAvailable' => false], $this->responseJson());
+        self::assertFalse($content['pdfAvailable']);
+        self::assertSame($formation->getTitle(), $content['formation']['title']);
     }
 
     public function testFormationWithoutContentReturnsNulls(): void
@@ -34,7 +37,29 @@ final class CourseContentTest extends ApiTestCase
 
         $this->login();
         $this->client->request('GET', '/api/content/formation/' . $formation->getId());
-        self::assertSame(['video' => null, 'pdfAvailable' => false], $this->responseJson());
+        $content = $this->responseJson();
+        self::assertNull($content['video']);
+        self::assertFalse($content['pdfAvailable']);
+    }
+
+    public function testOwnerKeepsAccessAfterTheFormationIsUnpublished(): void
+    {
+        $formation = $this->createCourse();
+        $formation->addUser($this->createUser());
+        $formation->setIsPublished(false);
+        $this->em()->flush();
+
+        $this->login();
+        $this->client->request('GET', '/api/content/formation/' . $formation->getId());
+        self::assertResponseIsSuccessful();
+        $content = $this->responseJson();
+        self::assertSame(self::VIDEO, $content['video']);
+        self::assertSame($formation->getTitle(), $content['formation']['title']);
+        self::assertSame($formation->getDescription(), $content['formation']['description']);
+
+        // La fiche publique, elle, n'existe plus pour les visiteurs
+        $this->client->request('GET', '/api/formations/' . $formation->getId());
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testNonOwnerIsForbidden(): void
@@ -46,6 +71,7 @@ final class CourseContentTest extends ApiTestCase
         $this->client->request('GET', '/api/content/formation/' . $formation->getId());
         self::assertResponseStatusCodeSame(403);
         self::assertArrayNotHasKey('video', $this->responseJson());
+        self::assertArrayNotHasKey('formation', $this->responseJson());
     }
 
     public function testContentRequiresLogin(): void

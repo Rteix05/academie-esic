@@ -84,7 +84,7 @@ export default function ContactPage() {
                 <Check className="h-8 w-8" aria-hidden="true" />
               </span>
               <h2 className="mt-5 font-display text-2xl font-semibold text-brand-forest">Message envoyé !</h2>
-              <p className="mt-2 text-brand-muted">Un accusé de réception vient de vous être envoyé par email. Nous vous répondrons dans les meilleurs délais.</p>
+              <p className="mt-2 text-brand-muted">Nous avons bien reçu votre message et vous répondrons par email dans les meilleurs délais.</p>
               <button type="button" onClick={() => setIsSuccess(false)} className="btn-secondary mt-8">
                 Envoyer un autre message
               </button>

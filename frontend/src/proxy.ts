@@ -1,10 +1,23 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
- * Accès protégé par mot de passe de la démo (authentification HTTP Basic du navigateur).
- * Inactif tant que DEMO_PASSWORD n'est pas défini : aucun effet en production.
+ * Avant chaque page :
+ *  - redirection de www.* vers le domaine sans « www » ;
+ *  - accès protégé par mot de passe de la démo (authentification HTTP Basic du navigateur),
+ *    inactif tant que DEMO_PASSWORD n'est pas défini.
  */
 export function proxy(request: NextRequest) {
+  // Adresse unique www.esich.fr → esich.fr : l'API n'accepte que l'origine sans « www »
+  // (cookie de session et CORS), et les moteurs ne voient qu'une adresse
+  const host = request.headers.get('host') ?? '';
+  if (host.startsWith('www.')) {
+    const url = request.nextUrl.clone();
+    url.host = host.slice(4);
+    url.port = '';
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 308);
+  }
+
   const password = process.env.DEMO_PASSWORD;
   if (!password) return NextResponse.next();
 
