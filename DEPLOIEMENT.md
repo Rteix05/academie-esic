@@ -29,10 +29,11 @@ Les deux domaines partagent le même site (`esich.fr`) : le cookie de session ht
    bash deploy/cloudways/deploy.sh
    ```
    Le script installe les dépendances sans les outils de dev, compile la configuration, génère les clés JWT au premier passage, applique les migrations, installe les assets du back-office et préchauffe le cache.
-7. **Premier administrateur** : créer un compte via le site, puis lui attribuer `ROLE_ADMIN` :
+7. **Premier administrateur** (SSH, après le premier déploiement) :
    ```bash
-   mysql -e "UPDATE user SET roles='[\"ROLE_ADMIN\"]' WHERE email='…'" <base>
+   php backend/bin/console app:create-admin admin@esich.fr
    ```
+   Le mot de passe (12 caractères minimum, dont une lettre et un chiffre) est demandé deux fois, sans s'afficher. Sur un compte existant, la commande lui donne le rôle administrateur et remplace son mot de passe.
 
 Pas de worker Messenger ni de tâche cron à prévoir : les emails partent de façon synchrone.
 
