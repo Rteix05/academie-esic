@@ -49,7 +49,7 @@ export default function CguPage() {
         <LegalArticle id="objet" title="1. Objet et acceptation">
           <p>
             Les présentes Conditions Générales d&apos;Utilisation (« CGU ») ont pour objet de définir les conditions
-            d&apos;accès et d&apos;utilisation du site <strong>academie-esic.fr</strong> ainsi que des services proposés
+            d&apos;accès et d&apos;utilisation du site <strong>esich.fr</strong> ainsi que des services proposés
             par l&apos;Académie E.S.I.C. (« l&apos;Académie »).
           </p>
           <p>
@@ -69,7 +69,7 @@ export default function CguPage() {
         </LegalArticle>
 
         <LegalArticle id="editeur" title="2. Éditeur du site">
-          <p>Le site academie-esic.fr est édité par :</p>
+          <p>Le site esich.fr est édité par :</p>
           <LegalIdentity rows={[
             { label: 'Dénomination', value: `${L.structure}, éditrice de l'${L.nom}` },
             { label: 'N° RNA', value: L.rna },

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import pkg from "./package.json";
 
-// URL publique de l'API Symfony (ex. https://api.academie-esic.fr) — inlinée au build
+// URL publique de l'API Symfony (ex. https://api.esich.fr) — inlinée au build
 const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000').replace(/\/$/, '');
 
 const nextConfig: NextConfig = {

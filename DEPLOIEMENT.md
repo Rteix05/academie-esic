@@ -4,10 +4,10 @@ Architecture cible :
 
 | Domaine | Hébergement | Contenu |
 |---|---|---|
-| `academie-esic.fr` | Vercel | Frontend Next.js (Cloudways n'exécute pas Node.js) |
-| `api.academie-esic.fr` | Cloudways | API Symfony, back-office `/admin`, fichiers téléversés |
+| `esich.fr` | Vercel | Frontend Next.js (Cloudways n'exécute pas Node.js) |
+| `api.esich.fr` | Cloudways | API Symfony, back-office `/admin`, fichiers téléversés |
 
-Les deux domaines partagent le même site (`academie-esic.fr`) : le cookie de session httpOnly en `SameSite=Lax` fonctionne sans configuration particulière.
+Les deux domaines partagent le même site (`esich.fr`) : le cookie de session httpOnly en `SameSite=Lax` fonctionne sans configuration particulière.
 
 ## 1. Cloudways (backend)
 
@@ -16,7 +16,7 @@ Les deux domaines partagent le même site (`academie-esic.fr`) : le cookie de se
    - Application Settings → **Webroot** : `public_html/backend/public`
    - Application Settings → **Varnish : désactivé** (il pourrait servir des réponses d'API en cache)
    - Extensions PHP requises : `intl`, `pdo_mysql`, `zip`, `sodium`, `gd` avec WebP (optimisation des images téléversées) et `exif` (Settings & Packages)
-3. **Domaine** : `api.academie-esic.fr` (enregistrement DNS A vers l'IP du serveur), puis **SSL Certificate → Let's Encrypt** et redirection HTTPS forcée.
+3. **Domaine** : `api.esich.fr` (enregistrement DNS A vers l'IP du serveur), puis **SSL Certificate → Let's Encrypt** et redirection HTTPS forcée.
 4. **Code** : Deployment via Git → dépôt GitHub, branche `main`, chemin `public_html`.
 5. **Configuration** (SSH, une seule fois) :
    ```bash
@@ -39,13 +39,13 @@ Pas de worker Messenger ni de tâche cron à prévoir : les emails partent de fa
 ## 2. Vercel (frontend)
 
 - Nouveau projet depuis le dépôt GitHub, **Root Directory : `frontend`**.
-- Variable d'environnement (Production) : `NEXT_PUBLIC_BACKEND_URL=https://api.academie-esic.fr`.
+- Variable d'environnement (Production) : `NEXT_PUBLIC_BACKEND_URL=https://api.esich.fr`.
   Elle est intégrée au moment du build : il faut redéployer après l'avoir modifiée.
-- Domaines : `academie-esic.fr` (principal) et `www.academie-esic.fr` redirigé vers l'apex.
+- Domaines : `esich.fr` (principal) et `www.esich.fr` redirigé vers l'apex.
 
 ## 3. Services externes
 
-- **Stripe** (mode live) : webhook `https://api.academie-esic.fr/api/stripe/webhook` avec les événements `checkout.session.completed`, `checkout.session.async_payment_succeeded` et `checkout.session.expired` ; reporter le secret `whsec_…` dans `.env.local`.
+- **Stripe** (mode live) : webhook `https://api.esich.fr/api/stripe/webhook` avec les événements `checkout.session.completed`, `checkout.session.async_payment_succeeded` et `checkout.session.expired` ; reporter le secret `whsec_…` dans `.env.local`.
 - **Accès complets aux instituts** (mode live) : dans le catalogue de produits Stripe, créer un prix **ponctuel** (paiement unique, pas récurrent) pour l'Institut Biblique Théologique et pour l'École du Ministère et du Leadership, puis reporter leurs identifiants `price_…` dans `STRIPE_PRICE_INSTITUT_BIBLIQUE` et `STRIPE_PRICE_ECOLE_MINISTERE` (`.env.local`). Sans eux, l'offre n'est simplement pas affichée.
 - **SMTP** : Brevo, Mailjet ou l'add-on Elastic Email de Cloudways. Authentifier le domaine (SPF, DKIM, DMARC), sinon les emails de réinitialisation tomberont en spam.
 
@@ -56,7 +56,7 @@ Pas de worker Messenger ni de tâche cron à prévoir : les emails partent de fa
 
 ## 5. Vérifications après mise en ligne
 
-- `https://api.academie-esic.fr/api/formations` renvoie 200 ; une URL inconnue renvoie une erreur JSON sans trace.
+- `https://api.esich.fr/api/formations` renvoie 200 ; une URL inconnue renvoie une erreur JSON sans trace.
 - Connexion depuis le site : le cookie `BEARER` porte les attributs `Secure`, `HttpOnly` et `SameSite=Lax`.
 - Paiement test : un achat réel à petit prix, puis remboursement depuis Stripe.
 - Mot de passe oublié : l'email arrive bien dans la boîte de réception.

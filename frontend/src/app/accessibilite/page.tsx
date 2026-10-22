@@ -20,14 +20,14 @@ export default function AccessibilitePage() {
           <p>
             L&apos;Académie E.S.I.C. s&apos;engage à rendre son site internet accessible, conformément au
             Référentiel général d&apos;amélioration de l&apos;accessibilité (RGAA) version 4.1.
-            Cette déclaration s&apos;applique au site <strong>academie-esic.fr</strong>.
+            Cette déclaration s&apos;applique au site <strong>esich.fr</strong>.
           </p>
         </section>
 
         <section>
           <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">État de conformité</h2>
           <p>
-            Le site <strong>academie-esic.fr</strong> est <strong>non conforme</strong> avec le RGAA 4.1 :
+            Le site <strong>esich.fr</strong> est <strong>non conforme</strong> avec le RGAA 4.1 :
             aucun audit de conformité n&apos;a encore été réalisé. Le site a toutefois été conçu et vérifié
             en suivant les critères du référentiel (voir ci-dessous) ; un audit complet est prévu.
           </p>
