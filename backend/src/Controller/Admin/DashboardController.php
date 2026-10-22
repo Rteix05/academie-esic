@@ -7,6 +7,7 @@ use App\Controller\Admin\EventRegistrationCrudController;
 use App\Controller\Admin\FormationCrudController;
 use App\Controller\Admin\MasterclassCrudController;
 use App\Controller\Admin\UserCrudController;
+use App\Repository\ContactMessageRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -18,6 +19,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(private readonly ContactMessageRepository $contactMessages)
+    {
+    }
+
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -52,6 +57,9 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Contenus');
         yield MenuItem::linkTo(NewsCrudController::class, 'Actualités', 'fas fa-newspaper');
+        $unhandled = $this->contactMessages->countUnhandled();
+        yield MenuItem::linkTo(ContactMessageCrudController::class, 'Messages', 'fas fa-envelope')
+            ->setBadge($unhandled ?: false, 'danger');
 
         yield MenuItem::section('Membres');
         yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fas fa-users');
