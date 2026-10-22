@@ -48,8 +48,8 @@ class ContentController extends AbstractController
     }
 
     /**
-     * Contenu de la salle de cours : lien vidéo (jamais exposé par l'API publique)
-     * et présence d'un support PDF, pour un élève ayant accès à la formation.
+     * Contenu de la salle de cours pour un élève ayant accès à la formation : sa présentation,
+     * le lien vidéo (jamais exposé par l'API publique) et la présence d'un support PDF.
      */
     #[Route('/api/content/formation/{id}', name: 'api_content_formation', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function formationContent(Formation $formation, FormationAccess $access): JsonResponse
@@ -66,6 +66,16 @@ class ContentController extends AbstractController
         $pdf = $formation->getPdfFile();
 
         return $this->json([
+            // Présentation incluse : la salle de cours reste accessible à l'élève
+            // même si la formation est dépubliée (absente du catalogue public)
+            'formation'    => [
+                'id'          => $formation->getId(),
+                'title'       => $formation->getTitle(),
+                'description' => $formation->getDescription(),
+                'duration'    => $formation->getDuration(),
+                'level'       => $formation->getLevel(),
+                'category'    => $formation->getCategory(),
+            ],
             'video'        => $formation->getVideoUrl() ?: null,
             'pdfAvailable' => $pdf !== null && $pdf !== '' && is_file($this->pdfPath($pdf)),
         ]);

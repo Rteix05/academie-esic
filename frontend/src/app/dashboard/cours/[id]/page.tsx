@@ -19,6 +19,7 @@ interface Formation {
 
 /** Contenu payant, communiqué uniquement aux élèves ayant accès à la formation */
 interface CourseContent {
+  formation: Formation;
   video: string | null;
   pdfAvailable: boolean;
 }
@@ -35,24 +36,18 @@ export default function SalleDeCoursPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Contenu du cours : le backend vérifie l'accès (formation acquise ou accès complet à l'institut)
+    // Contenu et présentation du cours : le backend vérifie l'accès (formation acquise ou accès
+    // complet à l'institut), y compris pour une formation dépubliée depuis l'achat
     apiFetch(`/api/content/formation/${formationId}`)
       .then(async (res) => {
         if (res.status === 401) { router.push('/login'); return Promise.reject(null); }
         if (res.status === 403) throw new Error("Vous n'avez pas accès à ce cours.");
         if (!res.ok) throw new Error('Impossible de charger le contenu de ce cours.');
-        const courseContent: CourseContent = await res.json();
-
-        // 2. Présentation de la formation (catalogue public)
-        const detail = await apiFetch(`/api/formations/${formationId}`, {
-          headers: { Accept: 'application/ld+json, application/json' },
-        });
-        if (!detail.ok) throw new Error('Impossible de charger le contenu de ce cours.');
-        return [courseContent, await detail.json()] as const;
+        return (await res.json()) as CourseContent;
       })
-      .then(([courseContent, data]) => {
+      .then((courseContent) => {
         setContent(courseContent);
-        setFormation(data);
+        setFormation(courseContent.formation);
         setIsLoading(false);
       })
       .catch((err) => {
