@@ -28,7 +28,7 @@ final class ContactTest extends ApiTestCase
         [$notification, $acknowledgement] = self::getMailerMessages();
 
         // Notification interne : adressée à l'Académie, réponse directe au visiteur
-        self::assertEmailAddressContains($notification, 'To', 'panzusamuelpanzu@gmail.com');
+        self::assertEmailAddressContains($notification, 'To', 'academie.esich@gmail.com');
         self::assertEmailAddressContains($notification, 'Reply-To', 'marie.test@example.fr');
         self::assertEmailHeaderSame($notification, 'Subject', '[Contact] Question sur une formation — Marie Test');
         self::assertEmailHtmlBodyContains($notification, 'la prochaine session');
