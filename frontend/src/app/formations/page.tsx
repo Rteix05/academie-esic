@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, PlayCircle, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, BookOpen, PlayCircle, Sparkles } from 'lucide-react';
+import { PARCOURS } from '@/lib/parcours';
 import { apiFetch } from '@/lib/api';
 import { collection, formationToItem, pickFeatured, rowsByCategory, type CatalogItem, type CatalogRow, type FormationDto } from '@/lib/catalog';
 import { EmptyState, ErrorState, PageHeader } from '@/components/ui';
@@ -120,7 +122,31 @@ export default function FormationsPage() {
         />
       )}
 
-      <div id="catalogue" className="container-page scroll-mt-24 pt-6">
+      {/* Les trois parcours de formation */}
+      <section aria-labelledby="parcours-titre" className="container-page pt-10">
+        <span className="eyebrow">Nos parcours</span>
+        <h2 id="parcours-titre" className="mt-2 font-display text-2xl font-semibold text-brand-forest sm:text-3xl">
+          Trois étapes pour grandir dans la Parole
+        </h2>
+        <ol className="mt-8 grid gap-6 md:grid-cols-3">
+          {PARCOURS.map(({ slug, titre, resume, icon: Icon }, i) => (
+            <li key={slug} className="card flex flex-col p-7">
+              <div className="flex items-center justify-between">
+                <span className="icon-tile"><Icon className="h-6 w-6" aria-hidden="true" /></span>
+                <span className="font-display text-sm font-semibold text-brand-emerald">Étape {i + 1}</span>
+              </div>
+              <h3 className="mt-6 font-display text-lg font-semibold text-brand-forest">{titre}</h3>
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-brand-muted">{resume}</p>
+              <Link href="/register" className="btn-primary mt-6 self-start">
+                M&apos;inscrire
+                <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <div id="catalogue" className="container-page scroll-mt-24 pt-12">
         {loading && (
           <div className="space-y-10 pt-4">
             <CarouselSkeleton featureFirst />
