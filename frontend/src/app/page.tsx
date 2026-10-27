@@ -4,6 +4,7 @@ import { ContentCard } from '@/components/catalog/ContentCard';
 import { serverFetch } from '@/lib/api';
 import { fetchNews, formatNewsDate } from '@/lib/news';
 import { collection, formationToItem, masterclassToItem, type CatalogItem, type FormationDto, type MasterclassDto } from '@/lib/catalog';
+import { INSCRIPTIONS_DATE_LIMITE, PARCOURS } from '@/lib/parcours';
 import { ArrowRight, BookOpen, Heart, Flame, Quote, Feather, Award, GraduationCap, Users, ShieldCheck, Sparkles, CalendarDays } from 'lucide-react';
 
 const atouts = [
@@ -74,19 +75,45 @@ export default async function HomePage() {
                 École du Savoir et de l&apos;Intelligence Chrétienne
               </span>
 
-              <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] text-brand-forest sm:text-5xl lg:text-[length:calc(3.4rem*var(--text-scale,1))]">
-                Former des disciples accomplis, prêts à{' '}
+              <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] text-brand-forest sm:text-5xl lg:text-[length:calc(3rem*var(--text-scale,1))]">
+                Un parcours de formation pour comprendre, approfondir et transmettre fidèlement{' '}
                 <span className="relative text-brand-emerald sm:whitespace-nowrap">
-                  servir avec excellence
+                  les Écritures
                   <svg aria-hidden="true" viewBox="0 0 300 12" className="absolute -bottom-2 left-0 hidden h-3 w-full text-brand-emerald/40 sm:block" preserveAspectRatio="none">
                     <path d="M2 9c60-6 180-8 296-3" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
                   </svg>
                 </span>.
               </h1>
 
-              <p className="mx-auto mt-9 max-w-xl text-base leading-relaxed text-brand-muted lg:mx-0 sm:text-lg">
-                L&apos;Académie ESIC est un centre de formation chrétienne dédié à l&apos;édification des disciples et à la préparation des serviteurs de Dieu, enracinés dans les Écritures et équipés pour impacter l&apos;Église et la société.
+              {/* Les trois étapes du parcours */}
+              <ol aria-label="Les étapes du parcours" className="mt-9 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+                {PARCOURS.map(({ slug, titre }, i) => (
+                  <li key={slug} className="flex items-center gap-2">
+                    {i > 0 && <ArrowRight className="h-4 w-4 shrink-0 text-brand-emerald" aria-hidden="true" />}
+                    <span className="rounded-full bg-white px-3.5 py-1.5 font-display text-xs font-semibold text-brand-forest shadow-card sm:text-sm dark:bg-white/10">
+                      {titre}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-brand-muted lg:mx-0 sm:text-lg">
+                Consolidez vos fondements bibliques, approfondissez votre réflexion théologique et développez un ministère ancré dans la maturité, le discernement et l&apos;éthique.
               </p>
+
+              {/* Date limite des inscriptions */}
+              <div className="mx-auto mt-8 flex max-w-xl items-center gap-4 rounded-3xl bg-brand-forest px-5 py-4 text-left text-white shadow-float ring-4 ring-brand-emerald/20 lg:mx-0 dark:ring-emerald-400/20">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+                  <CalendarDays className="h-6 w-6 text-emerald-300" aria-hidden="true" />
+                </span>
+                <p className="text-sm leading-relaxed text-white/85">
+                  <span className="font-display text-xs font-semibold uppercase tracking-wider text-emerald-300">Inscriptions ouvertes</span>
+                  <strong className="block font-display text-lg font-semibold text-white sm:text-xl">
+                    Jusqu&apos;au {INSCRIPTIONS_DATE_LIMITE}
+                  </strong>
+                  Notamment pour le parcours théologique personnalisé. Inscrivez-vous dès maintenant !
+                </p>
+              </div>
 
               <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
                 <Link href="/register" className="btn-primary">
