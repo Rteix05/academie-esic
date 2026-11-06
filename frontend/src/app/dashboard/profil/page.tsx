@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { User, Lock, Check, AlertCircle } from 'lucide-react';
 import { Spinner } from '@/components/ui';
 import { apiFetch } from '@/lib/api';
+import PasswordInput from '@/components/PasswordInput';
 
 interface UserProfile {
   email: string;
@@ -165,15 +166,15 @@ export default function ProfilPage() {
               <p className="text-sm text-brand-muted">Les champs suivis d'un astérisque (*) sont obligatoires.</p>
             <div>
               <label className="field-label" htmlFor="currentPassword">Mot de passe actuel<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
-              <input id="currentPassword" type="password" required autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="field" placeholder="••••••••" />
+              <PasswordInput id="currentPassword" required autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="field" placeholder="••••••••" />
             </div>
             <div>
               <label className="field-label" htmlFor="newPassword">Nouveau mot de passe<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
-              <input id="newPassword" type="password" required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="field" placeholder="••••••••" />
+              <PasswordInput id="newPassword" required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="field" placeholder="••••••••" />
             </div>
             <div>
               <label className="field-label" htmlFor="confirmPassword">Confirmer le nouveau mot de passe<span aria-hidden="true" className="text-red-700 dark:text-red-400"> *</span></label>
-              <input id="confirmPassword" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
+              <PasswordInput id="confirmPassword" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
             </div>
             <button type="submit" disabled={isSavingPassword} className="btn-primary-plain">
               {isSavingPassword ? 'Changement…' : 'Changer le mot de passe'}

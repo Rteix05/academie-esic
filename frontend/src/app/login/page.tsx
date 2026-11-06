@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import AuthShell, { FormMessage } from '@/components/AuthShell';
 import { apiFetch, fetchMe, notifyAuthChanged } from '@/lib/api';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -82,9 +83,8 @@ export default function LoginPage() {
               Mot de passe oublié ?
             </Link>
           </div>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             required
             autoComplete="current-password"
             value={password}
