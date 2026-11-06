@@ -7,6 +7,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import AuthShell, { FormMessage } from '@/components/AuthShell';
 import { Spinner } from '@/components/ui';
 import { apiFetch } from '@/lib/api';
+import PasswordInput from '@/components/PasswordInput';
 
 function ResetPasswordForm() {
   const router       = useRouter();
@@ -83,11 +84,11 @@ function ResetPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="field-label" htmlFor="password">Nouveau mot de passe</label>
-            <input id="password" type="password" required autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="field" placeholder="••••••••" />
+            <PasswordInput id="password" required autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="field" placeholder="••••••••" />
           </div>
           <div>
             <label className="field-label" htmlFor="confirm-password">Confirmer le mot de passe</label>
-            <input id="confirm-password" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
+            <PasswordInput id="confirm-password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
           </div>
           <button type="submit" disabled={isLoading || !token} className="btn-primary w-full justify-between py-4">
             {isLoading ? 'Réinitialisation…' : 'Réinitialiser le mot de passe'}
