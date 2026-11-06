@@ -13,7 +13,7 @@ module.exports = {
   theme: {
     // Échelle typographique Tailwind par défaut, rendue proportionnelle à --text-scale
     fontSize: {
-      xs:   size(0.75, 1),
+      xs:   size(0.8125, 1.125), // 13 px : plus petite taille de texte du site
       sm:   size(0.875, 1.25),
       base: size(1, 1.5),
       lg:   size(1.125, 1.75),

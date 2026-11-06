@@ -64,8 +64,8 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
   if (loading) {
     return (
       <section id="acces" className="container-page mt-12 grid scroll-mt-28 grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="aspect-video animate-pulse rounded-4xl bg-brand-sage/50 lg:col-span-2" />
-        <div className="card h-56 animate-pulse" />
+        <div className="aspect-video rounded-4xl bg-brand-forest/[0.06] lg:col-span-2" />
+        <div className="card h-56" />
       </section>
     );
   }
@@ -75,7 +75,7 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
 
       {/* Colonne gauche : vidéo + description */}
       <div className="flex flex-col gap-6 lg:col-span-2">
-        <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-4xl bg-brand-forest shadow-float">
+        <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-4xl bg-brand-forest">
           {mc.videoAvailable ? (
             hasVideo && videoSrc ? (
               <ProtectedVideoPlayer
@@ -89,7 +89,6 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
                 {mc.imagePreview && (
                   <img src={uploadUrl(mc.imagePreview)} alt="" decoding="async" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-30 blur-[6px]" />
                 )}
-                <div aria-hidden="true" className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
                 <div className="relative z-10 flex flex-col items-center p-6 text-center">
                   <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
                     <Lock className="h-7 w-7" aria-hidden="true" />
@@ -116,10 +115,10 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
       </div>
 
       {/* Colonne droite : accès / achat */}
-      <aside className="card p-6 lg:sticky lg:top-28">
+      <aside className="card p-6">
         {estAchetee ? (
           <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-3 rounded-3xl bg-brand-mint p-4 dark:bg-white/5">
+            <div className="flex items-center gap-3 border-b border-brand-forest/10 pb-5 dark:border-white/10">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-forest text-white">
                 <Check className="h-5 w-5" aria-hidden="true" />
               </span>

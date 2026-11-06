@@ -66,7 +66,7 @@ export default function PurchaseConsent({ state, tone = 'light' }: { state: Cons
           aria-invalid={showErrors && !consents.acceptCgv ? true : undefined}
           className={boxClass}
         />
-        <label htmlFor={ids.cgv} className={`text-sm ${textClass}`}>
+        <label htmlFor={ids.cgv} className={`text-base ${textClass}`}>
           J&apos;ai lu et j&apos;accepte les{' '}
           <Link href="/cgv" target="_blank" rel="noopener" className={linkClass}>
             conditions générales de vente<span className="sr-only"> (nouvelle fenêtre)</span>
@@ -83,7 +83,7 @@ export default function PurchaseConsent({ state, tone = 'light' }: { state: Cons
           aria-invalid={showErrors && !consents.immediateAccess ? true : undefined}
           className={boxClass}
         />
-        <label htmlFor={ids.access} className={`text-sm ${textClass}`}>{IMMEDIATE_ACCESS_CONSENT}</label>
+        <label htmlFor={ids.access} className={`text-base ${textClass}`}>{IMMEDIATE_ACCESS_CONSENT}</label>
       </div>
 
       {missing && (

@@ -67,37 +67,37 @@ export default function FormationCta({ formationId, price, available, institut }
   };
 
   if (owned === null) {
-    return <div className="h-14 w-64 animate-pulse rounded-full bg-white/15" aria-hidden="true" />;
+    return <div className="h-14 w-64 rounded-full bg-brand-forest/[0.06]" aria-hidden="true" />;
   }
 
   if (owned) {
     return (
       <>
-        <Link href="/dashboard" className="btn bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5">
-          <CheckCircle className="h-5 w-5 text-brand-emerald" aria-hidden="true" /> Accéder à ma formation
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-emerald text-white"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+        <Link href="/dashboard" className="btn-primary">
+          <CheckCircle className="h-5 w-5" aria-hidden="true" /> Accéder à ma formation
+          <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
         </Link>
-        <span className="chip bg-white/15 text-white">{viaInstitut ? 'Incluse dans votre accès complet' : 'Formation acquise'}</span>
+        <span className="chip">{viaInstitut ? 'Incluse dans votre accès complet' : 'Formation acquise'}</span>
       </>
     );
   }
 
   if (!available) {
-    return <span className="btn cursor-not-allowed bg-white/15 px-6 py-3 text-white/80">Bientôt disponible</span>;
+    return <span className="btn cursor-not-allowed border border-brand-forest/15 text-brand-muted">Bientôt disponible</span>;
   }
 
   return (
     <div className="flex max-w-xl flex-col gap-4">
-      {!isFree && <PurchaseConsent state={consent} tone="dark" />}
-      <button type="button" onClick={handleCheckout} disabled={enrolling} className="btn bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5">
+      {!isFree && <PurchaseConsent state={consent} />}
+      <button type="button" onClick={handleCheckout} disabled={enrolling} className="btn-primary">
         {enrolling ? (
           <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> {isFree ? 'Inscription…' : 'Redirection vers le paiement…'}</>
         ) : isFree ? "S'inscrire gratuitement" : `S'inscrire — ${price} €`}
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-emerald text-white"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+        <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
       </button>
-      {error && <p role="alert" className="rounded-2xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white">{error}</p>}
+      {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-base font-medium text-red-700">{error}</p>}
       {offer && !isFree && (
-        <Link href={`/formations#${offerAnchor(offer.pack)}`} className="text-sm text-emerald-50 underline underline-offset-4 hover:text-white">
+        <Link href={`/formations#${offerAnchor(offer.pack)}`} className="link text-base">
           Ou accédez à vie à toutes les formations de l&apos;{offer.institut} pour {formatPrice(offer.amount, offer.currency)}
         </Link>
       )}

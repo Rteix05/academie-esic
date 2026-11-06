@@ -121,7 +121,7 @@ export default function SalleDeCoursPage() {
         </div>
 
         {/* Supports du cours */}
-        <aside className="card p-6 lg:sticky lg:top-28">
+        <aside className="card p-6">
           <h2 className="font-display text-lg font-medium text-brand-forest">Supports du cours</h2>
           {hasMaterials ? (
             <ul className="mt-5 space-y-3">

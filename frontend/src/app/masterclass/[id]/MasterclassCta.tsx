@@ -21,26 +21,26 @@ export default function MasterclassCta({ masterclassId, fromPrice }: { mastercla
   }, [masterclassId]);
 
   if (owned === null) {
-    return <div className="h-14 w-60 animate-pulse rounded-full bg-white/15" aria-hidden="true" />;
+    return <div className="h-14 w-60 rounded-full bg-brand-forest/[0.06]" aria-hidden="true" />;
   }
 
   if (owned) {
     return (
-      <a href="#acces" className="btn bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5">
-        <PlayCircle className="h-5 w-5 text-brand-emerald" aria-hidden="true" /> Accéder à l&apos;enseignement
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-emerald text-white"><ArrowDown className="h-4 w-4" aria-hidden="true" /></span>
+      <a href="#acces" className="btn-primary">
+        <PlayCircle className="h-5 w-5" aria-hidden="true" /> Accéder à l&apos;enseignement
+        <span className="btn-icon"><ArrowDown className="h-4 w-4" aria-hidden="true" /></span>
       </a>
     );
   }
 
   if (fromPrice === null) {
-    return <span className="btn cursor-not-allowed bg-white/15 px-6 py-3 text-white/80">Bientôt disponible</span>;
+    return <span className="btn cursor-not-allowed border border-brand-forest/15 text-brand-muted">Bientôt disponible</span>;
   }
 
   return (
-    <a href="#acces" className="btn bg-white py-3 pl-6 pr-2 text-brand-forest shadow-soft hover:-translate-y-0.5">
-      <Lock className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Débloquer — dès {fromPrice} €
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-emerald text-white"><ArrowDown className="h-4 w-4" aria-hidden="true" /></span>
+    <a href="#acces" className="btn-primary">
+      <Lock className="h-4 w-4" aria-hidden="true" /> Débloquer — dès {fromPrice} €
+      <span className="btn-icon"><ArrowDown className="h-4 w-4" aria-hidden="true" /></span>
     </a>
   );
 }

@@ -73,20 +73,17 @@ export default async function MasterclassDetailPage({ params }: { params: Promis
       <PaywallGate mc={mc} />
 
       {/* ── Recommandations ────────────────────────────────────────────────── */}
-      <div className="container-page mt-14 space-y-10">
+      <div className="container-page mt-24 space-y-20">
         <Carousel
-          title="Vous pourriez aussi aimer"
-          subtitle="D'autres enseignements de l'Académie"
+          title="Autres masterclasses"
           items={recommendations}
-          featureFirst={recommendations.length >= 3}
-          action={{ href: '/masterclass', label: 'Toutes les masterclass' }}
+          action={{ href: '/masterclass', label: 'Voir les masterclasses' }}
           sharedIds={new Set(recommendations.map((i) => `${i.kind}-${i.id}`))}
         />
         <Carousel
           title="Approfondir avec une formation"
-          subtitle="Des parcours structurés pour aller plus loin"
           items={formations}
-          action={{ href: '/formations', label: 'Toutes les formations' }}
+          action={{ href: '/formations', label: 'Voir les formations' }}
           sharedIds={new Set(formations.map((i) => `${i.kind}-${i.id}`))}
         />
       </div>
