@@ -191,3 +191,61 @@ h1, h2, h3, .content-header-title .title, .main-header .logo, .page-login .main-
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
 }
+
+/* --- Tableau de bord : statistiques du site --- */
+.stats-header { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; justify-content: space-between; width: 100%; }
+.stats-subtitle { margin: .25rem 0 0; color: var(--esic-muted); font-size: .875rem; }
+.stats-periods { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.stats-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+.stats-card,
+.stats-panel {
+  background: #fff;
+  border: 1px solid var(--esic-line);
+  border-radius: var(--border-radius-lg, 16px);
+  padding: 1.25rem;
+}
+.stats-card-label { margin: 0; color: var(--esic-muted); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.stats-card-label i { color: var(--esic-emerald); margin-right: .25rem; }
+.stats-card-value { margin: .4rem 0 .2rem; font-family: var(--esic-font-display); font-size: 1.75rem; font-weight: 600; color: var(--esic-forest); line-height: 1.1; }
+.stats-card-help { margin: .5rem 0 0; font-size: .75rem; color: var(--esic-muted); }
+.stats-trend { font-size: .8rem; font-weight: 600; }
+.stats-trend.is-up { color: var(--esic-emerald); }
+.stats-trend.is-down { color: #b42318; }
+.stats-trend .text-muted { font-weight: 400; }
+
+.stats-panel { margin-bottom: 1.25rem; }
+.stats-panel h2 { font-family: var(--esic-font-display); font-size: 1rem; font-weight: 600; color: var(--esic-forest); margin: 0 0 1rem; }
+.stats-panel-head { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; justify-content: space-between; align-items: baseline; }
+.stats-legend { display: flex; gap: 1rem; margin: 0 0 1rem; font-size: .8rem; color: var(--esic-muted); }
+.stats-dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; vertical-align: -1px; margin-right: .25rem; }
+.stats-dot.is-views, .stats-bar-views { background: var(--esic-sage); }
+.stats-dot.is-visitors, .stats-bar-visitors { background: var(--esic-emerald); }
+
+.stats-chart { display: flex; align-items: stretch; gap: 3px; height: 220px; }
+.stats-bar { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.stats-bar-track { position: relative; flex: 1; border-bottom: 1px solid var(--esic-line-strong); }
+.stats-bar-track span { position: absolute; bottom: 0; left: 10%; right: 10%; border-radius: 4px 4px 0 0; min-height: 0; }
+.stats-bar-visitors { left: 25% !important; right: 25% !important; }
+.stats-bar:hover .stats-bar-track { background: var(--esic-mint); }
+.stats-bar-label { height: 2.4rem; padding-top: .35rem; font-size: .68rem; color: var(--esic-muted); white-space: nowrap; overflow: visible; }
+
+.stats-details { margin-top: 1rem; }
+.stats-details summary { cursor: pointer; color: var(--esic-emerald); font-weight: 600; font-size: .875rem; }
+.stats-details table { margin-top: .75rem; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+.stats-grid .stats-panel { margin-bottom: 1.25rem; }
+.stats-path { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.stats-bars-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem; }
+.stats-bars-list li { display: grid; grid-template-columns: 1fr auto; gap: .3rem .75rem; font-size: .875rem; }
+.stats-bars-list-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stats-bars-list-value { color: var(--esic-muted); }
+.stats-meter { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--esic-mint); overflow: hidden; }
+.stats-meter span { display: block; height: 100%; background: var(--esic-emerald); border-radius: inherit; }
+
+.stats-empty { color: var(--esic-muted); font-size: .875rem; margin: 0; }
+.stats-footnote { color: var(--esic-muted); font-size: .8rem; margin: .5rem 0 1rem; }
+.stats-footnote i { color: var(--esic-emerald); margin-right: .25rem; }
+.stats-subheading { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--esic-muted); margin: 0 0 .75rem; }

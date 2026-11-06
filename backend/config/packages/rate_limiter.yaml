@@ -26,3 +26,8 @@ framework:
             policy: 'sliding_window'
             limit: 20
             interval: '1 minute'
+        # Mesure d'audience : 60 pages vues par minute et par IP (au-delà, ignorées sans erreur)
+        page_view:
+            policy: 'sliding_window'
+            limit: 60
+            interval: '1 minute'

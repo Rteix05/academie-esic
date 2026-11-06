@@ -16,7 +16,7 @@ export default function PolitiqueConfidentialitePage() {
           <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
           <Link href="/" className="relative text-sm font-medium text-brand-muted transition hover:text-brand-emerald">← Retour à l'accueil</Link>
           <h1 className="relative mt-5 font-display text-4xl font-semibold text-brand-forest sm:text-5xl">Politique de confidentialité</h1>
-          <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : juillet 2026</p>
+          <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : novembre 2026</p>
         </div>
 
         <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
@@ -120,9 +120,9 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section id="cookies" className="scroll-mt-28">
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">9. Cookies et lecteurs vidéo</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">9. Cookies, mesure d'audience et lecteurs vidéo</h2>
             <p>
-              Le site n'utilise aucun cookie publicitaire ni outil de mesure d'audience. Seuls sont déposés :
+              Le site n'utilise aucun cookie publicitaire ni outil de mesure d'audience tiers. Seuls sont déposés :
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-5">
               <li>
@@ -134,6 +134,15 @@ export default function PolitiqueConfidentialitePage() {
                 dans votre navigateur, à votre demande.
               </li>
             </ul>
+            <p className="mt-3">
+              Pour connaître la fréquentation du site (nombre de visiteurs, pages consultées, site d'origine, type
+              d'appareil), nous utilisons notre propre outil de mesure d'audience, <strong>sans cookie</strong>. Votre
+              adresse IP n'est jamais enregistrée : elle sert seulement, avec le type de navigateur, à calculer une
+              empreinte anonyme renouvelée chaque jour, qui ne permet ni de vous identifier ni de vous suivre d'un jour à
+              l'autre. Ces statistiques sont réservées à l'usage interne de l'Académie, ne sont jamais transmises à des
+              tiers et sont supprimées au bout de 13 mois. Conformément aux recommandations de la CNIL, cette mesure
+              d'audience est dispensée de consentement.
+            </p>
             <p className="mt-3">
               Certaines vidéos des masterclass sont diffusées par des services tiers (YouTube, Google Drive, Vimeo),
               susceptibles de déposer leurs propres cookies. Leur lecteur n'est jamais chargé automatiquement : il ne

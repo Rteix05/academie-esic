@@ -46,6 +46,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resetTokenExpiresAt = null;
 
+    // Date d'inscription (inconnue pour les comptes créés avant son ajout)
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    /**
+     * Domaines qui intéressent l'élève (parcours guidé après l'inscription), cf. LearningPreferences
+     *
+     * @var list<string>|null
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $interests = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $learningLevel = null;
+
+    #[ORM\Column(length: 60, nullable: true)]
+    private ?string $learningGoal = null;
+
+    /** Parcours guidé terminé ou passé : il n'est plus proposé */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $onboardedAt = null;
+
     #[ORM\ManyToMany(targetEntity: Masterclass::class, inversedBy: 'users')]
     private Collection $masterclasses;
 
@@ -56,6 +78,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->masterclasses = new ArrayCollection();
         $this->formations    = new ArrayCollection();
+        $this->createdAt     = new \DateTimeImmutable();
         if (empty($this->roles)) {
             $this->roles = ['ROLE_USER'];
         }
@@ -245,5 +268,67 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $name = trim($this->firstName . ' ' . $this->lastName);
 
         return $name !== '' ? $name . ' <' . $this->email . '>' : (string) $this->email;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /** @return list<string> */
+    public function getInterests(): array
+    {
+        return $this->interests ?? [];
+    }
+
+    /** @param list<string> $interests */
+    public function setInterests(array $interests): static
+    {
+        $this->interests = $interests ? array_values($interests) : null;
+
+        return $this;
+    }
+
+    public function getLearningLevel(): ?string
+    {
+        return $this->learningLevel;
+    }
+
+    public function setLearningLevel(?string $learningLevel): static
+    {
+        $this->learningLevel = $learningLevel;
+
+        return $this;
+    }
+
+    public function getLearningGoal(): ?string
+    {
+        return $this->learningGoal;
+    }
+
+    public function setLearningGoal(?string $learningGoal): static
+    {
+        $this->learningGoal = $learningGoal;
+
+        return $this;
+    }
+
+    public function getOnboardedAt(): ?\DateTimeImmutable
+    {
+        return $this->onboardedAt;
+    }
+
+    public function setOnboardedAt(?\DateTimeImmutable $onboardedAt): static
+    {
+        $this->onboardedAt = $onboardedAt;
+
+        return $this;
     }
 }

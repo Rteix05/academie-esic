@@ -61,10 +61,16 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%':      { transform: 'translateY(-8px)' },
         },
+        'step-in': {
+          from: { opacity: '0', transform: 'translateY(10px)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         // Une seule oscillation de moins de 5 s (RGAA 13.8 : pas de mouvement automatique prolongé)
         float: 'float 3s ease-in-out 1',
+        // Apparition d'une étape (parcours guidé)
+        'step-in': 'step-in 0.35s ease-out both',
       },
     },
   },

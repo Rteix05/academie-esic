@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import AuthShell, { FormMessage } from '@/components/AuthShell';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, notifyAuthChanged } from '@/lib/api';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -46,7 +47,18 @@ export default function RegisterPage() {
       }
 
       setSuccess(true);
-      setTimeout(() => router.push('/login'), 2000);
+
+      // Connexion automatique, puis parcours guidé vers les formations adaptées
+      const login = await apiFetch('/api/login_check', {
+        method: 'POST',
+        body: JSON.stringify({ username: email, password }),
+      }).catch(() => null);
+      if (login?.ok) {
+        notifyAuthChanged(true);
+        router.push('/bienvenue');
+      } else {
+        setTimeout(() => router.push('/login'), 2000);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription.");
     } finally {
@@ -68,7 +80,7 @@ export default function RegisterPage() {
             <Check className="h-8 w-8" aria-hidden="true" />
           </span>
           <h2 className="mt-4 font-display text-xl font-semibold text-brand-forest">Inscription réussie !</h2>
-          <p className="mt-2 text-sm text-brand-muted">Redirection vers la page de connexion…</p>
+          <p className="mt-2 text-sm text-brand-muted" role="status">Préparation de votre espace…</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -79,7 +91,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="field-label" htmlFor="password">Mot de passe</label>
-            <input id="password" type="password" required autoComplete="new-password" aria-describedby="password-rules" value={password} onChange={(e) => setPassword(e.target.value)} className="field" placeholder="••••••••" />
+            <PasswordInput id="password" required autoComplete="new-password" aria-describedby="password-rules" value={password} onChange={(e) => setPassword(e.target.value)} className="field" placeholder="••••••••" />
             <ul id="password-rules" className="mt-3 flex flex-wrap gap-2">
               {rules.map((rule) => (
                 <li key={rule.label} className={`chip ${rule.ok ? 'bg-brand-sage' : 'bg-gray-100 text-brand-muted dark:bg-white/5'}`}>
@@ -92,7 +104,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="field-label" htmlFor="confirm-password">Confirmer le mot de passe</label>
-            <input id="confirm-password" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
+            <PasswordInput id="confirm-password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
           </div>
 
           {/* Acceptation expresse des CGU, obligatoire pour créer un compte */}
