@@ -44,15 +44,14 @@ export default function ContactPage() {
     <div className="overflow-x-hidden">
       <PageHeader
         eyebrow="Nous contacter"
-        title="Comment pouvons-nous vous aider ?"
+        title="Contacter l'Académie"
         lead="Une question sur nos formations, besoin d'aide avec votre compte ou une proposition de partenariat : notre équipe est là pour vous répondre."
       />
 
       <section className="container-page grid items-start gap-10 py-20 lg:grid-cols-[0.8fr_1.2fr]">
         {/* Coordonnées */}
         <div>
-          <span className="eyebrow">Coordonnées</span>
-          <h2 className="section-title mt-4">Écrivez-nous</h2>
+          <h2 className="section-title">Nos coordonnées</h2>
           <p className="section-lead">Nous lisons chaque message avec attention et nous nous efforçons de répondre dans les meilleurs délais.</p>
 
           <ul className="mt-10 space-y-4">

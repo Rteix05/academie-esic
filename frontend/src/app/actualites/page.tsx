@@ -19,7 +19,7 @@ export default async function ActualitesPage() {
       <PageHeader
         eyebrow="À la une"
         title="Actualités de l'Académie"
-        lead="Suivez les dernières nouvelles, sessions et temps forts de l'Académie E.S.I.C."
+        lead="Les nouvelles, sessions et temps forts de l'Académie E.S.I.C."
       />
 
       <section className="container-page py-20">
@@ -28,16 +28,15 @@ export default async function ActualitesPage() {
             Les prochaines sessions et temps forts de l&apos;Académie seront annoncés ici.
           </EmptyState>
         ) : (
-        <ol className="relative mx-auto max-w-3xl space-y-6 before:absolute before:bottom-6 before:left-7 before:top-6 before:w-px before:bg-brand-sage">
+        <ol className="max-w-3xl divide-y divide-brand-forest/10 border-y border-brand-forest/10 dark:divide-white/10 dark:border-white/10">
           {actualites.map((a) => (
-            <li key={a.id} className="relative flex gap-6">
-              <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-forest text-white shadow-soft" aria-hidden="true">
-                <CalendarDays className="h-6 w-6" />
-              </span>
-              <article className="card-hover flex-1 p-7">
-                <p className="font-display text-xs font-medium text-brand-emerald"><time dateTime={a.publishedAt}>{formatNewsDate(a.publishedAt)}</time></p>
-                <h2 className="mt-2 font-display text-lg font-medium text-brand-forest">{a.title}</h2>
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-brand-muted">{a.summary}</p>
+            <li key={a.id}>
+              <article className="grid gap-2 py-8 sm:grid-cols-[10rem_1fr] sm:gap-8">
+                <p className="text-base text-brand-emerald"><time dateTime={a.publishedAt}>{formatNewsDate(a.publishedAt)}</time></p>
+                <div>
+                  <h2 className="font-display text-2xl font-medium text-brand-forest">{a.title}</h2>
+                  <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-brand-muted">{a.summary}</p>
+                </div>
               </article>
             </li>
           ))}
