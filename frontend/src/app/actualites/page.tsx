@@ -35,8 +35,8 @@ export default async function ActualitesPage() {
                 <CalendarDays className="h-6 w-6" />
               </span>
               <article className="card-hover flex-1 p-7">
-                <p className="font-display text-xs font-semibold text-brand-emerald"><time dateTime={a.publishedAt}>{formatNewsDate(a.publishedAt)}</time></p>
-                <h2 className="mt-2 font-display text-lg font-semibold text-brand-forest">{a.title}</h2>
+                <p className="font-display text-xs font-medium text-brand-emerald"><time dateTime={a.publishedAt}>{formatNewsDate(a.publishedAt)}</time></p>
+                <h2 className="mt-2 font-display text-lg font-medium text-brand-forest">{a.title}</h2>
                 <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-brand-muted">{a.summary}</p>
               </article>
             </li>

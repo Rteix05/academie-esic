@@ -25,7 +25,7 @@ export default function AccessibilitePage() {
         </section>
 
         <section>
-          <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">État de conformité</h2>
+          <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">État de conformité</h2>
           <p>
             Le site <strong>esich.fr</strong> est <strong>non conforme</strong> avec le RGAA 4.1 :
             aucun audit de conformité n&apos;a encore été réalisé. Le site a toutefois été conçu et vérifié
@@ -34,7 +34,7 @@ export default function AccessibilitePage() {
         </section>
 
         <section>
-          <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">Mesures mises en œuvre</h2>
+          <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">Mesures mises en œuvre</h2>
           <ul className="list-disc space-y-2 pl-5">
             <li>Lien d&apos;évitement vers le contenu principal, structure de titres et zones de navigation balisées.</li>
             <li>Deux systèmes de navigation : menu principal et plan du site.</li>
@@ -50,7 +50,7 @@ export default function AccessibilitePage() {
         </section>
 
         <section>
-          <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">Contenus non accessibles</h2>
+          <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">Contenus non accessibles</h2>
           <ul className="list-disc space-y-2 pl-5">
             <li>Les vidéos des masterclass sont hébergées sur des services tiers (YouTube, Vimeo…) : leurs lecteurs et l&apos;éventuelle absence de sous-titres ou de transcription relèvent de ces services et des contenus publiés.</li>
             <li>Les documents PDF téléchargeables peuvent ne pas être balisés pour l&apos;accessibilité.</li>
@@ -58,12 +58,12 @@ export default function AccessibilitePage() {
         </section>
 
         <section>
-          <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">Technologies utilisées</h2>
+          <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">Technologies utilisées</h2>
           <p>HTML5, CSS, JavaScript (React / Next.js), WAI-ARIA.</p>
         </section>
 
         <section>
-          <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">Retour d&apos;information et contact</h2>
+          <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">Retour d&apos;information et contact</h2>
           <p>
             Si vous n&apos;arrivez pas à accéder à un contenu ou à un service, vous pouvez nous contacter pour être
             orienté vers une alternative accessible ou obtenir le contenu sous une autre forme :{' '}
@@ -72,7 +72,7 @@ export default function AccessibilitePage() {
         </section>
 
         <section>
-          <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">Voies de recours</h2>
+          <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">Voies de recours</h2>
           <p>
             Si vous avez signalé un défaut d&apos;accessibilité qui vous empêche d&apos;accéder à un contenu ou à un
             service et que vous n&apos;avez pas obtenu de réponse satisfaisante, vous pouvez :

@@ -109,11 +109,11 @@ export default function ProfilPage() {
             <span aria-current="page" className="font-medium text-brand-forest">Mon profil</span>
           </nav>
           <div className="relative mt-6 flex items-center gap-5">
-            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-forest font-display text-2xl font-semibold text-white ring-8 ring-white/70 dark:ring-white/10" aria-hidden="true">
+            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-forest font-display text-2xl font-medium text-white ring-8 ring-white/70 dark:ring-white/10" aria-hidden="true">
               {initials}
             </span>
             <div>
-              <h1 className="font-display text-3xl font-semibold text-brand-forest sm:text-4xl">Mon profil</h1>
+              <h1 className="font-display text-3xl font-medium text-brand-forest sm:text-4xl">Mon profil</h1>
               <p className="mt-1 text-brand-muted">{profile.email}</p>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function ProfilPage() {
       <section className="container-page mt-10 grid items-start gap-6 lg:grid-cols-2">
         {/* Informations personnelles */}
         <div className="card p-7">
-          <h2 className="flex items-center gap-3 font-display text-lg font-semibold text-brand-forest">
+          <h2 className="flex items-center gap-3 font-display text-lg font-medium text-brand-forest">
             <span className="icon-tile h-10 w-10 rounded-xl" aria-hidden="true"><User className="h-5 w-5" /></span>
             Informations personnelles
           </h2>
@@ -154,7 +154,7 @@ export default function ProfilPage() {
 
         {/* Mot de passe */}
         <div className="card p-7">
-          <h2 className="flex items-center gap-3 font-display text-lg font-semibold text-brand-forest">
+          <h2 className="flex items-center gap-3 font-display text-lg font-medium text-brand-forest">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700" aria-hidden="true"><Lock className="h-5 w-5" /></span>
             Changer le mot de passe
           </h2>

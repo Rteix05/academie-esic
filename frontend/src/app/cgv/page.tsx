@@ -176,7 +176,7 @@ export default function CgvPage() {
         </LegalArticle>
 
         <LegalArticle id="duree" title="9. Durée d'accès aux contenus">
-          <h3 className="font-display font-semibold text-brand-forest">9.1 Contenus achetés à l&apos;unité</h3>
+          <h3 className="font-display font-medium text-brand-forest">9.1 Contenus achetés à l&apos;unité</h3>
           <p>Sauf indication contraire lors de la commande, l&apos;achat donne accès au contenu selon les modalités indiquées sur la fiche du produit.</p>
           <p>
             Lorsqu&apos;aucune durée déterminée n&apos;est annoncée, l&apos;Académie s&apos;efforce de maintenir
@@ -189,7 +189,7 @@ export default function CgvPage() {
           </p>
           <p>Lorsque cela est possible, l&apos;Académie informe les utilisateurs concernés dans un délai raisonnable.</p>
 
-          <h3 className="pt-2 font-display font-semibold text-brand-forest">9.2 Accès complet à un institut</h3>
+          <h3 className="pt-2 font-display font-medium text-brand-forest">9.2 Accès complet à un institut</h3>
           <p>
             L&apos;accès complet à un institut est acheté en une seule fois, au prix affiché lors de la commande, sans
             abonnement ni prélèvement ultérieur.
@@ -205,7 +205,7 @@ export default function CgvPage() {
         </LegalArticle>
 
         <LegalArticle id="retractation" title="10. Droit de rétractation">
-          <h3 className="font-display font-semibold text-brand-forest">10.1 Principe</h3>
+          <h3 className="font-display font-medium text-brand-forest">10.1 Principe</h3>
           <p>
             Conformément à la réglementation applicable aux contrats conclus à distance, le consommateur dispose en
             principe d&apos;un délai de quatorze jours pour exercer son droit de rétractation à compter de la conclusion
@@ -215,7 +215,7 @@ export default function CgvPage() {
             Le consommateur peut exercer son droit de rétractation sans avoir à justifier sa décision et sans supporter
             d&apos;autres frais que ceux prévus par la loi.
           </p>
-          <h3 className="pt-2 font-display font-semibold text-brand-forest">10.2 Contenus numériques fournis immédiatement</h3>
+          <h3 className="pt-2 font-display font-medium text-brand-forest">10.2 Contenus numériques fournis immédiatement</h3>
           <p>Les formations et masterclass proposées par l&apos;Académie peuvent constituer des contenus numériques fournis sans support matériel.</p>
           <p>
             Lorsque le client demande à accéder immédiatement à un tel contenu avant l&apos;expiration du délai de
@@ -227,7 +227,7 @@ export default function CgvPage() {
           ]} />
           <p>Cette procédure correspond au régime prévu pour la fourniture immédiate de contenus numériques sans support matériel.</p>
           <p>La confirmation de cet accord est ensuite fournie au client sur un support durable conformément aux règles applicables.</p>
-          <h3 className="pt-2 font-display font-semibold text-brand-forest">10.3 Recueil du consentement lors du paiement</h3>
+          <h3 className="pt-2 font-display font-medium text-brand-forest">10.3 Recueil du consentement lors du paiement</h3>
           <p>
             Pour les contenus concernés, ce consentement est recueilli au moyen d&apos;une case distincte de
             l&apos;acceptation des CGV, qui n&apos;est jamais précochée, formulée ainsi :

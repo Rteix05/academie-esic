@@ -59,7 +59,7 @@ export default function AProposPage() {
         ].map(({ icon: Icon, title, text }) => (
           <div key={title} className="card-hover p-10">
             <span className="icon-tile"><Icon className="h-6 w-6" aria-hidden="true" /></span>
-            <h2 className="mt-6 font-display text-2xl font-semibold text-brand-forest">{title}</h2>
+            <h2 className="mt-6 font-display text-2xl font-medium text-brand-forest">{title}</h2>
             <p className="mt-3 leading-relaxed text-brand-muted">{text}</p>
           </div>
         ))}
@@ -72,7 +72,7 @@ export default function AProposPage() {
           <blockquote className="relative mx-auto mt-6 max-w-2xl font-display text-2xl font-medium leading-snug sm:text-3xl">
             « Afin que l&apos;homme de Dieu soit accompli et propre à toute bonne œuvre. »
           </blockquote>
-          <figcaption className="relative mt-5 font-display text-sm font-semibold text-emerald-300">2 Timothée 3:17</figcaption>
+          <figcaption className="relative mt-5 font-display text-sm font-medium text-emerald-300">2 Timothée 3:17</figcaption>
           <p className="relative mx-auto mt-5 max-w-xl text-sm text-emerald-100/70">
             Ce verset résume l&apos;objectif de l&apos;Académie : former des croyants accomplis, compétents et prêts à servir.
           </p>
@@ -83,7 +83,7 @@ export default function AProposPage() {
       <section className="bg-brand-mint py-20 dark:bg-[#0f1f16]">
         <div className="container-page">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="eyebrow bg-white dark:bg-white/5">Ce qui nous porte</span>
+            <span className="eyebrow">Ce qui nous porte</span>
             <h2 className="section-title mt-4">Nos valeurs chrétiennes</h2>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2">
@@ -91,7 +91,7 @@ export default function AProposPage() {
               <div key={title} className="card-hover flex gap-5 p-8">
                 <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${tone}`}><Icon className="h-6 w-6" aria-hidden="true" /></span>
                 <div>
-                  <h3 className="font-display text-lg font-semibold text-brand-forest">{title}</h3>
+                  <h3 className="font-display text-lg font-medium text-brand-forest">{title}</h3>
                   <p className="mt-1 text-sm leading-relaxed text-brand-muted">{desc}</p>
                 </div>
               </div>
@@ -124,14 +124,14 @@ export default function AProposPage() {
       <section className="bg-brand-mint py-20 dark:bg-[#0f1f16]">
         <div className="container-page">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="eyebrow bg-white dark:bg-white/5">Comment nous formons</span>
+            <span className="eyebrow">Comment nous formons</span>
             <h2 className="section-title mt-4">Notre approche pédagogique</h2>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-3">
             {approche.map(({ icon: Icon, label, desc }) => (
               <div key={label} className="card-hover p-8 text-center">
                 <span className="icon-tile mx-auto"><Icon className="h-6 w-6" aria-hidden="true" /></span>
-                <h3 className="mt-5 font-display text-lg font-semibold text-brand-forest">{label}</h3>
+                <h3 className="mt-5 font-display text-lg font-medium text-brand-forest">{label}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-brand-muted">{desc}</p>
               </div>
             ))}

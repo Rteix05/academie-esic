@@ -1,20 +1,20 @@
 /**
- * Navigation rapide entre les rangées d'un catalogue (ancres), défilable horizontalement.
+ * Sommaire du catalogue : liens vers chaque catégorie (ancres), sur plusieurs lignes si besoin.
  */
 export default function CategoryNav({ rows }: { rows: { id: string; title: string; count: number }[] }) {
   if (rows.length < 2) return null;
 
   return (
-    <nav aria-label="Catégories du catalogue" className="category-nav sticky top-16 z-30 sm:top-20 -mx-5 bg-brand-cream/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 dark:bg-[#0a1810]/90">
-      <ul className="no-scrollbar flex gap-2 overflow-x-auto">
+    <nav aria-label="Catégories du catalogue" className="category-nav">
+      <ul className="flex flex-wrap gap-2">
         {rows.map((row) => (
-          <li key={row.id} className="shrink-0">
+          <li key={row.id}>
             <a
               href={`#${row.id}`}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-display text-sm font-medium text-brand-muted shadow-card transition hover:bg-brand-forest hover:text-white dark:bg-white/5 dark:text-gray-300"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-forest/15 px-4 text-base text-brand-forest transition-colors hover:border-brand-forest/40 hover:bg-brand-forest/[0.04] dark:border-white/15 dark:text-emerald-100"
             >
               {row.title}
-              <span className="text-xs opacity-70">{row.count}</span>
+              <span className="text-sm text-brand-muted">{row.count}</span>
             </a>
           </li>
         ))}

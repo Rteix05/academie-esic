@@ -66,9 +66,9 @@ export default function ContactPage() {
                 <span className="min-w-0">
                   <span className="block text-xs text-brand-muted">{label}</span>
                   {href ? (
-                    <a href={href} className="block break-all font-display font-semibold text-brand-forest underline decoration-brand-emerald/40 underline-offset-4 hover:text-brand-emerald dark:text-emerald-100">{value}</a>
+                    <a href={href} className="block break-all font-display font-medium text-brand-forest underline decoration-brand-emerald/40 underline-offset-4 hover:text-brand-emerald dark:text-emerald-100">{value}</a>
                   ) : (
-                    <span className="block font-display font-semibold text-brand-forest">{value}</span>
+                    <span className="block font-display font-medium text-brand-forest">{value}</span>
                   )}
                 </span>
               </li>
@@ -83,7 +83,7 @@ export default function ContactPage() {
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
                 <Check className="h-8 w-8" aria-hidden="true" />
               </span>
-              <h2 className="mt-5 font-display text-2xl font-semibold text-brand-forest">Message envoyé !</h2>
+              <h2 className="mt-5 font-display text-2xl font-medium text-brand-forest">Message envoyé</h2>
               <p className="mt-2 text-brand-muted">Nous avons bien reçu votre message et vous répondrons par email dans les meilleurs délais.</p>
               <button type="button" onClick={() => setIsSuccess(false)} className="btn-secondary mt-8">
                 Envoyer un autre message

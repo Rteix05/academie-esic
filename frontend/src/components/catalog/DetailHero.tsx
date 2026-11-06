@@ -43,7 +43,7 @@ export default function DetailHero({
           <div className="mt-auto max-w-2xl pt-16">
             <div className="flex flex-wrap items-center gap-2">{tags}</div>
 
-            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 font-display text-4xl font-medium leading-[1.08] sm:text-5xl lg:text-6xl">
               <ViewTransition name={titleTransitionName(item)} share="morph" default="none">
                 <span>{item.title}</span>
               </ViewTransition>
@@ -61,7 +61,7 @@ export default function DetailHero({
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300" aria-hidden="true">{fact.icon}</span>
                     {fact.label}
                   </dt>
-                  <dd className="font-display text-sm font-semibold text-white">{fact.value}</dd>
+                  <dd className="font-display text-sm font-medium text-white">{fact.value}</dd>
                 </div>
               ))}
             </dl>

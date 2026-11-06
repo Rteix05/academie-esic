@@ -89,7 +89,7 @@ export default function SalleDeCoursPage() {
             <span aria-current="page" className="max-w-[260px] truncate font-medium text-brand-forest">{formation.title}</span>
           </nav>
           {formation.category && <span className="chip relative mt-6 bg-white dark:bg-white/5">{formation.category}</span>}
-          <h1 className="relative mt-4 font-display text-3xl font-semibold text-brand-forest sm:text-4xl">{formation.title}</h1>
+          <h1 className="relative mt-4 font-display text-3xl font-medium text-brand-forest sm:text-4xl">{formation.title}</h1>
           <div className="relative mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-muted">
             {formation.duration && <span className="flex items-center gap-2"><Clock className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> {formation.duration}</span>}
             {formation.level && <span className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Niveau : {formation.level}</span>}
@@ -115,14 +115,14 @@ export default function SalleDeCoursPage() {
           )}
 
           <div className="card p-7 sm:p-9">
-            <h2 className="font-display text-xl font-semibold text-brand-forest">À propos de ce module</h2>
+            <h2 className="font-display text-xl font-medium text-brand-forest">À propos de ce module</h2>
             <div className="rich-text mt-4" dangerouslySetInnerHTML={{ __html: formation.description }} />
           </div>
         </div>
 
         {/* Supports du cours */}
         <aside className="card p-6 lg:sticky lg:top-28">
-          <h2 className="font-display text-lg font-semibold text-brand-forest">Supports du cours</h2>
+          <h2 className="font-display text-lg font-medium text-brand-forest">Supports du cours</h2>
           {hasMaterials ? (
             <ul className="mt-5 space-y-3">
               {content.video && (

@@ -14,14 +14,14 @@ export default function PolitiqueConfidentialitePage() {
 
         <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-14 text-center sm:px-12 dark:bg-[#10231a]">
           <Link href="/" className="relative text-sm font-medium text-brand-muted transition hover:text-brand-emerald">← Retour à l'accueil</Link>
-          <h1 className="relative mt-5 font-display text-4xl font-semibold text-brand-forest sm:text-5xl">Politique de confidentialité</h1>
+          <h1 className="relative mt-5 font-display text-4xl font-medium text-brand-forest sm:text-5xl">Politique de confidentialité</h1>
           <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : novembre 2026</p>
         </div>
 
         <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Responsable du traitement</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">1. Responsable du traitement</h2>
             <p>
               L'<strong>Académie E.S.I.C.</strong> est responsable du traitement de vos données personnelles
               collectées via le site <strong>esich.fr</strong>.<br />
@@ -30,7 +30,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">2. Données collectées</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">2. Données collectées</h2>
             <p>Dans le cadre de l'utilisation de nos services, nous collectons les données suivantes :</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 marker:text-brand-emerald">
               <li><strong>Données d'inscription :</strong> adresse email, mot de passe (chiffré), prénom, nom</li>
@@ -41,7 +41,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">3. Finalités du traitement</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">3. Finalités du traitement</h2>
             <p>Vos données sont traitées pour les finalités suivantes :</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 marker:text-brand-emerald">
               <li>Gestion de votre compte utilisateur et authentification sécurisée</li>
@@ -52,7 +52,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">4. Base légale</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">4. Base légale</h2>
             <p>
               Le traitement de vos données est fondé sur :
             </p>
@@ -64,7 +64,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">5. Durée de conservation</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">5. Durée de conservation</h2>
             <ul className="list-disc space-y-2 pl-5 marker:text-brand-emerald">
               <li><strong>Compte utilisateur :</strong> données conservées pendant toute la durée d'activité du compte, puis 3 ans après la dernière connexion</li>
               <li><strong>Données de transaction :</strong> 10 ans conformément aux obligations comptables et fiscales</li>
@@ -73,7 +73,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">6. Partage des données</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">6. Partage des données</h2>
             <p>
               Vos données ne sont jamais vendues à des tiers. Elles peuvent être partagées avec :
             </p>
@@ -87,7 +87,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">7. Sécurité des données</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">7. Sécurité des données</h2>
             <p>
               Nous mettons en œuvre les mesures techniques et organisationnelles suivantes pour protéger vos données :
             </p>
@@ -100,7 +100,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">8. Vos droits</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">8. Vos droits</h2>
             <p>Conformément au RGPD, vous disposez des droits suivants :</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 marker:text-brand-emerald">
               <li><strong>Droit d'accès :</strong> obtenir une copie de vos données personnelles</li>
@@ -119,7 +119,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section id="cookies" className="scroll-mt-28">
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">9. Cookies, mesure d'audience et lecteurs vidéo</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">9. Cookies, mesure d'audience et lecteurs vidéo</h2>
             <p>
               Le site n'utilise aucun cookie publicitaire ni outil de mesure d'audience tiers. Seuls sont déposés :
             </p>
@@ -153,7 +153,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">10. Modifications</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">10. Modifications</h2>
             <p>
               Nous nous réservons le droit de modifier cette politique à tout moment. Toute modification
               substantielle vous sera notifiée par email ou affichée en évidence sur le site.

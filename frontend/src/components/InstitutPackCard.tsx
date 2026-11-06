@@ -46,16 +46,16 @@ export default function InstitutPackCard({ offer, owned }: { offer: InstitutPack
     <section
       id={offerAnchor(offer.pack)}
       aria-labelledby={`${offerAnchor(offer.pack)}-titre`}
-      className="scroll-mt-24 rounded-4xl bg-brand-mint p-6 sm:p-8 dark:bg-[#10231a]"
+      className="card scroll-mt-24 p-6 sm:p-8"
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-4">
-          <span className="icon-tile h-12 w-12 shrink-0 bg-white dark:bg-white/10"><Library className="h-5 w-5" aria-hidden="true" /></span>
+          <span className="icon-tile h-12 w-12 shrink-0"><Library className="h-5 w-5" aria-hidden="true" /></span>
           <div>
-            <h3 id={`${offerAnchor(offer.pack)}-titre`} className="font-display text-lg font-semibold text-brand-forest">
+            <h3 id={`${offerAnchor(offer.pack)}-titre`} className="font-display text-lg font-medium text-brand-forest">
               Accès complet à l&apos;institut
             </h3>
-            <p className="mt-1 text-sm text-brand-muted">
+            <p className="mt-1 text-base text-brand-muted">
               Toutes les formations de l&apos;{offer.institut}, y compris celles publiées par la suite. Un seul paiement,
               accès à vie.
             </p>
@@ -64,7 +64,7 @@ export default function InstitutPackCard({ offer, owned }: { offer: InstitutPack
 
         <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
           <p className="font-display text-brand-forest">
-            <span className="text-3xl font-semibold">{formatPrice(offer.amount, offer.currency)}</span>
+            <span className="text-3xl font-medium">{formatPrice(offer.amount, offer.currency)}</span>
             <span className="text-sm text-brand-muted"> paiement unique</span>
           </p>
           {owned ? (

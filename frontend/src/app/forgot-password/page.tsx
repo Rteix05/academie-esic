@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
             <MailCheck className="h-8 w-8" aria-hidden="true" />
           </span>
-          <h2 className="mt-4 font-display text-xl font-semibold text-brand-forest">Vérifiez votre boîte mail</h2>
+          <h2 className="mt-4 font-display text-xl font-medium text-brand-forest">Vérifiez votre boîte mail</h2>
           <p className="mt-2 text-sm text-brand-muted">
             Si un compte existe pour <strong className="text-brand-ink">{email}</strong>, un lien de réinitialisation valable 1 heure vient d&apos;être envoyé.
           </p>

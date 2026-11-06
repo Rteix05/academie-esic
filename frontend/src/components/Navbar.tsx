@@ -190,7 +190,7 @@ export default function Navbar() {
                 aria-controls="user-menu"
                 className="flex items-center gap-2 rounded-full border border-brand-forest/10 bg-white py-1.5 pl-1.5 pr-4 font-display text-sm font-medium text-brand-forest transition hover:border-brand-forest/30 dark:border-white/10 dark:bg-white/5 dark:text-emerald-100"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-forest font-display text-xs font-semibold text-white" aria-hidden="true">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-forest font-display text-xs font-medium text-white" aria-hidden="true">
                   {displayName.charAt(0).toUpperCase()}
                 </span>
                 <span className="max-w-[140px] truncate">{displayName}</span>
@@ -314,7 +314,7 @@ export default function Navbar() {
           </nav>
 
           <section aria-labelledby="menu-affichage" className="mx-5 mt-8 rounded-xl border border-brand-forest/10 bg-white p-5 sm:mx-8 dark:border-white/10 dark:bg-white/5">
-            <h2 id="menu-affichage" className="mb-4 font-display text-base font-semibold text-brand-forest dark:text-emerald-100">Affichage</h2>
+            <h2 id="menu-affichage" className="mb-4 font-display text-base font-medium text-brand-forest dark:text-emerald-100">Affichage</h2>
             <A11yControls />
           </section>
 

@@ -153,7 +153,7 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
 
       {devToolsOpen && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/90 p-6">
-          <p className="font-display text-sm font-semibold text-white">Contenu protégé</p>
+          <p className="font-display text-sm font-medium text-white">Contenu protégé</p>
           <p className="max-w-xs text-center text-xs text-gray-400">Fermez les outils de développement pour reprendre la lecture.</p>
         </div>
       )}
@@ -170,7 +170,7 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-brand-emerald shadow-float">
             <PlayCircle className="h-8 w-8" aria-hidden="true" />
           </span>
-          <p className="mt-4 font-display text-lg font-semibold text-white">Votre vidéo est prête</p>
+          <p className="mt-4 font-display text-lg font-medium text-white">Votre vidéo est prête</p>
           <p className="mt-1 text-sm text-emerald-100/75">Hébergée sur {source.provider}, elle s&apos;ouvre dans un nouvel onglet.</p>
           <a
             href={src}
@@ -209,7 +209,7 @@ export default function ProtectedVideoPlayer({ src, mcId, userEmail, userName }:
           >
             <Play className="ml-1 h-7 w-7" aria-hidden="true" />
           </button>
-          <p className="mt-4 font-display text-base font-semibold text-white">Vidéo hébergée par {source.provider}</p>
+          <p className="mt-4 font-display text-base font-medium text-white">Vidéo hébergée par {source.provider}</p>
           <p className="mt-2 text-sm text-emerald-50">
             En lançant la vidéo, vous acceptez que {source.provider} dépose des cookies et collecte des données de
             navigation, conformément à{' '}

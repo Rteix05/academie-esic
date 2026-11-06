@@ -118,10 +118,10 @@ export default function BienvenuePage() {
     <aside className="relative hidden overflow-hidden rounded-5xl bg-brand-forest p-8 text-white lg:sticky lg:top-24 lg:flex lg:flex-col">
 
       <div className="relative">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-semibold text-emerald-200">
+        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-medium text-emerald-200">
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {firstVisit ? 'Bienvenue à l’Académie' : 'Mes préférences'}
         </span>
-        <p className="mt-5 font-display text-2xl font-semibold leading-snug">
+        <p className="mt-5 font-display text-2xl font-medium leading-snug">
           {firstVisit ? <>Construisons votre parcours{firstName ? `, ${firstName}` : ''}</> : 'Ajustez vos recommandations'}
         </p>
         <p className="mt-2 flex items-center gap-2 text-sm text-emerald-100/80">
@@ -137,14 +137,14 @@ export default function BienvenuePage() {
             const content = (
               <>
                 <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-semibold transition ${
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-medium transition ${
                     done ? 'bg-brand-emerald text-white' : current ? 'bg-emerald-300 text-[#0F291E] ring-4 ring-emerald-300/20' : 'border border-white/25 text-white/60'
                   }`}
                 >
                   {done ? <Check className="h-4 w-4" aria-hidden="true" /> : i + 1}
                 </span>
                 <span className="min-w-0 text-left">
-                  <span className={`block font-display text-sm font-semibold ${current || done ? 'text-white' : 'text-white/60'}`}>{label}</span>
+                  <span className={`block font-display text-sm font-medium ${current || done ? 'text-white' : 'text-white/60'}`}>{label}</span>
                   {done && answers[i] && <span className="block truncate text-xs text-emerald-200/90">{answers[i]}</span>}
                 </span>
               </>
@@ -183,10 +183,10 @@ export default function BienvenuePage() {
         <section className="relative overflow-hidden rounded-5xl bg-brand-forest px-6 py-12 text-white sm:px-12 sm:py-14">
           <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="animate-step-in">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-semibold text-emerald-200">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-medium text-emerald-200">
                 <Check className="h-3.5 w-3.5" aria-hidden="true" /> C&apos;est noté{firstName ? `, ${firstName}` : ''}
               </span>
-              <h1 ref={headingRef} tabIndex={-1} className="mt-5 font-display text-3xl font-semibold leading-tight outline-none sm:text-4xl">
+              <h1 ref={headingRef} tabIndex={-1} className="mt-5 font-display text-3xl font-medium leading-tight outline-none sm:text-4xl">
                 Votre sélection personnalisée
               </h1>
               <p className="mt-3 max-w-xl text-emerald-50/85">
@@ -210,7 +210,7 @@ export default function BienvenuePage() {
 
         {recommended.length > 0 && (
           <section aria-labelledby="reco-formations" className="mt-12 animate-step-in">
-            <h2 id="reco-formations" className="font-display text-2xl font-semibold text-brand-forest">Formations recommandées</h2>
+            <h2 id="reco-formations" className="font-display text-2xl font-medium text-brand-forest">Formations recommandées</h2>
             <p className="mt-1 text-sm text-brand-muted">Les formations à votre niveau apparaissent en premier.</p>
             <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {recommended.map((f) => <ContentCard key={f.id} item={formationToItem(f)} fluid />)}
@@ -220,7 +220,7 @@ export default function BienvenuePage() {
 
         {featuredMasterclasses.length > 0 && (
           <section aria-labelledby="reco-masterclasses" className="mt-14 rounded-5xl bg-brand-mint p-6 sm:p-10 dark:bg-[#10231a]">
-            <h2 id="reco-masterclasses" className="font-display text-2xl font-semibold text-brand-forest">À découvrir aussi : nos masterclasses</h2>
+            <h2 id="reco-masterclasses" className="font-display text-2xl font-medium text-brand-forest">À découvrir aussi : nos masterclasses</h2>
             <p className="mt-1 text-sm text-brand-muted">Des enseignements ciblés, en vidéo ou en livret PDF.</p>
             <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {featuredMasterclasses.map((mc) => <ContentCard key={mc.id} item={masterclassToItem(mc)} fluid />)}
@@ -233,7 +233,7 @@ export default function BienvenuePage() {
             Accéder à mon espace
             <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
           </Link>
-          <Link href="/formations" className="btn-secondary">Explorer tout le catalogue</Link>
+          <Link href="/formations" className="btn-secondary">Voir tout le catalogue</Link>
         </div>
         <p className="mt-6 text-center text-sm text-brand-muted">
           Vous pourrez modifier vos choix à tout moment depuis votre espace.
@@ -277,8 +277,8 @@ export default function BienvenuePage() {
             </div>
 
             <div key={step} className="animate-step-in">
-              <p className="font-display text-sm font-semibold text-brand-emerald">Question {step + 1} sur {QUESTIONS.length}</p>
-              <h1 ref={headingRef} tabIndex={-1} className="mt-2 font-display text-3xl font-semibold leading-tight text-brand-forest outline-none sm:text-4xl">
+              <p className="font-display text-sm font-medium text-brand-emerald">Question {step + 1} sur {QUESTIONS.length}</p>
+              <h1 ref={headingRef} tabIndex={-1} className="mt-2 font-display text-3xl font-medium leading-tight text-brand-forest outline-none sm:text-4xl">
                 {current.title}
               </h1>
               <p className="mt-3 max-w-2xl text-brand-muted">{current.lead}</p>
@@ -291,8 +291,8 @@ export default function BienvenuePage() {
                     {INTEREST_GROUPS.map((group) => (
                       <fieldset key={group.institut}>
                         <legend className="flex flex-wrap items-baseline gap-x-2">
-                          <span className="font-display font-semibold text-brand-forest">{group.institut}</span>
-                          <span className="text-xs font-medium uppercase tracking-wide text-brand-muted">{group.label}</span>
+                          <span className="font-display font-medium text-brand-forest">{group.institut}</span>
+                          <span className="text-sm text-brand-muted">{group.label}</span>
                         </legend>
                         <div className="mt-3 grid gap-3 sm:grid-cols-2">
                           {group.interests.map((interest) => {
@@ -441,7 +441,7 @@ function ChoiceCard({ type, name, checked, onChange, title, description, icon, m
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block pr-7 font-display font-semibold text-brand-forest">{title}</span>
+        <span className="block pr-7 font-display font-medium text-brand-forest">{title}</span>
         <span className="mt-1 block text-sm leading-snug text-brand-muted">{description}</span>
         {meta && <span className="mt-3 inline-block rounded-full bg-brand-cream px-2.5 py-0.5 text-xs font-medium text-brand-forest dark:bg-white/10 dark:text-emerald-100">{meta}</span>}
       </span>

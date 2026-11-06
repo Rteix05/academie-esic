@@ -17,7 +17,7 @@ export default function PlanDuSitePage() {
       <div className="container-page mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {SITE_SECTIONS.map((section, i) => (
           <section key={section.title} className="card p-7" aria-labelledby={`plan-${i}`}>
-            <h2 id={`plan-${i}`} className="font-display text-lg font-semibold text-brand-forest">{section.title}</h2>
+            <h2 id={`plan-${i}`} className="font-display text-lg font-medium text-brand-forest">{section.title}</h2>
             <ul className="mt-4 space-y-2">
               {section.links.map((link) => (
                 <li key={link.href}>

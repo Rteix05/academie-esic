@@ -94,7 +94,7 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
                   <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
                     <Lock className="h-7 w-7" aria-hidden="true" />
                   </span>
-                  <p className="mt-4 font-display text-base font-semibold text-white">Contenu protégé</p>
+                  <p className="mt-4 font-display text-base font-medium text-white">Contenu protégé</p>
                   <p className="mt-1 text-sm text-emerald-100/70">Choisissez une option pour débloquer la vidéo</p>
                 </div>
               </div>
@@ -109,7 +109,7 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
 
         {mc.description && (
           <div className="card p-7 sm:p-9">
-            <h2 className="font-display text-xl font-semibold text-brand-forest">À propos de cette masterclass</h2>
+            <h2 className="font-display text-xl font-medium text-brand-forest">À propos de cette masterclass</h2>
             <div className="rich-text mt-4" dangerouslySetInnerHTML={{ __html: mc.description }} />
           </div>
         )}
@@ -124,7 +124,7 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
                 <Check className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>
-                <p className="font-display text-sm font-semibold text-brand-forest">Masterclass débloquée</p>
+                <p className="font-display text-sm font-medium text-brand-forest">Masterclass débloquée</p>
                 <p className="text-xs text-brand-muted">Accédez à votre contenu ci-dessous</p>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function PaywallGate({ mc }: PaywallGateProps) {
           </div>
         ) : (
           <>
-            <h3 className="font-display text-lg font-semibold text-brand-forest">Débloquer cette masterclass</h3>
+            <h3 className="font-display text-lg font-medium text-brand-forest">Débloquer cette masterclass</h3>
             <p className="mb-5 mt-1 text-sm text-brand-muted">Choisissez le format qui vous convient :</p>
             <BoutonPaywall
               masterclassId={Number(mc.id)}

@@ -22,7 +22,7 @@ export default function Logo({ inverted = false }: { inverted?: boolean }) {
       </span>
       {/* Pas de coupure à taille normale ; texte agrandi : le nom passe à la ligne plutôt que de déborder */}
       <span className="logo-text flex min-w-0 flex-col whitespace-nowrap leading-tight">
-        <span className={`font-display text-base font-semibold ${inverted ? 'text-white' : 'text-brand-forest dark:text-emerald-50'}`}>
+        <span className={`font-display text-base font-medium ${inverted ? 'text-white' : 'text-brand-forest dark:text-emerald-50'}`}>
           Académie E.S.I.C.
         </span>
         <span className={`logo-subtitle text-[length:calc(13px*var(--text-scale,1))] ${inverted ? 'text-emerald-200/70' : 'text-brand-muted dark:text-gray-400'}`}>

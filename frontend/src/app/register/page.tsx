@@ -79,7 +79,7 @@ export default function RegisterPage() {
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
             <Check className="h-8 w-8" aria-hidden="true" />
           </span>
-          <h2 className="mt-4 font-display text-xl font-semibold text-brand-forest">Inscription réussie !</h2>
+          <h2 className="mt-4 font-display text-xl font-medium text-brand-forest">Compte créé</h2>
           <p className="mt-2 text-sm text-brand-muted" role="status">Préparation de votre espace…</p>
         </div>
       ) : (

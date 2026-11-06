@@ -15,14 +15,14 @@ export default function MentionsLegalesPage() {
 
         <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-14 text-center sm:px-12 dark:bg-[#10231a]">
           <Link href="/" className="relative text-sm font-medium text-brand-muted transition hover:text-brand-emerald">← Retour à l'accueil</Link>
-          <h1 className="relative mt-5 font-display text-4xl font-semibold text-brand-forest sm:text-5xl">Mentions légales</h1>
+          <h1 className="relative mt-5 font-display text-4xl font-medium text-brand-forest sm:text-5xl">Mentions légales</h1>
           <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : octobre 2026</p>
         </div>
 
         <div className="card mx-auto mt-10 max-w-3xl space-y-10 p-8 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted sm:p-12">
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">1. Éditeur du site</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">1. Éditeur du site</h2>
             <p>
               Le site <strong>esich.fr</strong> est édité par <strong>{L.structure}</strong>,{' '}
               {L.formeJuridique?.toLowerCase()}, qui porte l'<strong>{L.nom}</strong>.<br />
@@ -35,7 +35,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">2. Hébergement</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">2. Hébergement</h2>
             <ul className="list-disc space-y-2 pl-5">
               {L.hebergeurs.map((h) => (
                 <li key={h.nom}>
@@ -49,7 +49,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">3. Propriété intellectuelle</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">3. Propriété intellectuelle</h2>
             <p>
               L'ensemble des contenus présents sur ce site (textes, images, vidéos, logos, formations, masterclass)
               est la propriété exclusive de l'Académie E.S.I.C. ou de ses partenaires, et est protégé par les lois
@@ -62,7 +62,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">4. Données personnelles</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">4. Données personnelles</h2>
             <p>
               L'Académie E.S.I.C. collecte et traite des données à caractère personnel dans le cadre de la gestion
               des comptes utilisateurs et des transactions. Conformément au Règlement Général sur la Protection des
@@ -81,7 +81,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">5. Cookies</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">5. Cookies</h2>
             <p>
               Ce site utilise uniquement un cookie technique nécessaire à la connexion au compte. Aucun cookie
               publicitaire ni de mesure d'audience n'est utilisé. Les lecteurs vidéo de services tiers (YouTube,
@@ -94,7 +94,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">6. Limitation de responsabilité</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">6. Limitation de responsabilité</h2>
             <p>
               L'Académie E.S.I.C. s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées
               sur ce site. Toutefois, elle ne peut garantir l'exactitude, la précision ou l'exhaustivité des
@@ -104,7 +104,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold text-brand-forest">7. Droit applicable</h2>
+            <h2 className="mb-3 font-display text-lg font-medium text-brand-forest">7. Droit applicable</h2>
             <p>
               Les présentes mentions légales sont soumises au droit français. En cas de litige,
               les tribunaux français seront seuls compétents.

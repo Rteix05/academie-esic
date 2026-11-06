@@ -84,12 +84,12 @@ export default async function FormationDetailPage({ params }: { params: Promise<
         </div>
 
         <aside className="card p-7 lg:sticky lg:top-28">
-          <h2 className="font-display text-lg font-semibold text-brand-forest">En bref</h2>
+          <h2 className="font-display text-lg font-medium text-brand-forest">En bref</h2>
           {formation.trainer && (
             <div className="mt-5 flex items-center gap-4 rounded-3xl bg-brand-mint p-4 dark:bg-white/5">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-forest font-display text-sm font-semibold text-white" aria-hidden="true">{initials}</span>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-forest font-display text-sm font-medium text-white" aria-hidden="true">{initials}</span>
               <div>
-                <p className="font-display text-sm font-semibold text-brand-forest">{formation.trainer}</p>
+                <p className="font-display text-sm font-medium text-brand-forest">{formation.trainer}</p>
                 <p className="text-xs text-brand-muted">Formateur</p>
               </div>
             </div>
@@ -121,7 +121,7 @@ export default async function FormationDetailPage({ params }: { params: Promise<
           sharedIds={new Set(others.map((i) => `${i.kind}-${i.id}`))}
         />
         <Carousel
-          title="Découvrez aussi nos masterclass"
+          title="Masterclasses à suivre aussi"
           subtitle="Des enseignements intensifs pour aller plus loin"
           items={masterclasses}
           action={{ href: '/masterclass', label: 'Toutes les masterclass' }}
@@ -135,7 +135,7 @@ export default async function FormationDetailPage({ params }: { params: Promise<
 function ContentBlock({ icon, title, html }: { icon: React.ReactNode; title: string; html: string }) {
   return (
     <section className="card p-7 sm:p-9">
-      <h2 className="flex items-center gap-3 font-display text-xl font-semibold text-brand-forest">
+      <h2 className="flex items-center gap-3 font-display text-xl font-medium text-brand-forest">
         <span className="icon-tile h-10 w-10 rounded-xl" aria-hidden="true">{icon}</span>
         {title}
       </h2>

@@ -94,7 +94,7 @@ export function A11yControls() {
   return (
     <div className="space-y-5">
       <div role="group" aria-labelledby={sizeLabelId}>
-        <p id={sizeLabelId} className="font-display text-sm font-semibold text-brand-forest dark:text-emerald-100">Taille du texte</p>
+        <p id={sizeLabelId} className="font-display text-sm font-medium text-brand-forest dark:text-emerald-100">Taille du texte</p>
         <div className="mt-3 flex items-center justify-between gap-3">
           <button
             type="button"
@@ -106,7 +106,7 @@ export function A11yControls() {
             <Minus className="h-4 w-4" aria-hidden="true" />
           </button>
           {/* Taille annoncée aux lecteurs d'écran à chaque changement */}
-          <output aria-live="polite" className="font-display text-base font-semibold text-brand-forest dark:text-emerald-100">
+          <output aria-live="polite" className="font-display text-base font-medium text-brand-forest dark:text-emerald-100">
             <span className="sr-only">Taille du texte : </span>{percent} %
           </output>
           <button
@@ -206,7 +206,7 @@ export function A11yMenuButton({ className = '' }: { className?: string }) {
           id={panelId}
           className="absolute right-0 z-50 mt-3 w-80 max-w-[calc(100vw-2.5rem)] rounded-3xl border border-brand-forest/5 bg-white p-5 shadow-float dark:border-white/10 dark:bg-[#18291e]"
         >
-          <p className="mb-4 font-display text-base font-semibold text-brand-forest dark:text-emerald-100">Réglages d&apos;affichage</p>
+          <p className="mb-4 font-display text-base font-medium text-brand-forest dark:text-emerald-100">Réglages d&apos;affichage</p>
           <A11yControls />
         </div>
       )}

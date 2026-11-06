@@ -70,7 +70,7 @@ export default function MasterclassPage() {
             <li key={titre} className="card flex items-center gap-4 px-5 py-4">
               <span className="icon-tile h-11 w-11 shrink-0"><Icon className="h-5 w-5" aria-hidden="true" /></span>
               <span>
-                <span className="block font-display text-sm font-semibold text-brand-forest">{titre}</span>
+                <span className="block font-display text-sm font-medium text-brand-forest">{titre}</span>
                 <span className="block text-xs text-brand-muted">{desc}</span>
               </span>
             </li>
@@ -81,7 +81,7 @@ export default function MasterclassPage() {
       <div id="catalogue" className="container-page scroll-mt-24 pt-6">
         {loading ? (
           <div className="space-y-10 pt-4">
-            <CarouselSkeleton featureFirst />
+            <CarouselSkeleton />
             <CarouselSkeleton />
           </div>
         ) : error ? (

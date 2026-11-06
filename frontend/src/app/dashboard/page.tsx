@@ -132,8 +132,8 @@ export default function DashboardPage() {
         <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 sm:py-12 dark:bg-[#10231a]">
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <span className="eyebrow bg-white dark:bg-white/5">Mon espace</span>
-              <h1 className="mt-4 font-display text-3xl font-semibold text-brand-forest sm:text-4xl">
+              <span className="eyebrow">Mon espace</span>
+              <h1 className="mt-4 font-display text-3xl font-medium text-brand-forest sm:text-4xl">
                 Bonjour{firstName ? ` ${firstName}` : ''} <span aria-hidden="true">👋</span>
               </h1>
               <p className="mt-2 text-brand-muted">Reprenez votre apprentissage là où vous l&apos;avez laissé.</p>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                 <div key={label} className="flex items-center gap-3 rounded-3xl bg-white px-5 py-4 shadow-card dark:bg-white/5">
                   <span className="icon-tile h-11 w-11 rounded-2xl"><Icon className="h-5 w-5" aria-hidden="true" /></span>
                   <span>
-                    <span className="block font-display text-2xl font-semibold leading-none text-brand-forest">{value}</span>
+                    <span className="block font-display text-2xl font-medium leading-none text-brand-forest">{value}</span>
                     <span className="text-xs text-brand-muted">{label}</span>
                   </span>
                 </div>
@@ -165,7 +165,7 @@ export default function DashboardPage() {
             <div className="flex items-start gap-4">
               <span className="icon-tile h-12 w-12 shrink-0"><Compass className="h-6 w-6" aria-hidden="true" /></span>
               <div>
-                <h2 className="font-display text-lg font-semibold text-brand-forest">Trouvez les formations faites pour vous</h2>
+                <h2 className="font-display text-lg font-medium text-brand-forest">Trouvez les formations faites pour vous</h2>
                 <p className="mt-1 text-sm text-brand-muted">Trois questions, moins d&apos;une minute : nous vous proposons une sélection adaptée à vos envies et à votre niveau.</p>
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                             {formation.category}
                             {formation.access === 'institut' && <>{formation.category && ' · '}Incluse dans votre accès complet</>}
                           </span>
-                          <h3 className="truncate font-display font-semibold text-brand-forest">{formation.title}</h3>
+                          <h3 className="truncate font-display font-medium text-brand-forest">{formation.title}</h3>
                         </div>
                       </div>
                       <Link href={`/dashboard/cours/${formation.id}`} className="btn-primary shrink-0 py-2 pl-4" aria-label={`Reprendre la formation ${formation.title}`}>
@@ -245,7 +245,7 @@ export default function DashboardPage() {
                     return (
                       <li key={mc.id} className="rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <h3 className="font-display font-semibold text-brand-forest">{mc.title}</h3>
+                          <h3 className="font-display font-medium text-brand-forest">{mc.title}</h3>
                           {mc.options.includes('pack') && (
                             <span className="chip bg-brand-sage"><Package className="h-3.5 w-3.5" aria-hidden="true" /> Pack complet</span>
                           )}
@@ -306,7 +306,7 @@ export default function DashboardPage() {
                           {p.reference && <span className="block font-mono text-[length:calc(11px*var(--text-scale,1))] text-brand-muted">Réf. {p.reference}</span>}
                         </td>
                         <td className="px-4 py-4"><span className="chip">{PRODUCT_LABELS[p.productType]}</span></td>
-                        <td className="px-4 py-4 font-display font-semibold text-brand-forest">{formatAmount(p.amount, p.currency)}</td>
+                        <td className="px-4 py-4 font-display font-medium text-brand-forest">{formatAmount(p.amount, p.currency)}</td>
                         <td className="px-4 py-4 text-brand-muted">{new Date(p.purchasedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                         <td className="px-4 py-4 text-right">{p.hasInvoice && <InvoiceButton paymentId={p.id} label={p.label} />}</td>
                       </tr>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
 function Panel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <section className="card p-6 sm:p-7">
-      <h2 className="mb-5 flex items-center gap-3 font-display text-lg font-semibold text-brand-forest">
+      <h2 className="mb-5 flex items-center gap-3 font-display text-lg font-medium text-brand-forest">
         <span className="icon-tile h-10 w-10 rounded-xl" aria-hidden="true">{icon}</span>
         {title}
       </h2>
@@ -374,7 +374,7 @@ function InstitutPackList({ packs }: { packs: MyInstitutPack[] }) {
       {packs.map((p) => (
         <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
           <div>
-            <h3 className="font-display font-semibold text-brand-forest">{p.institut}</h3>
+            <h3 className="font-display font-medium text-brand-forest">{p.institut}</h3>
             <p className="mt-1 text-sm text-brand-muted">Toutes les formations de l&apos;institut, à vie · acheté le {formatDate(p.purchasedAt)}</p>
           </div>
           <Link href="/formations" className="btn-secondary py-2">Voir les formations</Link>

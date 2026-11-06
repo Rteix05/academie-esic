@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 /**
- * En-tête commun des pages intérieures : panneau arrondi vert pâle
- * (même langage visuel que le hero de l'accueil).
+ * En-tête commun des pages intérieures : titre et introduction alignés à gauche, sur le fond de la page,
+ * séparés du contenu par un filet fin.
  */
 export function PageHeader({
   eyebrow,
@@ -17,17 +17,12 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <section className="container-page pt-4">
-      <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-16 text-center sm:px-12 sm:py-20 dark:bg-[#10231a]">
-        <div className="relative mx-auto max-w-3xl">
-          {eyebrow && (
-            <span className="eyebrow bg-white dark:bg-white/5">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              {eyebrow}
-            </span>
-          )}
-          <h1 className="mt-5 font-display text-4xl font-semibold leading-tight text-brand-forest sm:text-5xl">{title}</h1>
-          {lead && <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-brand-muted sm:text-lg">{lead}</p>}
+    <section className="border-b border-brand-forest/10 dark:border-white/10">
+      <div className="container-page py-14 sm:py-20">
+        <div className="max-w-3xl">
+          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+          <h1 className={`${eyebrow ? 'mt-3' : ''} font-display text-4xl font-medium leading-[1.1] tracking-[-0.03em] text-brand-forest sm:text-5xl lg:text-6xl`}>{title}</h1>
+          {lead && <p className="mt-5 max-w-2xl text-base leading-relaxed text-brand-muted sm:text-lg">{lead}</p>}
           {children && <div className="mt-8">{children}</div>}
         </div>
       </div>
@@ -64,8 +59,8 @@ export function EmptyState({ icon, title, children }: { icon: ReactNode; title: 
   return (
     <div className="card mx-auto max-w-lg p-12 text-center">
       <span className="icon-tile mx-auto" aria-hidden="true">{icon}</span>
-      <p className="mt-5 font-display text-lg font-semibold text-brand-forest">{title}</p>
-      {children && <div className="mt-2 text-sm text-brand-muted">{children}</div>}
+      <p className="mt-5 font-display text-lg font-medium text-brand-forest">{title}</p>
+      {children && <div className="mt-2 text-base text-brand-muted">{children}</div>}
     </div>
   );
 }

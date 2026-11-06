@@ -15,7 +15,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-500">
           <AlertTriangle className="h-9 w-9" aria-hidden="true" />
         </span>
-        <h1 className="mt-6 font-display text-3xl font-semibold text-brand-forest">Une erreur est survenue</h1>
+        <h1 className="mt-6 font-display text-3xl font-medium text-brand-forest">Une erreur est survenue</h1>
         <p className="mx-auto mt-3 max-w-md text-brand-muted">
           Nous nous excusons pour la gêne. Vous pouvez réessayer ou revenir à l&apos;accueil.
         </p>

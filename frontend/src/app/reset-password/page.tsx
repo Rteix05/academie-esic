@@ -77,7 +77,7 @@ function ResetPasswordForm() {
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
             <Check className="h-8 w-8" aria-hidden="true" />
           </span>
-          <h2 className="mt-4 font-display text-xl font-semibold text-brand-forest">Mot de passe réinitialisé !</h2>
+          <h2 className="mt-4 font-display text-xl font-medium text-brand-forest">Mot de passe réinitialisé !</h2>
           <p className="mt-2 text-sm text-brand-muted">Redirection vers la page de connexion…</p>
         </div>
       ) : (

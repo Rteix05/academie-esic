@@ -73,14 +73,14 @@ export default function PaymentSuccessPopup() {
         {status === 'loading' ? (
           <div className="relative flex flex-col items-center gap-4 py-6 text-center" role="status">
             <Loader2 className="h-10 w-10 animate-spin text-brand-emerald" aria-hidden="true" />
-            <p id="payment-popup-title" className="font-display font-semibold text-brand-forest">Confirmation du paiement…</p>
+            <p id="payment-popup-title" className="font-display font-medium text-brand-forest">Confirmation du paiement…</p>
           </div>
         ) : status === 'success' ? (
           <div className="relative flex flex-col items-center gap-3 text-center">
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-sage text-brand-forest">
               <CheckCircle className="h-8 w-8" aria-hidden="true" />
             </span>
-            <h2 id="payment-popup-title" className="mt-2 font-display text-xl font-semibold text-brand-forest">Paiement confirmé !</h2>
+            <h2 id="payment-popup-title" className="mt-2 font-display text-xl font-medium text-brand-forest">Paiement confirmé !</h2>
             <p className="text-sm leading-relaxed text-brand-muted">
               Votre achat est confirmé. Retrouvez votre contenu dans votre espace personnel.
             </p>
@@ -97,7 +97,7 @@ export default function PaymentSuccessPopup() {
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500">
               <XCircle className="h-8 w-8" aria-hidden="true" />
             </span>
-            <h2 id="payment-popup-title" className="mt-2 font-display text-xl font-semibold text-brand-forest">Paiement non finalisé</h2>
+            <h2 id="payment-popup-title" className="mt-2 font-display text-xl font-medium text-brand-forest">Paiement non finalisé</h2>
             <p className="text-sm leading-relaxed text-brand-muted">
               Votre paiement n&apos;a pas été complété. Aucun montant n&apos;a été débité.
             </p>

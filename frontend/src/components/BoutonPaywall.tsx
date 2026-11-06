@@ -93,7 +93,7 @@ export default function BoutonPaywall({ masterclassId, prices }: BoutonPaywallPr
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-mint text-brand-emerald dark:bg-white/5"><Icon className="h-4 w-4" aria-hidden="true" /></span>
             <span className="font-display">{label}</span>
           </span>
-          <span className="font-display font-semibold">{loadingOption === key ? '…' : `${price} €`}</span>
+          <span className="font-display font-medium">{loadingOption === key ? '…' : `${price} €`}</span>
         </button>
       ) : null)}
 
@@ -104,15 +104,15 @@ export default function BoutonPaywall({ masterclassId, prices }: BoutonPaywallPr
           disabled={loadingOption !== null}
           className="relative mt-2 flex w-full items-center justify-between rounded-2xl bg-brand-forest px-4 py-4 text-sm text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-brand-emerald disabled:opacity-50"
         >
-          <span className="absolute -top-2.5 right-4 rounded-full bg-amber-400 px-2.5 py-0.5 font-display text-[length:calc(10px*var(--text-scale,1))] font-semibold text-brand-forest">Recommandé</span>
+          <span className="absolute -top-2.5 right-4 rounded-full bg-amber-400 px-2.5 py-0.5 font-display text-[length:calc(10px*var(--text-scale,1))] font-medium text-brand-forest">Recommandé</span>
           <span className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15"><Package className="h-4 w-4" aria-hidden="true" /></span>
             <span className="text-left">
-              <span className="block font-display font-semibold">Pack complet</span>
+              <span className="block font-display font-medium">Pack complet</span>
               <span className="block text-xs text-emerald-100/80">Vidéo + PDF</span>
             </span>
           </span>
-          <span className="font-display text-base font-semibold">{loadingOption === 'pack' ? '…' : `${prices.pack} €`}</span>
+          <span className="font-display text-base font-medium">{loadingOption === 'pack' ? '…' : `${prices.pack} €`}</span>
         </button>
       )}
 

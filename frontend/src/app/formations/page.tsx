@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight, BookOpen, PlayCircle, Sparkles } from 'lucide-react';
+import { BookOpen, PlayCircle } from 'lucide-react';
 import { PARCOURS } from '@/lib/parcours';
 import { apiFetch } from '@/lib/api';
 import { collection, formationToItem, pickFeatured, rowsByCategory, type CatalogItem, type CatalogRow, type FormationDto } from '@/lib/catalog';
@@ -64,7 +63,7 @@ export default function FormationsPage() {
     fetchMyInstitutPacks().then((packs) => setOwnedPacks(packs.map((p) => p.pack)));
   }, []);
 
-  const { featured, owned, all, sections, sharing } = useMemo(() => {
+  const { featured, owned, sections, sharing } = useMemo(() => {
     // Seules les formations publiées sont proposées dans le catalogue
     const byId = new Map<number, FormationDto>(formations.map((f) => [f.id, f]));
     const items = formations.map(formationToItem).filter((i) => i.available);
@@ -86,19 +85,16 @@ export default function FormationsPage() {
       ).map((row) => ({ ...row, key: `${inst.key}-${row.key}` })),
     })).filter((s) => s.rows.length > 0);
 
-    // Rangée d'ouverture : tout le catalogue, hors formation déjà mise en avant dans le bandeau
-    const allItems = items.filter((i) => i.id !== featuredItem?.id);
 
+    // Une grille par institut : ses formations, classées dans l'ordre éditorial des sous-catégories
     const orderedRows = [
       { key: 'owned', items: ownedItems },
-      { key: 'all', items: allItems },
-      ...instituteSections.flatMap((s) => s.rows),
+      ...instituteSections.map((s) => ({ key: s.key, items: s.rows.flatMap((r) => r.items as CatalogItem[]) })),
     ];
 
     return {
       featured: featuredItem,
       owned: ownedItems,
-      all: allItems,
       sections: instituteSections,
       sharing: assignSharedIds(orderedRows, featuredItem ? [itemKey(featuredItem)] : []),
     };
@@ -107,13 +103,13 @@ export default function FormationsPage() {
   const anchor = (key: string) => `rangee-${key.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-')}`;
 
   return (
-    <div className="overflow-x-hidden pb-8">
+    <div className="pb-20">
       {/* Titre de la page, présent avant le chargement du catalogue (le hero porte un h2) */}
       <h1 className="sr-only">Formations</h1>
       {loading ? (
         <BillboardSkeleton />
       ) : featured ? (
-        <Billboard item={featured} eyebrow="Formation à la une" catalogLabel="Parcourir le catalogue" />
+        <Billboard item={featured} eyebrow="Formation à la une" catalogLabel="Voir le catalogue" />
       ) : (
         <PageHeader
           eyebrow="Catalogue officiel"
@@ -123,33 +119,26 @@ export default function FormationsPage() {
       )}
 
       {/* Les trois parcours de formation */}
-      <section aria-labelledby="parcours-titre" className="container-page pt-10">
-        <span className="eyebrow">Nos parcours</span>
-        <h2 id="parcours-titre" className="mt-2 font-display text-2xl font-semibold text-brand-forest sm:text-3xl">
-          Trois étapes pour grandir dans la Parole
-        </h2>
+      <section aria-labelledby="parcours-titre" className="container-page pt-14 sm:pt-20">
+        <h2 id="parcours-titre" className="section-title">Un parcours en trois étapes</h2>
         <ol className="mt-8 grid gap-6 md:grid-cols-3">
           {PARCOURS.map(({ slug, titre, resume, icon: Icon }, i) => (
             <li key={slug} className="card flex flex-col p-7">
               <div className="flex items-center justify-between">
                 <span className="icon-tile"><Icon className="h-6 w-6" aria-hidden="true" /></span>
-                <span className="font-display text-sm font-semibold text-brand-emerald">Étape {i + 1}</span>
+                <span className="font-display text-sm font-medium text-brand-emerald">Étape {i + 1}</span>
               </div>
-              <h3 className="mt-6 font-display text-lg font-semibold text-brand-forest">{titre}</h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-brand-muted">{resume}</p>
-              <Link href="/register" className="btn-primary mt-6 self-start">
-                M&apos;inscrire
-                <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
-              </Link>
+              <h3 className="mt-6 font-display text-lg font-medium text-brand-forest">{titre}</h3>
+              <p className="mt-3 flex-1 text-base leading-relaxed text-brand-muted">{resume}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <div id="catalogue" className="container-page scroll-mt-24 pt-12">
+      <div id="catalogue" className="container-page scroll-mt-24 pt-20">
         {loading && (
           <div className="space-y-10 pt-4">
-            <CarouselSkeleton featureFirst />
+            <CarouselSkeleton />
             <CarouselSkeleton />
           </div>
         )}
@@ -163,9 +152,9 @@ export default function FormationsPage() {
 
         {!loading && !error && sections.length > 0 && (
           <>
-            <CategoryNav rows={sections.flatMap((s) => s.rows).map((r) => ({ id: anchor(r.key), title: r.title, count: r.items.length }))} />
+            <CategoryNav rows={sections.map((s) => ({ id: anchor(s.key), title: s.key, count: s.rows.reduce((n, r) => n + r.items.length, 0) }))} />
 
-            <div className="mt-6 space-y-10">
+            <div className="mt-12 space-y-16">
               {owned.length > 0 && (
                 <Carousel
                   title="Reprendre mes formations"
@@ -177,34 +166,20 @@ export default function FormationsPage() {
                 />
               )}
 
-              <Carousel
-                id="rangee-toutes"
-                title="Toutes les formations"
-                subtitle="Parcourez l'ensemble du catalogue"
-                icon={<Sparkles className="h-5 w-5" />}
-                items={all}
-                featureFirst={all.length >= 3}
-                sharedIds={sharing.get('all')}
-              />
-
               {sections.map((section) => (
-                <div key={section.key} className="space-y-8">
-                  <header className="border-t border-brand-forest/5 pt-8 first:border-0 first:pt-0 dark:border-white/10">
+                <div key={section.key} id={anchor(section.key)} className="scroll-mt-28 space-y-8">
+                  <header className="border-t border-brand-forest/10 pt-12 dark:border-white/10">
                     <span className="eyebrow">{section.subtitle}</span>
-                    <h2 className="mt-2 font-display text-2xl font-semibold text-brand-forest sm:text-3xl">{section.key}</h2>
+                    <h2 className="section-title mt-2">{section.key}</h2>
                   </header>
+                  <Carousel
+                    title={`Formations de l'${section.key}`}
+                    hideTitle
+                    items={section.rows.flatMap((r: CatalogRow) => r.items as CatalogItem[])}
+                    sharedIds={sharing.get(section.key)}
+                  />
                   {offers.filter((o) => o.institut === section.key).map((offer) => (
                     <InstitutPackCard key={offer.pack} offer={offer} owned={ownedPacks.includes(offer.pack)} />
-                  ))}
-                  {section.rows.map((row: CatalogRow) => (
-                    <Carousel
-                      key={row.key}
-                      id={anchor(row.key)}
-                      title={row.title}
-                      items={row.items as CatalogItem[]}
-                      featureFirst={row.items.length >= 3}
-                      sharedIds={sharing.get(row.key)}
-                    />
                   ))}
                 </div>
               ))}

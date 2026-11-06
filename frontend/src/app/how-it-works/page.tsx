@@ -27,9 +27,9 @@ export default function HowItWorksPage() {
         <ol className="grid gap-6 md:grid-cols-3">
           {etapes.map(({ icon: Icon, titre, desc }, i) => (
             <li key={titre} className="card-hover relative p-8">
-              <span className="absolute right-6 top-6 font-display text-5xl font-semibold text-brand-sage dark:text-white/10" aria-hidden="true">{i + 1}</span>
+              <span className="absolute right-6 top-6 font-display text-5xl font-medium text-brand-sage dark:text-white/10" aria-hidden="true">{i + 1}</span>
               <span className="icon-tile"><Icon className="h-6 w-6" aria-hidden="true" /></span>
-              <h2 className="mt-6 font-display text-lg font-semibold text-brand-forest">{titre}</h2>
+              <h2 className="mt-6 font-display text-lg font-medium text-brand-forest">{titre}</h2>
               <p className="mt-2 text-sm leading-relaxed text-brand-muted">{desc}</p>
             </li>
           ))}

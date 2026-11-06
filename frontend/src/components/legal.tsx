@@ -8,7 +8,7 @@ export const legalLinkClass = 'font-medium text-brand-forest underline underline
 export function LegalArticle({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="scroll-mt-28">
-      <h2 id={id} className="mb-3 font-display text-lg font-semibold text-brand-forest">{title}</h2>
+      <h2 id={id} className="mb-3 font-display text-lg font-medium text-brand-forest">{title}</h2>
       <div className="space-y-3">{children}</div>
     </section>
   );
@@ -26,7 +26,7 @@ export function LegalList({ items }: { items: ReactNode[] }) {
 export function LegalToc({ label, articles }: { label: string; articles: { id: string; title: string }[] }) {
   return (
     <nav aria-label={label}>
-      <p className="font-display text-sm font-semibold text-brand-forest">Sommaire</p>
+      <p className="font-display text-sm font-medium text-brand-forest">Sommaire</p>
       <ol className="mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
         {articles.map((a) => (
           <li key={a.id}><a href={`#${a.id}`} className={legalLinkClass}>{a.title}</a></li>
