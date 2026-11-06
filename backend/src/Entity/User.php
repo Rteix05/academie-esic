@@ -46,6 +46,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resetTokenExpiresAt = null;
 
+    // Date d'inscription (inconnue pour les comptes créés avant son ajout)
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
     #[ORM\ManyToMany(targetEntity: Masterclass::class, inversedBy: 'users')]
     private Collection $masterclasses;
 
@@ -56,6 +60,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->masterclasses = new ArrayCollection();
         $this->formations    = new ArrayCollection();
+        $this->createdAt     = new \DateTimeImmutable();
         if (empty($this->roles)) {
             $this->roles = ['ROLE_USER'];
         }
@@ -245,5 +250,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $name = trim($this->firstName . ' ' . $this->lastName);
 
         return $name !== '' ? $name . ' <' . $this->email . '>' : (string) $this->email;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 }
