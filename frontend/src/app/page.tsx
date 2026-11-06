@@ -15,7 +15,7 @@ const atouts = [
 
 const valeurs = [
   { icon: BookOpen, titre: "Fidélité à la Parole", desc: "La Bible demeure notre référence absolue pour l'enseignement et la vie chrétienne.", tone: 'bg-brand-sage text-brand-forest' },
-  { icon: Feather,  titre: "Transformation",       desc: "Le savoir n'a de valeur que lorsqu'il produit une vie semblable à celle de Christ.", tone: 'bg-amber-100 text-amber-700' },
+  { icon: Feather,  titre: "Transformation",       desc: "Le savoir n'a de valeur que lorsqu'il produit une vie semblable à celle de Christ.", tone: 'bg-brand-emerald text-white' },
   { icon: Award,    titre: "Excellence",           desc: "Nous servons Dieu avec rigueur, ordre et professionnalisme.", tone: 'bg-brand-forest text-white' },
   { icon: Flame,    titre: "Service & Impact",     desc: "Chaque étudiant est formé pour édifier l'Église et influencer la société.", tone: 'bg-emerald-100 text-brand-emerald' },
 ];
