@@ -18,8 +18,6 @@ export default function AuthShell({ title, subtitle, children, footer }: {
       <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl gap-6 lg:grid-cols-2">
         {/* Panneau illustré */}
         <aside className="relative hidden overflow-hidden rounded-5xl bg-brand-forest p-12 text-white lg:flex lg:flex-col lg:justify-between">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/5" />
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-brand-emerald/20" />
 
           <div className="relative"><Logo inverted /></div>
 

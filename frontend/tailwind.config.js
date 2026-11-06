@@ -48,13 +48,15 @@ module.exports = {
         display: ['var(--font-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        '4xl': '2rem',
-        '5xl': '2.5rem',
+        // Arrondis « doux » : 20 px pour les cartes et cadres, 24 px pour les grands panneaux
+        '4xl': '1.25rem',
+        '5xl': '1.5rem',
       },
       boxShadow: {
-        soft:  '0 20px 50px -24px rgba(15, 41, 30, 0.25)',
-        card:  '0 10px 30px -12px rgba(15, 41, 30, 0.12)',
-        float: '0 30px 60px -20px rgba(15, 41, 30, 0.30)',
+        // Pas d'ombre au repos (filets fins) ; ombre douce au survol et sous les menus déroulants
+        soft:  '0 12px 24px -12px rgba(15, 41, 30, 0.10)',
+        card:  '0 0 #0000',
+        float: '0 16px 40px -16px rgba(15, 41, 30, 0.18)',
       },
       keyframes: {
         float: {
@@ -67,10 +69,9 @@ module.exports = {
         },
       },
       animation: {
-        // Une seule oscillation de moins de 5 s (RGAA 13.8 : pas de mouvement automatique prolongé)
-        float: 'float 3s ease-in-out 1',
-        // Apparition d'une étape (parcours guidé)
-        'step-in': 'step-in 0.35s ease-out both',
+        // Rien ne bouge tout seul : seules les interactions (survol, clic) animent l'interface
+        float: 'none',
+        'step-in': 'none',
       },
     },
   },

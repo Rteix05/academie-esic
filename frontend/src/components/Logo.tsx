@@ -13,7 +13,7 @@ export default function Logo({ inverted = false }: { inverted?: boolean }) {
       className="group flex min-w-0 items-center gap-3 rounded-2xl focus-visible:outline-offset-4"
     >
       <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:-rotate-6 ${
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
           inverted ? 'bg-brand-emerald text-white' : 'bg-brand-forest text-white dark:bg-brand-emerald'
         }`}
         aria-hidden="true"
@@ -25,7 +25,7 @@ export default function Logo({ inverted = false }: { inverted?: boolean }) {
         <span className={`font-display text-base font-semibold ${inverted ? 'text-white' : 'text-brand-forest dark:text-emerald-50'}`}>
           Académie E.S.I.C.
         </span>
-        <span className={`logo-subtitle text-[length:calc(11px*var(--text-scale,1))] font-medium ${inverted ? 'text-emerald-200/70' : 'text-brand-muted dark:text-gray-400'}`}>
+        <span className={`logo-subtitle text-[length:calc(13px*var(--text-scale,1))] ${inverted ? 'text-emerald-200/70' : 'text-brand-muted dark:text-gray-400'}`}>
           Formation chrétienne
         </span>
       </span>

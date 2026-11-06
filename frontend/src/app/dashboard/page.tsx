@@ -130,7 +130,6 @@ export default function DashboardPage() {
       {/* Bandeau d'accueil */}
       <section className="container-page pt-4">
         <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 sm:py-12 dark:bg-[#10231a]">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <span className="eyebrow bg-white dark:bg-white/5">Mon espace</span>

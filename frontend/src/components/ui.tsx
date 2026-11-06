@@ -19,8 +19,6 @@ export function PageHeader({
   return (
     <section className="container-page pt-4">
       <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-16 text-center sm:px-12 sm:py-20 dark:bg-[#10231a]">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-10 right-10 h-28 w-28 rounded-full border-[14px] border-brand-sage/70 dark:border-emerald-400/10" />
         <div className="relative mx-auto max-w-3xl">
           {eyebrow && (
             <span className="eyebrow bg-white dark:bg-white/5">

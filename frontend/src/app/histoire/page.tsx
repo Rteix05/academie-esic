@@ -68,8 +68,6 @@ export default function AProposPage() {
       {/* ── VERSET FONDATEUR ─────────────────────────────────────────────── */}
       <section className="container-page py-20">
         <figure className="relative overflow-hidden rounded-5xl bg-brand-forest px-8 py-16 text-center text-white shadow-float md:px-20">
-          <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/5" />
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-brand-emerald/20" />
           <Quote className="relative mx-auto h-9 w-9 text-emerald-300" aria-hidden="true" />
           <blockquote className="relative mx-auto mt-6 max-w-2xl font-display text-2xl font-medium leading-snug sm:text-3xl">
             « Afin que l&apos;homme de Dieu soit accompli et propre à toute bonne œuvre. »

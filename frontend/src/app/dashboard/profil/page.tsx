@@ -103,7 +103,6 @@ export default function ProfilPage() {
     <div className="pb-8">
       <section className="container-page pt-4">
         <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 dark:bg-[#10231a]">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
           <nav aria-label="Fil d'Ariane" className="relative flex items-center gap-2 text-sm text-brand-muted">
             <Link href="/dashboard" className="font-medium transition hover:text-brand-emerald">Mon espace</Link>
             <span aria-hidden="true">/</span>

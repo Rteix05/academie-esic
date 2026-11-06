@@ -23,7 +23,6 @@
   }
 
   html {
-    scroll-behavior: smooth;
     /* Taille du texte choisie par l'utilisateur (outil d'accessibilité) */
     --text-scale: 1;
   }
@@ -34,7 +33,6 @@
     font-size: calc(1rem * var(--text-scale));
     /* Texte agrandi : les mots longs passent à la ligne au lieu de déborder */
     overflow-wrap: break-word;
-    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   h1, h2, h3 {
@@ -183,95 +181,108 @@
   h1, h2, h3, h4 {
     font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.02em;
+    text-wrap: balance;
   }
 }
 
 /* ─── Composants du design system ──────────────────────────────────────────── */
+/* Un seul système : un bouton principal, un bouton secondaire, une carte, un style de lien.
+   Interface neutre (fond crème, encre vert profond) ; un seul accent, l'émeraude, pour l'action principale. */
 @layer components {
-  /* Conteneur de page */
+  /* Conteneur : contenu sur 1280 px maximum, mêmes bords gauche et droit sur toute la page */
   .container-page {
-    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+    @apply mx-auto w-full max-w-[1440px] px-6 sm:px-12 lg:px-20;
   }
 
-  /* Petit badge d'introduction au-dessus d'un titre */
+  /* Petit libellé au-dessus d'un titre (13 px, sans majuscules ni pastille) */
   .eyebrow {
-    @apply inline-flex max-w-full items-center gap-2 rounded-full bg-brand-sage/70 px-4 py-1.5 text-left font-display text-xs font-semibold leading-snug text-brand-forest;
+    @apply inline-flex max-w-full items-center gap-2 text-left font-sans text-[length:calc(13px*var(--text-scale,1))] font-medium leading-snug text-brand-emerald;
   }
   .dark .eyebrow {
-    @apply bg-emerald-400/10 text-emerald-300;
+    @apply text-emerald-300;
   }
 
-  /* Titre de section centré (style référence) */
+  /* Titre de section : aligné à gauche, grand, graisse moyenne, interlettrage serré */
   .section-title {
-    @apply font-display text-3xl font-semibold leading-tight text-brand-forest sm:text-4xl;
+    @apply font-display text-3xl font-medium leading-tight tracking-[-0.02em] text-brand-forest sm:text-4xl lg:text-5xl;
   }
   .section-lead {
-    @apply mt-4 text-base leading-relaxed text-brand-muted;
+    @apply mt-4 max-w-2xl text-base leading-relaxed text-brand-muted sm:text-lg;
   }
 
-  /* Boutons en pilule */
+  /* Boutons : 44 px de haut, libellé 16 px ; au survol le bouton monte d'1 px, au clic il s'enfonce */
   .btn {
-    @apply inline-flex items-center justify-center gap-3 rounded-full font-display text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-emerald/30 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-2.5 font-display text-base font-medium transition-[transform,background-color,border-color,color] duration-150 ease-[cubic-bezier(.2,.8,.2,1)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-emerald/30 disabled:cursor-not-allowed disabled:opacity-60;
   }
-  .btn-primary {
-    @apply btn bg-brand-forest py-3 pl-6 pr-2 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-emerald;
-  }
-  .btn-primary-plain {
-    @apply btn bg-brand-forest px-6 py-3 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-emerald;
-  }
+  /* Action principale : le seul bouton plein, en émeraude */
+  .btn-primary,
+  .btn-primary-plain,
   .btn-accent {
-    @apply btn bg-brand-emerald py-3 pl-6 pr-2 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-forest;
+    @apply btn bg-brand-emerald text-white hover:bg-[#065F46];
   }
+  /* Action secondaire : contour fin */
   .btn-secondary {
-    @apply btn border border-brand-forest/15 bg-white px-6 py-3 text-brand-forest hover:border-brand-emerald hover:text-brand-emerald;
+    @apply btn border border-brand-forest/20 bg-transparent text-brand-forest hover:border-brand-forest/45 hover:bg-brand-forest/[0.04];
   }
+  /* Lien d'action : texte seul, souligné au survol */
   .btn-ghost {
-    @apply btn px-4 py-3 text-brand-forest hover:text-brand-emerald;
+    @apply btn px-3 text-brand-forest underline-offset-4 hover:underline;
   }
-  /* Pastille ronde contenant l'icône, à droite du libellé */
+  /* Flèche du bouton : glisse de 3 px au survol */
   .btn-icon {
-    @apply flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-transform duration-200;
+    @apply inline-flex shrink-0 items-center justify-center transition-transform duration-150;
   }
-  .btn-primary:hover .btn-icon,
-  .btn-accent:hover .btn-icon {
-    @apply translate-x-0.5;
+  .btn:hover .btn-icon {
+    transform: translateX(3px);
   }
   .dark .btn-secondary {
-    @apply border-white/15 bg-transparent text-emerald-100;
+    @apply border-white/20 bg-transparent text-emerald-100 hover:border-white/40 hover:bg-white/5;
   }
 
-  /* Cartes */
+  /* Lien dans le texte */
+  .link {
+    @apply font-medium text-brand-emerald underline decoration-brand-emerald/30 underline-offset-4 transition-colors hover:decoration-brand-emerald;
+  }
+
+  /* Cartes : fond blanc, filet fin, sans ombre au repos */
   .card {
-    @apply rounded-4xl border border-brand-forest/5 bg-white shadow-card;
+    @apply rounded-4xl border border-brand-forest/10 bg-white;
   }
+  /* Carte cliquable : monte de 2 px, filet plus marqué et ombre douce au survol */
   .card-hover {
-    @apply card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft;
+    @apply card transition-[transform,border-color,box-shadow] duration-200 ease-[cubic-bezier(.2,.8,.2,1)] hover:-translate-y-0.5 hover:border-brand-forest/25 hover:shadow-soft;
   }
 
-  /* Pastille d'icône (cartes, atouts) */
+  /* Pastille d'icône */
   .icon-tile {
-    @apply flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-mint text-brand-emerald;
+    @apply flex h-12 w-12 items-center justify-center rounded-xl bg-brand-mint text-brand-emerald;
   }
   .dark .icon-tile {
     @apply bg-emerald-400/10 text-emerald-300;
   }
 
-  /* Champs de formulaire */
+  /* Champs de formulaire : 48 px, texte 16 px */
   .field-label {
-    @apply mb-2 block font-display text-sm font-medium text-brand-forest;
+    @apply mb-2 block font-sans text-sm font-medium text-brand-forest;
   }
   .field {
-    @apply w-full rounded-2xl border border-brand-forest/10 bg-brand-cream px-5 py-3.5 text-sm text-brand-ink placeholder:text-gray-400 transition focus:border-brand-emerald focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-emerald/15;
+    @apply min-h-12 w-full rounded-xl border border-brand-forest/15 bg-white px-4 py-3 text-base text-brand-ink placeholder:text-gray-400 transition focus:border-brand-emerald focus:outline-none focus:ring-[3px] focus:ring-brand-emerald/15;
   }
 
-  /* Badges de statut / catégorie */
+  /* Badges de catégorie */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-brand-mint px-3 py-1 font-display text-xs font-medium text-brand-forest;
+    @apply inline-flex items-center gap-1.5 rounded-full bg-brand-mint px-3 py-1 font-sans text-[length:calc(13px*var(--text-scale,1))] font-medium text-brand-forest;
   }
   .dark .chip {
     @apply bg-emerald-400/10 text-emerald-200;
   }
 }
+
+/* Survol et clic des boutons (pointeur précis uniquement) : monte d'1 px, s'enfonce au clic */
+@media (hover: hover) and (pointer: fine) {
+  .btn:not(:disabled):not(.btn-ghost):hover { transform: translateY(-1px); }
+}
+.btn:not(:disabled):not(.btn-ghost):active { transform: translateY(1px) scale(.985); }
 
 /* ─── Carrousels : défilement sans barre visible ───────────────────────────── */
 .no-scrollbar {
@@ -311,7 +322,7 @@
 
 /* ─── Contenu HTML riche (descriptions saisies dans l'admin) ───────────────── */
 .rich-text {
-  @apply space-y-4 text-[length:calc(15px*var(--text-scale,1))] leading-relaxed text-brand-muted;
+  @apply space-y-4 text-base leading-relaxed text-brand-ink/85;
 }
 .rich-text h1, .rich-text h2, .rich-text h3 {
   @apply font-display text-lg font-semibold text-brand-forest;
@@ -341,9 +352,13 @@
 .dark .btn-ghost            { color: rgb(214 237 222); }
 /* Le vert profond se confond avec le fond sombre : les actions principales passent en émeraude */
 .dark .btn-primary,
-.dark .btn-primary-plain    { background-color: #047857; } /* blanc sur emerald-700 : 5,5:1 */
+.dark .btn-primary-plain,
+.dark .btn-accent           { background-color: #047857; } /* blanc sur emerald-700 : 5,5:1 */
 .dark .btn-primary:hover,
-.dark .btn-primary-plain:hover { background-color: #065F46; } /* emerald-800 : 7,6:1 */
+.dark .btn-primary-plain:hover,
+.dark .btn-accent:hover     { background-color: #065F46; } /* emerald-800 : 7,6:1 */
+.dark .card,
+.dark .card-hover           { border-color: rgb(255 255 255 / 0.1); }
 /* Pastilles posées sur un visuel : fond opaque pour rester lisibles quelle que soit l'image */
 .dark .chip.bg-white\/95   { background-color: rgb(15 41 30 / 0.94); }
 

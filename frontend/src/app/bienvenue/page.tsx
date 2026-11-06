@@ -116,8 +116,6 @@ export default function BienvenuePage() {
   /* ─── Panneau des étapes ─────────────────────────────────────────────────── */
   const stepsPanel = (
     <aside className="relative hidden overflow-hidden rounded-5xl bg-brand-forest p-8 text-white lg:sticky lg:top-24 lg:flex lg:flex-col">
-      <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/5" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-brand-emerald/20" />
 
       <div className="relative">
         <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-semibold text-emerald-200">
@@ -183,8 +181,6 @@ export default function BienvenuePage() {
     return (
       <div className="container-page pb-16 pt-4">
         <section className="relative overflow-hidden rounded-5xl bg-brand-forest px-6 py-12 text-white sm:px-12 sm:py-14">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-white/5" />
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-brand-emerald/25" />
           <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="animate-step-in">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-semibold text-emerald-200">

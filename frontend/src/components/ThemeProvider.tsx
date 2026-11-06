@@ -18,12 +18,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Priorité : localStorage > préférence système
+    // Thème clair par défaut ; le mode sombre reste disponible au choix de l'utilisateur (mémorisé)
     const stored = localStorage.getItem('esic-theme') as Theme | null;
-    const system: Theme = window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-    const initial = stored ?? system;
+    const initial: Theme = stored === 'dark' ? 'dark' : 'light';
 
     setTheme(initial);
     document.documentElement.classList.toggle('dark', initial === 'dark');

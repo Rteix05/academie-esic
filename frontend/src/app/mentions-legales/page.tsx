@@ -14,7 +14,6 @@ export default function MentionsLegalesPage() {
       <section className="container-page pt-4">
 
         <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-14 text-center sm:px-12 dark:bg-[#10231a]">
-          <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-brand-sage/60 dark:bg-emerald-400/5" />
           <Link href="/" className="relative text-sm font-medium text-brand-muted transition hover:text-brand-emerald">← Retour à l'accueil</Link>
           <h1 className="relative mt-5 font-display text-4xl font-semibold text-brand-forest sm:text-5xl">Mentions légales</h1>
           <p className="relative mt-4 text-sm text-brand-muted">Dernière mise à jour : octobre 2026</p>

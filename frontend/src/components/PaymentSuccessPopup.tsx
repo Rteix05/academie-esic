@@ -62,7 +62,6 @@ export default function PaymentSuccessPopup() {
         aria-labelledby="payment-popup-title"
         className="relative w-full max-w-sm overflow-hidden rounded-4xl bg-white p-8 shadow-float dark:bg-[#18291e]"
       >
-        <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-brand-mint dark:bg-white/5" />
         <button
           onClick={close}
           aria-label="Fermer"

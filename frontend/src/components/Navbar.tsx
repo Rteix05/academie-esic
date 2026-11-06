@@ -137,22 +137,22 @@ export default function Navbar() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 bg-brand-cream/90 backdrop-blur-md dark:bg-[#0a1810]/90">
-      <div className="container-page flex min-h-16 items-center justify-between gap-4 py-2 sm:min-h-20">
+    <header className="sticky top-0 z-50 border-b border-brand-forest/10 bg-brand-cream dark:border-white/10 dark:bg-[#0a1810]">
+      <div className="container-page flex min-h-16 items-center justify-between gap-4 py-2 sm:min-h-[72px]">
         <Logo />
 
         {/* Navigation principale (bureau) */}
         <nav aria-label="Navigation principale" className="nav-desktop hidden xl:block">
-          <ul className="flex items-center gap-1">
+          <ul className="flex items-center gap-7">
             {NAV_LINKS.map(({ href, label }) => (
               <li key={href}>
                 <Link
                   href={href}
                   aria-current={isActive(href) ? 'page' : undefined}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 font-display text-sm font-medium transition-colors ${
+                  className={`relative whitespace-nowrap py-2 font-sans text-[length:calc(15px*var(--text-scale,1))] font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:origin-left after:bg-current after:transition-transform after:duration-200 ${
                     isActive(href)
-                      ? 'bg-brand-sage text-brand-forest dark:bg-emerald-400/10 dark:text-emerald-200'
-                      : 'text-brand-muted hover:text-brand-forest dark:text-gray-300 dark:hover:text-white'
+                      ? 'text-brand-forest after:scale-x-100 dark:text-emerald-100'
+                      : 'text-brand-muted after:scale-x-0 hover:text-brand-forest hover:after:scale-x-100 dark:text-gray-300 dark:hover:text-white'
                   }`}
                 >
                   {label}
@@ -172,14 +172,14 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label={themeLabel}
             title={themeLabel}
-            className="hidden h-11 w-11 items-center justify-center rounded-full text-brand-muted transition hover:bg-brand-sage hover:text-brand-forest sm:flex dark:text-gray-300 dark:hover:bg-emerald-400/10"
+            className="hidden h-11 w-11 items-center justify-center rounded-full text-brand-muted transition hover:bg-brand-forest/[0.06] hover:text-brand-forest sm:flex dark:text-gray-300 dark:hover:bg-white/10"
           >
             <ThemeIcon className="h-[18px] w-[18px]" aria-hidden="true" />
           </button>
 
           {/* Compte (tablette et bureau ; sur mobile, dans le menu burger) */}
           {isChecking ? (
-            <div className="nav-auth hidden h-11 w-40 animate-pulse rounded-full bg-brand-sage/60 md:block" aria-hidden="true" />
+            <div className="nav-auth hidden h-11 w-40 rounded-full bg-brand-forest/[0.06] md:block" aria-hidden="true" />
           ) : displayName ? (
             <div className="nav-auth relative hidden md:block" ref={dropdownRef}>
               <button
@@ -188,7 +188,7 @@ export default function Navbar() {
                 onClick={() => setDropdownOpen((o) => !o)}
                 aria-expanded={dropdownOpen}
                 aria-controls="user-menu"
-                className="flex items-center gap-2 rounded-full border border-brand-forest/10 bg-white py-1.5 pl-1.5 pr-4 font-display text-sm font-medium text-brand-forest shadow-card transition hover:border-brand-emerald/40 dark:border-white/10 dark:bg-white/5 dark:text-emerald-100"
+                className="flex items-center gap-2 rounded-full border border-brand-forest/10 bg-white py-1.5 pl-1.5 pr-4 font-display text-sm font-medium text-brand-forest transition hover:border-brand-forest/30 dark:border-white/10 dark:bg-white/5 dark:text-emerald-100"
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-forest font-display text-xs font-semibold text-white" aria-hidden="true">
                   {displayName.charAt(0).toUpperCase()}
@@ -201,9 +201,9 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div
                   id="user-menu"
-                  className="absolute right-0 z-50 mt-3 w-64 overflow-hidden rounded-3xl border border-brand-forest/5 bg-white p-2 shadow-float dark:border-white/10 dark:bg-[#18291e]"
+                  className="absolute right-0 z-50 mt-3 w-64 overflow-hidden rounded-xl border border-brand-forest/10 bg-white p-2 shadow-float dark:border-white/10 dark:bg-[#18291e]"
                 >
-                  <p className="mb-1 rounded-2xl bg-brand-mint px-4 py-3 dark:bg-white/5">
+                  <p className="mb-1 border-b border-brand-forest/10 px-4 py-3 dark:border-white/10">
                     <span className="block font-display text-xs font-medium text-brand-muted">Connecté en tant que</span>
                     <span className="mt-0.5 block truncate text-sm font-semibold text-brand-forest dark:text-emerald-100">{profile?.email}</span>
                   </p>
@@ -217,7 +217,7 @@ export default function Navbar() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-amber-800 transition hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                          className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-amber-800 transition hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
                         >
                           <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                           Back office<span className="sr-only"> (nouvelle fenêtre)</span>
@@ -228,7 +228,7 @@ export default function Navbar() {
                       <button
                         type="button"
                         onClick={handleLogout}
-                        className="mt-1 flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                        className="mt-1 flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                       >
                         <LogOut className="h-4 w-4" aria-hidden="true" />
                         Déconnexion
@@ -252,7 +252,7 @@ export default function Navbar() {
           <button
             ref={burgerRef}
             type="button"
-            className="nav-burger flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-brand-forest shadow-card transition hover:bg-brand-sage xl:hidden dark:bg-white/5 dark:text-emerald-100"
+            className="nav-burger flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-forest/20 text-brand-forest transition hover:border-brand-forest/45 hover:bg-brand-forest/[0.04] xl:hidden dark:border-white/20 dark:text-emerald-100"
             onClick={() => setDrawerOpen(true)}
             aria-expanded={drawerOpen}
             aria-controls="menu-mobile"
@@ -269,7 +269,7 @@ export default function Navbar() {
       <div className={`nav-drawer fixed inset-0 z-[60] xl:hidden ${drawerOpen ? '' : 'pointer-events-none invisible'}`}>
         <div
           aria-hidden="true"
-          className={`absolute inset-0 bg-brand-forest/40 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none ${drawerOpen ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-brand-forest/40 transition-opacity duration-300 motion-reduce:transition-none ${drawerOpen ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => closeDrawer()}
         />
         <div
@@ -281,29 +281,29 @@ export default function Navbar() {
           className={`absolute inset-y-0 right-0 flex w-full max-w-sm flex-col overflow-y-auto bg-brand-cream shadow-float transition-transform duration-300 motion-reduce:transition-none dark:bg-[#0f1f16] ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="flex h-16 shrink-0 items-center justify-between px-5 sm:h-20 sm:px-8">
-            <span className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-brand-muted" aria-hidden="true">Menu</span>
+            <span className="font-sans text-sm font-medium text-brand-muted" aria-hidden="true">Menu</span>
             <button
               type="button"
               onClick={() => closeDrawer()}
               aria-label="Fermer le menu"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand-forest shadow-card transition hover:bg-brand-sage dark:bg-white/5 dark:text-emerald-100"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-forest/20 text-brand-forest transition hover:border-brand-forest/45 dark:border-white/20 dark:text-emerald-100"
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
 
           <nav aria-label="Navigation principale" className="px-5 sm:px-8">
-            <ul className="flex flex-col gap-1">
+            <ul className="flex flex-col">
               {NAV_LINKS.map(({ href, label }) => (
                 <li key={href}>
                   <Link
                     href={href}
                     onClick={() => closeDrawer(false)}
                     aria-current={isActive(href) ? 'page' : undefined}
-                    className={`flex min-h-12 items-center rounded-2xl px-4 py-3 font-display text-lg font-medium transition ${
+                    className={`flex min-h-14 items-center border-b border-brand-forest/10 px-1 font-display text-lg font-medium transition dark:border-white/10 ${
                       isActive(href)
-                        ? 'bg-brand-sage text-brand-forest dark:bg-emerald-400/10 dark:text-emerald-200'
-                        : 'text-brand-ink hover:bg-brand-mint hover:text-brand-forest dark:text-gray-200 dark:hover:bg-white/5'
+                        ? 'text-brand-emerald dark:text-emerald-300'
+                        : 'text-brand-ink hover:text-brand-emerald dark:text-gray-200'
                     }`}
                   >
                     {label}
@@ -313,7 +313,7 @@ export default function Navbar() {
             </ul>
           </nav>
 
-          <section aria-labelledby="menu-affichage" className="mx-5 mt-6 rounded-3xl bg-white p-5 shadow-card sm:mx-8 dark:bg-white/5">
+          <section aria-labelledby="menu-affichage" className="mx-5 mt-8 rounded-xl border border-brand-forest/10 bg-white p-5 sm:mx-8 dark:border-white/10 dark:bg-white/5">
             <h2 id="menu-affichage" className="mb-4 font-display text-base font-semibold text-brand-forest dark:text-emerald-100">Affichage</h2>
             <A11yControls />
           </section>
@@ -334,11 +334,11 @@ export default function Navbar() {
                   <Link href="/dashboard" onClick={() => closeDrawer(false)} className="btn-secondary">Mon espace</Link>
                   <Link href="/dashboard/profil" onClick={() => closeDrawer(false)} className="btn-secondary">Mon profil</Link>
                   {isAdmin && (
-                    <a href="/admin" target="_blank" rel="noopener noreferrer" onClick={() => closeDrawer(false)} className="btn col-span-2 bg-amber-50 px-6 py-3 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400">
+                    <a href="/admin" target="_blank" rel="noopener noreferrer" onClick={() => closeDrawer(false)} className="btn-secondary col-span-2 text-amber-800 dark:text-amber-400">
                       Back office<span className="sr-only"> (nouvelle fenêtre)</span>
                     </a>
                   )}
-                  <button type="button" onClick={handleLogout} className="btn col-span-2 rounded-full bg-red-50 px-6 py-3 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400">
+                  <button type="button" onClick={handleLogout} className="btn-secondary col-span-2 text-red-700 dark:text-red-400">
                     <LogOut className="h-4 w-4" aria-hidden="true" /> Déconnexion
                   </button>
                 </div>
@@ -347,7 +347,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 py-3 font-display text-sm font-medium text-brand-muted transition hover:bg-brand-mint hover:text-brand-forest dark:text-gray-300 dark:hover:bg-white/5"
+              className="btn-ghost w-full text-brand-muted"
             >
               <ThemeIcon className="h-4 w-4" aria-hidden="true" />
               {themeLabel}
@@ -364,7 +364,7 @@ function MenuLink({ href, icon, onClick, children }: { href: string; icon: React
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-brand-ink transition hover:bg-brand-mint hover:text-brand-forest dark:text-gray-200 dark:hover:bg-white/5"
+      className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-brand-ink transition hover:bg-brand-mint hover:text-brand-forest dark:text-gray-200 dark:hover:bg-white/5"
     >
       <span aria-hidden="true">{icon}</span>
       {children}
