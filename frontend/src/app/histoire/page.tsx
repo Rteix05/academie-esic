@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const valeurs = [
   { icon: BookOpen, tone: 'bg-brand-sage text-brand-forest', title: 'Fidélité à la Parole de Dieu', desc: 'La Bible demeure notre référence absolue pour l\'enseignement et la vie chrétienne.' },
-  { icon: Sparkles, tone: 'bg-amber-100 text-amber-700',     title: 'Transformation du caractère', desc: 'Le savoir n\'a de valeur que lorsqu\'il produit une vie semblable à celle de Christ.' },
+  { icon: Sparkles, tone: 'bg-brand-emerald text-white', title: 'Transformation du caractère', desc: 'Le savoir n\'a de valeur que lorsqu\'il produit une vie semblable à celle de Christ.' },
   { icon: Award,    tone: 'bg-brand-forest text-white',      title: 'Excellence et discipline',    desc: 'Nous servons Dieu avec rigueur, ordre et professionnalisme.' },
   { icon: Flame,    tone: 'bg-emerald-100 text-brand-emerald', title: 'Service et impact',         desc: 'Chaque étudiant est formé pour édifier l\'Église et influencer positivement la société.' },
 ];
