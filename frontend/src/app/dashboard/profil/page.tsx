@@ -101,15 +101,15 @@ export default function ProfilPage() {
 
   return (
     <div className="pb-8">
-      <section className="container-page pt-4">
-        <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 dark:bg-[#10231a]">
+      <section className="border-b border-brand-forest/10 dark:border-white/10">
+        <div className="container-page py-12 sm:py-16">
           <nav aria-label="Fil d'Ariane" className="relative flex items-center gap-2 text-sm text-brand-muted">
             <Link href="/dashboard" className="font-medium transition hover:text-brand-emerald">Mon espace</Link>
             <span aria-hidden="true">/</span>
             <span aria-current="page" className="font-medium text-brand-forest">Mon profil</span>
           </nav>
           <div className="relative mt-6 flex items-center gap-5">
-            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-forest font-display text-2xl font-medium text-white ring-8 ring-white/70 dark:ring-white/10" aria-hidden="true">
+            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-forest font-display text-2xl font-medium text-white" aria-hidden="true">
               {initials}
             </span>
             <div>

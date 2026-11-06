@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, Clock, Pencil, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Clock, Pencil } from 'lucide-react';
 import { Spinner } from '@/components/ui';
 import { ContentCard } from '@/components/catalog/ContentCard';
 import { apiFetch, fetchMe } from '@/lib/api';
@@ -115,21 +115,16 @@ export default function BienvenuePage() {
 
   /* ─── Panneau des étapes ─────────────────────────────────────────────────── */
   const stepsPanel = (
-    <aside className="relative hidden overflow-hidden rounded-5xl bg-brand-forest p-8 text-white lg:sticky lg:top-24 lg:flex lg:flex-col">
+    <aside className="hidden rounded-4xl border border-brand-forest/10 bg-white p-8 lg:flex lg:flex-col dark:border-white/10 dark:bg-white/5">
+      <p className="eyebrow">{firstVisit ? 'Bienvenue à l’Académie' : 'Mes préférences'}</p>
+      <p className="mt-3 font-display text-2xl font-medium leading-snug text-brand-forest">
+        {firstVisit ? <>Construisons votre parcours{firstName ? `, ${firstName}` : ''}</> : 'Ajustez vos recommandations'}
+      </p>
+      <p className="mt-2 flex items-center gap-2 text-base text-brand-muted">
+        <Clock className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> 3 questions, moins d&apos;une minute
+      </p>
 
-      <div className="relative">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-medium text-emerald-200">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {firstVisit ? 'Bienvenue à l’Académie' : 'Mes préférences'}
-        </span>
-        <p className="mt-5 font-display text-2xl font-medium leading-snug">
-          {firstVisit ? <>Construisons votre parcours{firstName ? `, ${firstName}` : ''}</> : 'Ajustez vos recommandations'}
-        </p>
-        <p className="mt-2 flex items-center gap-2 text-sm text-emerald-100/80">
-          <Clock className="h-4 w-4" aria-hidden="true" /> 3 questions · moins d&apos;une minute
-        </p>
-      </div>
-
-      <nav aria-label="Étapes" className="relative mt-10">
+      <nav aria-label="Étapes" className="mt-8 border-t border-brand-forest/10 pt-6 dark:border-white/10">
         <ol className="space-y-1">
           {[...QUESTIONS.map((q) => q.short), 'Votre sélection'].map((label, i) => {
             const done = i < step;
@@ -137,22 +132,22 @@ export default function BienvenuePage() {
             const content = (
               <>
                 <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-medium transition ${
-                    done ? 'bg-brand-emerald text-white' : current ? 'bg-emerald-300 text-[#0F291E] ring-4 ring-emerald-300/20' : 'border border-white/25 text-white/60'
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-medium transition-colors ${
+                    done ? 'bg-brand-emerald text-white' : current ? 'border-2 border-brand-emerald text-brand-emerald' : 'border border-brand-forest/20 text-brand-muted dark:border-white/20'
                   }`}
                 >
                   {done ? <Check className="h-4 w-4" aria-hidden="true" /> : i + 1}
                 </span>
                 <span className="min-w-0 text-left">
-                  <span className={`block font-display text-sm font-medium ${current || done ? 'text-white' : 'text-white/60'}`}>{label}</span>
-                  {done && answers[i] && <span className="block truncate text-xs text-emerald-200/90">{answers[i]}</span>}
+                  <span className={`block text-base font-medium ${current || done ? 'text-brand-forest' : 'text-brand-muted'}`}>{label}</span>
+                  {done && answers[i] && <span className="block truncate text-sm text-brand-muted">{answers[i]}</span>}
                 </span>
               </>
             );
             return (
               <li key={label} aria-current={current ? 'step' : undefined}>
                 {done && step < RESULTS ? (
-                  <button type="button" onClick={() => setStep(i)} className="flex w-full items-center gap-4 rounded-2xl px-2 py-2 transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
+                  <button type="button" onClick={() => setStep(i)} className="flex w-full items-center gap-4 rounded-xl px-2 py-2 transition-colors hover:bg-brand-forest/[0.04]">
                     {content}
                     <span className="sr-only"> : modifier</span>
                   </button>
@@ -166,7 +161,7 @@ export default function BienvenuePage() {
       </nav>
 
       {step < RESULTS && (
-        <button type="button" onClick={skip} className="relative mt-10 self-start text-sm font-medium text-emerald-100/80 underline-offset-4 hover:text-white hover:underline">
+        <button type="button" onClick={skip} className="btn-ghost mt-8 self-start px-0 text-brand-muted">
           {firstVisit ? 'Passer cette étape' : 'Annuler'}
         </button>
       )}
@@ -180,38 +175,32 @@ export default function BienvenuePage() {
 
     return (
       <div className="container-page pb-16 pt-4">
-        <section className="relative overflow-hidden rounded-5xl bg-brand-forest px-6 py-12 text-white sm:px-12 sm:py-14">
-          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-            <div className="animate-step-in">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-display text-xs font-medium text-emerald-200">
-                <Check className="h-3.5 w-3.5" aria-hidden="true" /> C&apos;est noté{firstName ? `, ${firstName}` : ''}
-              </span>
-              <h1 ref={headingRef} tabIndex={-1} className="mt-5 font-display text-3xl font-medium leading-tight outline-none sm:text-4xl">
-                Votre sélection personnalisée
-              </h1>
-              <p className="mt-3 max-w-xl text-emerald-50/85">
-                {recommended.length > 0
-                  ? `${recommended.length} formation${recommended.length > 1 ? 's' : ''} choisie${recommended.length > 1 ? 's' : ''} pour vous, selon vos centres d'intérêt et votre niveau.`
-                  : "Aucune formation ne correspond encore exactement à vos choix : de nouvelles formations arrivent régulièrement. En attendant, parcourez tout le catalogue."}
-              </p>
-              <ul className="mt-6 flex flex-wrap gap-2" aria-label="Vos choix">
-                {prefs.interests.map((i) => (
-                  <li key={i} className="rounded-full border border-white/20 px-3 py-1 text-xs font-medium text-white">{i}</li>
-                ))}
-                {level && <li className="rounded-full bg-brand-emerald px-3 py-1 text-xs font-medium">{level.title}</li>}
-                {goal && <li className="rounded-full bg-amber-300 px-3 py-1 text-xs font-semibold text-[#0F291E]">Objectif : {goal.title}</li>}
-              </ul>
-            </div>
-            <button type="button" onClick={() => setStep(0)} className="btn self-start border border-white/25 px-5 py-2.5 text-white hover:bg-white/10 lg:self-end">
-              <Pencil className="h-4 w-4" aria-hidden="true" /> Modifier mes choix
-            </button>
+        <section className="grid gap-8 border-b border-brand-forest/10 pb-12 pt-8 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end dark:border-white/10">
+          <div>
+            <p className="eyebrow"><Check className="h-4 w-4" aria-hidden="true" /> C&apos;est noté{firstName ? `, ${firstName}` : ''}</p>
+            <h1 ref={headingRef} tabIndex={-1} className="mt-3 font-display text-4xl font-medium leading-tight tracking-[-0.03em] text-brand-forest outline-none sm:text-5xl">
+              Votre sélection personnalisée
+            </h1>
+            <p className="mt-4 max-w-xl text-lg text-brand-muted">
+              {recommended.length > 0
+                ? `${recommended.length} formation${recommended.length > 1 ? 's' : ''} choisie${recommended.length > 1 ? 's' : ''} pour vous, selon vos centres d'intérêt et votre niveau.`
+                : "Aucune formation ne correspond encore exactement à vos choix : de nouvelles formations arrivent régulièrement. En attendant, parcourez tout le catalogue."}
+            </p>
+            <ul className="mt-6 flex flex-wrap gap-2" aria-label="Vos choix">
+              {prefs.interests.map((i) => <li key={i} className="chip">{i}</li>)}
+              {level && <li className="chip">{level.title}</li>}
+              {goal && <li className="chip bg-amber-100 text-amber-900">Objectif : {goal.title}</li>}
+            </ul>
           </div>
+          <button type="button" onClick={() => setStep(0)} className="btn-secondary self-start lg:self-end">
+            <Pencil className="h-4 w-4" aria-hidden="true" /> Modifier mes choix
+          </button>
         </section>
 
         {recommended.length > 0 && (
-          <section aria-labelledby="reco-formations" className="mt-12 animate-step-in">
-            <h2 id="reco-formations" className="font-display text-2xl font-medium text-brand-forest">Formations recommandées</h2>
-            <p className="mt-1 text-sm text-brand-muted">Les formations à votre niveau apparaissent en premier.</p>
+          <section aria-labelledby="reco-formations" className="mt-14">
+            <h2 id="reco-formations" className="section-title">Formations recommandées</h2>
+            <p className="section-lead">Les formations à votre niveau apparaissent en premier.</p>
             <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {recommended.map((f) => <ContentCard key={f.id} item={formationToItem(f)} fluid />)}
             </div>
@@ -219,9 +208,9 @@ export default function BienvenuePage() {
         )}
 
         {featuredMasterclasses.length > 0 && (
-          <section aria-labelledby="reco-masterclasses" className="mt-14 rounded-5xl bg-brand-mint p-6 sm:p-10 dark:bg-[#10231a]">
-            <h2 id="reco-masterclasses" className="font-display text-2xl font-medium text-brand-forest">À découvrir aussi : nos masterclasses</h2>
-            <p className="mt-1 text-sm text-brand-muted">Des enseignements ciblés, en vidéo ou en livret PDF.</p>
+          <section aria-labelledby="reco-masterclasses" className="mt-20">
+            <h2 id="reco-masterclasses" className="section-title">À découvrir aussi : nos masterclasses</h2>
+            <p className="section-lead">Des enseignements ciblés, en vidéo ou en livret PDF.</p>
             <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {featuredMasterclasses.map((mc) => <ContentCard key={mc.id} item={masterclassToItem(mc)} fluid />)}
             </div>
@@ -251,7 +240,7 @@ export default function BienvenuePage() {
       <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
         {stepsPanel}
 
-        <div className="rounded-5xl border border-brand-forest/5 bg-white shadow-card dark:border-white/10 dark:bg-white/[0.03]">
+        <div className="rounded-4xl border border-brand-forest/10 bg-white dark:border-white/10 dark:bg-white/[0.03]">
           <form
             className="p-6 sm:p-10"
             onSubmit={(e) => {
@@ -264,7 +253,7 @@ export default function BienvenuePage() {
             {/* Progression (petits écrans : le panneau des étapes est masqué) */}
             <div className="mb-8 lg:hidden">
               <div className="flex items-center justify-between gap-3">
-                <span className="eyebrow"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {firstVisit ? 'Bienvenue !' : 'Mes préférences'}</span>
+                <span className="eyebrow">{firstVisit ? 'Bienvenue' : 'Mes préférences'}</span>
                 <button type="button" onClick={skip} className="text-sm font-medium text-brand-muted underline-offset-4 hover:underline">
                   {firstVisit ? 'Passer' : 'Annuler'}
                 </button>
@@ -276,7 +265,7 @@ export default function BienvenuePage() {
               </div>
             </div>
 
-            <div key={step} className="animate-step-in">
+            <div key={step}>
               <p className="font-display text-sm font-medium text-brand-emerald">Question {step + 1} sur {QUESTIONS.length}</p>
               <h1 ref={headingRef} tabIndex={-1} className="mt-2 font-display text-3xl font-medium leading-tight text-brand-forest outline-none sm:text-4xl">
                 {current.title}
@@ -363,7 +352,7 @@ export default function BienvenuePage() {
             </div>
 
             {/* Actions : collées en bas de l'écran sur mobile */}
-            <div className="sticky bottom-0 -mx-6 mt-10 border-t border-brand-forest/5 bg-white/90 px-6 py-4 backdrop-blur sm:-mx-10 sm:px-10 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none dark:border-white/10 dark:bg-[#0d1d15]/90 lg:dark:bg-transparent">
+            <div className="sticky bottom-0 -mx-6 mt-10 border-t border-brand-forest/10 bg-white px-6 py-4 sm:-mx-10 sm:px-10 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 dark:border-white/10 dark:bg-[#0d1d15] lg:dark:bg-transparent">
               <div className="flex items-center justify-between gap-3">
                 {step > 0 ? (
                   <button type="button" onClick={() => setStep(step - 1)} className="btn-secondary px-5">

@@ -81,15 +81,15 @@ export default function SalleDeCoursPage() {
 
   return (
     <div className="pb-8">
-      <section className="container-page pt-4">
-        <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 dark:bg-[#10231a]">
+      <section className="border-b border-brand-forest/10 dark:border-white/10">
+        <div className="container-page py-12 sm:py-16">
           <nav aria-label="Fil d'Ariane" className="relative flex flex-wrap items-center gap-2 text-sm text-brand-muted">
             <Link href="/dashboard" className="font-medium transition hover:text-brand-emerald">Mon espace</Link>
             <span aria-hidden="true">/</span>
             <span aria-current="page" className="max-w-[260px] truncate font-medium text-brand-forest">{formation.title}</span>
           </nav>
-          {formation.category && <span className="chip relative mt-6 bg-white dark:bg-white/5">{formation.category}</span>}
-          <h1 className="relative mt-4 font-display text-3xl font-medium text-brand-forest sm:text-4xl">{formation.title}</h1>
+          {formation.category && <span className="chip relative mt-6">{formation.category}</span>}
+          <h1 className="relative mt-4 font-display text-4xl font-medium tracking-[-0.03em] text-brand-forest sm:text-5xl">{formation.title}</h1>
           <div className="relative mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-muted">
             {formation.duration && <span className="flex items-center gap-2"><Clock className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> {formation.duration}</span>}
             {formation.level && <span className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-brand-emerald" aria-hidden="true" /> Niveau : {formation.level}</span>}
@@ -126,7 +126,7 @@ export default function SalleDeCoursPage() {
           {hasMaterials ? (
             <ul className="mt-5 space-y-3">
               {content.video && (
-                <li className="flex items-center gap-3 rounded-2xl bg-brand-mint p-3 dark:bg-white/5">
+                <li className="flex items-center gap-3 rounded-xl border border-brand-forest/10 p-3 dark:border-white/10">
                   <span className="icon-tile h-10 w-10 shrink-0 bg-white dark:bg-white/10"><PlayCircle className="h-5 w-5" aria-hidden="true" /></span>
                   <span className="text-sm font-medium text-brand-forest">Vidéo du cours</span>
                 </li>
@@ -170,7 +170,7 @@ function PdfDownload({ formationId, title }: { formationId: number; title: strin
 
   return (
     <>
-      <button type="button" onClick={download} disabled={loading} className="flex w-full items-center gap-3 rounded-2xl bg-brand-mint p-3 text-left transition hover:bg-brand-sage dark:bg-white/5 dark:hover:bg-white/10">
+      <button type="button" onClick={download} disabled={loading} className="flex w-full items-center gap-3 rounded-xl border border-brand-forest/10 p-3 text-left transition hover:bg-brand-sage dark:bg-white/5 dark:hover:bg-white/10">
         <span className="icon-tile h-10 w-10 shrink-0 bg-white dark:bg-white/10"><FileText className="h-5 w-5" aria-hidden="true" /></span>
         <span className="flex-1 text-sm font-medium text-brand-forest">Support PDF</span>
         {loading ? <Loader2 className="h-4 w-4 animate-spin text-brand-muted" aria-hidden="true" /> : <Download className="h-4 w-4 text-brand-muted" aria-hidden="true" />}

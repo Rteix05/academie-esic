@@ -128,23 +128,23 @@ export default function DashboardPage() {
       </Suspense>
 
       {/* Bandeau d'accueil */}
-      <section className="container-page pt-4">
-        <div className="relative overflow-hidden rounded-5xl bg-brand-mint px-6 py-10 sm:px-12 sm:py-12 dark:bg-[#10231a]">
-          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <section className="border-b border-brand-forest/10 dark:border-white/10">
+        <div className="container-page py-12 sm:py-16">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <span className="eyebrow">Mon espace</span>
-              <h1 className="mt-4 font-display text-3xl font-medium text-brand-forest sm:text-4xl">
-                Bonjour{firstName ? ` ${firstName}` : ''} <span aria-hidden="true">👋</span>
+              <h1 className="mt-3 font-display text-4xl font-medium tracking-[-0.03em] text-brand-forest sm:text-5xl">
+                Bonjour{firstName ? ` ${firstName}` : ''}
               </h1>
-              <p className="mt-2 text-brand-muted">Reprenez votre apprentissage là où vous l&apos;avez laissé.</p>
+              <p className="mt-3 text-lg text-brand-muted">Reprenez votre apprentissage là où vous l&apos;avez laissé.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               {stats.map(({ icon: Icon, value, label }) => (
-                <div key={label} className="flex items-center gap-3 rounded-3xl bg-white px-5 py-4 shadow-card dark:bg-white/5">
-                  <span className="icon-tile h-11 w-11 rounded-2xl"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+                <div key={label} className="card flex items-center gap-3 px-5 py-4">
+                  <span className="icon-tile h-11 w-11 rounded-lg"><Icon className="h-5 w-5" aria-hidden="true" /></span>
                   <span>
                     <span className="block font-display text-2xl font-medium leading-none text-brand-forest">{value}</span>
-                    <span className="text-xs text-brand-muted">{label}</span>
+                    <span className="text-sm text-brand-muted">{label}</span>
                   </span>
                 </div>
               ))}
@@ -156,8 +156,8 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="container-page mt-10">
-        {error && <p role="alert" className="mb-8 rounded-2xl bg-red-50 px-5 py-4 text-sm font-medium text-red-700">{error}</p>}
+      <section className="container-page mt-12">
+        {error && <p role="alert" className="mb-8 rounded-xl bg-red-50 px-5 py-4 text-base font-medium text-red-700">{error}</p>}
 
         {/* Parcours guidé : invitation tant qu'il n'a pas été fait, puis recommandations */}
         {me && !me.onboarded && (
@@ -188,17 +188,17 @@ export default function DashboardPage() {
                   {recommended.map((f) => <ContentCard key={f.id} item={formationToItem(f)} fluid />)}
                 </div>
               ) : (
-                <p className="rounded-3xl bg-brand-cream p-6 text-center text-sm text-brand-muted dark:bg-white/5">
+                <p className="text-base text-brand-muted">
                   {me.preferences?.interests.length
                     ? 'Aucune nouvelle formation dans vos domaines pour le moment.'
                     : 'Indiquez les domaines qui vous intéressent pour recevoir des recommandations.'}
                 </p>
               )}
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/bienvenue" className="btn-secondary py-2 text-xs">
+                <Link href="/bienvenue" className="btn-secondary">
                   <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Modifier mes préférences
                 </Link>
-                <Link href="/formations" className="btn-ghost py-2 text-xs">Tout le catalogue</Link>
+                <Link href="/formations" className="btn-ghost">Voir tout le catalogue</Link>
               </div>
             </Panel>
           </div>
@@ -208,13 +208,13 @@ export default function DashboardPage() {
             {/* Formations */}
             <Panel icon={<GraduationCap className="h-5 w-5" />} title="Mes cursus actifs">
               {mesFormations.length === 0 ? (
-                <EmptyPanel text="Vous n'avez pas encore de formation en cours." href="/formations" cta="Parcourir le catalogue" />
+                <EmptyPanel text="Vous n'avez pas encore de formation en cours." href="/formations" cta="Voir les formations" />
               ) : (
-                <ul className="space-y-3">
+                <ul>
                   {mesFormations.map((formation) => (
-                    <li key={formation.id} className="group flex items-center justify-between gap-4 rounded-3xl bg-brand-cream p-4 transition hover:bg-brand-mint dark:bg-white/5">
+                    <li key={formation.id} className="group flex items-center justify-between gap-4 border-b border-brand-forest/10 py-4 last:border-0 dark:border-white/10">
                       <div className="flex min-w-0 items-center gap-4">
-                        <span className="icon-tile h-12 w-12 shrink-0 bg-white dark:bg-white/10"><BookOpen className="h-5 w-5" aria-hidden="true" /></span>
+                        <span className="icon-tile h-12 w-12 shrink-0"><BookOpen className="h-5 w-5" aria-hidden="true" /></span>
                         <div className="min-w-0">
                           <span className="text-xs text-brand-muted">
                             {formation.category}
@@ -236,14 +236,14 @@ export default function DashboardPage() {
             {/* Masterclasses */}
             <Panel icon={<Video className="h-5 w-5" />} title="Mes masterclasses">
               {mesMasterclasses.length === 0 ? (
-                <EmptyPanel text="Vous n'avez pas encore acheté de masterclass." href="/masterclass" cta="Voir le catalogue" />
+                <EmptyPanel text="Vous n'avez pas encore acheté de masterclass." href="/masterclass" cta="Voir les masterclasses" />
               ) : (
-                <ul className="space-y-3">
+                <ul>
                   {mesMasterclasses.map((mc) => {
                     const hasVideo = mc.options.includes('video') || mc.options.includes('pack');
                     const hasPdf   = mc.options.includes('pdf')   || mc.options.includes('pack');
                     return (
-                      <li key={mc.id} className="rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
+                      <li key={mc.id} className="border-b border-brand-forest/10 py-5 last:border-0 dark:border-white/10">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <h3 className="font-display font-medium text-brand-forest">{mc.title}</h3>
                           {mc.options.includes('pack') && (
@@ -284,7 +284,7 @@ export default function DashboardPage() {
         <div className="mt-6">
           <Panel icon={<Receipt className="h-5 w-5" />} title="Historique des paiements">
             {paymentHistory.length === 0 ? (
-              <p className="rounded-3xl bg-brand-cream p-8 text-center text-sm text-brand-muted dark:bg-white/5">Aucun achat enregistré pour le moment.</p>
+              <p className="text-base text-brand-muted">Aucun achat enregistré pour le moment.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -303,7 +303,7 @@ export default function DashboardPage() {
                       <tr key={p.id} className="border-t border-brand-forest/5 dark:border-white/10">
                         <td className="px-4 py-4 font-medium text-brand-forest">
                           {p.label}
-                          {p.reference && <span className="block font-mono text-[length:calc(11px*var(--text-scale,1))] text-brand-muted">Réf. {p.reference}</span>}
+                          {p.reference && <span className="block font-mono text-xs text-brand-muted">Réf. {p.reference}</span>}
                         </td>
                         <td className="px-4 py-4"><span className="chip">{PRODUCT_LABELS[p.productType]}</span></td>
                         <td className="px-4 py-4 font-display font-medium text-brand-forest">{formatAmount(p.amount, p.currency)}</td>
@@ -325,8 +325,8 @@ export default function DashboardPage() {
 function Panel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <section className="card p-6 sm:p-7">
-      <h2 className="mb-5 flex items-center gap-3 font-display text-lg font-medium text-brand-forest">
-        <span className="icon-tile h-10 w-10 rounded-xl" aria-hidden="true">{icon}</span>
+      <h2 className="mb-5 flex items-center gap-3 font-display text-xl font-medium text-brand-forest">
+        <span className="icon-tile h-10 w-10 rounded-lg" aria-hidden="true">{icon}</span>
         {title}
       </h2>
       {children}
@@ -363,16 +363,16 @@ function InvoiceButton({ paymentId, label }: { paymentId: number; label: string 
         {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Download className="h-4 w-4" aria-hidden="true" />}
         Facture
       </button>
-      {error && <span role="alert" className="text-xs text-red-700 dark:text-red-300">{error}</span>}
+      {error && <span role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</span>}
     </div>
   );
 }
 
 function InstitutPackList({ packs }: { packs: MyInstitutPack[] }) {
   return (
-    <ul className="space-y-3">
+    <ul>
       {packs.map((p) => (
-        <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-brand-cream p-5 dark:bg-white/5">
+        <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-forest/10 py-5 last:border-0 dark:border-white/10">
           <div>
             <h3 className="font-display font-medium text-brand-forest">{p.institut}</h3>
             <p className="mt-1 text-sm text-brand-muted">Toutes les formations de l&apos;institut, à vie · acheté le {formatDate(p.purchasedAt)}</p>
@@ -386,9 +386,9 @@ function InstitutPackList({ packs }: { packs: MyInstitutPack[] }) {
 
 function EmptyPanel({ text, href, cta }: { text: string; href: string; cta: string }) {
   return (
-    <div className="flex flex-col items-center rounded-3xl bg-brand-cream px-6 py-10 text-center dark:bg-white/5">
-      <p className="text-sm text-brand-muted">{text}</p>
-      <Link href={href} className="btn-primary mt-5">
+    <div className="flex flex-col items-start">
+      <p className="text-base text-brand-muted">{text}</p>
+      <Link href={href} className="btn-secondary mt-5">
         {cta}
         <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
       </Link>
