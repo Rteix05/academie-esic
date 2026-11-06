@@ -3,6 +3,7 @@ import { DM_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import ConditionalNavbar from '@/components/ConditionalNavbar';
 import ConditionalFooter from '@/components/ConditionalFooter';
+import PageViewTracker from '@/components/PageViewTracker';
 import Script from 'next/script';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { A11Y_BOOT_SCRIPT, A11yProvider } from '@/components/A11yPreferences';
@@ -90,6 +91,7 @@ export default function RootLayout({
           </main>
 
           <ConditionalFooter />
+          <PageViewTracker />
         </A11yProvider>
         </ThemeProvider>
       </body>

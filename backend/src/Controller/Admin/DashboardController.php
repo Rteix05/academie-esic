@@ -7,6 +7,7 @@ use App\Controller\Admin\EventRegistrationCrudController;
 use App\Controller\Admin\FormationCrudController;
 use App\Controller\Admin\MasterclassCrudController;
 use App\Controller\Admin\UserCrudController;
+use App\Analytics\SiteStatistics;
 use App\Repository\ContactMessageRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -14,19 +15,29 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
-    public function __construct(private readonly ContactMessageRepository $contactMessages)
-    {
+    public function __construct(
+        private readonly ContactMessageRepository $contactMessages,
+        private readonly SiteStatistics $statistics,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
+    /** Statistiques du site : fréquentation, inscriptions et ventes */
     public function index(): Response
     {
-        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
-        return $this->redirect($adminUrlGenerator->setController(FormationCrudController::class)->generateUrl());
+        $days = $this->requestStack->getCurrentRequest()?->query->getInt('periode', 30) ?? 30;
+
+        return $this->render('admin/dashboard.html.twig', [
+            'stats'       => $this->statistics->forPeriod($days),
+            'periods'     => SiteStatistics::PERIODS,
+            'frontendUrl' => rtrim($_ENV['FRONTEND_URL'] ?? '', '/'),
+        ]);
     }
 
     public function configureDashboard(): Dashboard
@@ -47,7 +58,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Statistiques', 'fas fa-chart-line');
 
         yield MenuItem::section('Catalogue');
         yield MenuItem::linkTo(FormationCrudController::class, 'Formations', 'fas fa-graduation-cap');
