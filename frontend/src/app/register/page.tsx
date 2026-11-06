@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import AuthShell, { FormMessage } from '@/components/AuthShell';
 import { apiFetch, notifyAuthChanged } from '@/lib/api';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -90,7 +91,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="field-label" htmlFor="password">Mot de passe</label>
-            <input id="password" type="password" required autoComplete="new-password" aria-describedby="password-rules" value={password} onChange={(e) => setPassword(e.target.value)} className="field" placeholder="••••••••" />
+            <PasswordInput id="password" required autoComplete="new-password" aria-describedby="password-rules" value={password} onChange={(e) => setPassword(e.target.value)} className="field" placeholder="••••••••" />
             <ul id="password-rules" className="mt-3 flex flex-wrap gap-2">
               {rules.map((rule) => (
                 <li key={rule.label} className={`chip ${rule.ok ? 'bg-brand-sage' : 'bg-gray-100 text-brand-muted dark:bg-white/5'}`}>
@@ -103,7 +104,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="field-label" htmlFor="confirm-password">Confirmer le mot de passe</label>
-            <input id="confirm-password" type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
+            <PasswordInput id="confirm-password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field" placeholder="••••••••" />
           </div>
 
           {/* Acceptation expresse des CGU, obligatoire pour créer un compte */}
