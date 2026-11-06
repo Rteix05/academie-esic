@@ -4,7 +4,7 @@
  *
  * Les valeurs doivent rester identiques à celles du backend (App\Learning\LearningPreferences).
  */
-import { HelpCircle, type LucideIcon } from 'lucide-react';
+import { BookOpen, Church, Crown, Footprints, GraduationCap, HeartHandshake, HelpCircle, LayoutGrid, Sprout, type LucideIcon } from 'lucide-react';
 import { PARCOURS } from './parcours';
 import type { FormationDto } from './catalog';
 import { apiFetch } from './api';
@@ -17,33 +17,38 @@ export interface LearningPreferences {
 
 export interface InterestGroup {
   institut: string;
-  interests: { value: string; description: string }[];
+  /** Nom court affiché au-dessus du groupe */
+  label: string;
+  interests: { value: string; description: string; icon: LucideIcon }[];
 }
 
 /** Domaines, regroupés par institut (sous-catégories des formations) */
 export const INTEREST_GROUPS: InterestGroup[] = [
   {
     institut: 'Institut Biblique Théologique',
+    label: 'Institut 1',
     interests: [
-      { value: 'Formation biblique', description: 'Découvrir et étudier les Écritures' },
-      { value: 'Discipulat', description: 'Grandir dans sa marche avec Dieu' },
-      { value: 'Développement personnel', description: 'Identité, caractère et équilibre' },
-      { value: 'Famille et vie chrétienne', description: 'Couple, éducation, vie de foyer' },
-      { value: 'Autres programmes', description: 'Thématiques complémentaires' },
+      { value: 'Formation biblique', description: 'Découvrir et étudier les Écritures', icon: BookOpen },
+      { value: 'Discipulat', description: 'Grandir dans sa marche avec Dieu', icon: Footprints },
+      { value: 'Développement personnel', description: 'Identité, caractère et équilibre', icon: Sprout },
+      { value: 'Famille et vie chrétienne', description: 'Couple, éducation, vie de foyer', icon: HeartHandshake },
+      { value: 'Autres programmes', description: 'Thématiques complémentaires', icon: LayoutGrid },
     ],
   },
   {
     institut: 'École du Ministère et du Leadership',
+    label: 'Institut 2',
     interests: [
-      { value: 'Leadership chrétien', description: 'Conduire et servir une équipe' },
-      { value: 'Ministère', description: 'Se préparer à servir dans l’Église' },
-      { value: 'Formation poussée', description: 'Approfondir la théologie' },
+      { value: 'Leadership chrétien', description: 'Conduire et servir une équipe', icon: Crown },
+      { value: 'Ministère', description: 'Se préparer à servir dans l’Église', icon: Church },
+      { value: 'Formation poussée', description: 'Approfondir la théologie', icon: GraduationCap },
     ],
   },
 ];
 
 export const ALL_INTERESTS = INTEREST_GROUPS.flatMap((g) => g.interests.map((i) => i.value));
 
+/** Niveaux, du plus simple au plus exigeant (l'ordre sert au classement des recommandations) */
 export const LEVELS: { value: string; title: string; description: string }[] = [
   { value: 'Débutant', title: 'Je découvre', description: 'Je débute ou je reprends les bases.' },
   { value: 'Intermédiaire', title: 'J’ai des bases', description: 'Je connais les fondements et veux aller plus loin.' },
