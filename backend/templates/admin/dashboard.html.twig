@@ -1,0 +1,219 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% macro evolution(kpi) %}
+    {% set previous = kpi.previous %}
+    {% if previous > 0 %}
+        {% set diff = ((kpi.value - previous) / previous * 100)|round %}
+        <span class="stats-trend {{ diff > 0 ? 'is-up' : (diff < 0 ? 'is-down' : '') }}">
+            {{ diff > 0 ? '+' : '' }}{{ diff }} % <span class="text-muted">vs période précédente</span>
+        </span>
+    {% elseif kpi.value > 0 %}
+        <span class="stats-trend is-up">Nouveau <span class="text-muted">sur la période</span></span>
+    {% else %}
+        <span class="stats-trend text-muted">Aucune donnée sur la période précédente</span>
+    {% endif %}
+{% endmacro %}
+
+{% block page_title 'Statistiques du site' %}
+
+{% block content_title %}
+    <div class="stats-header">
+        <div>
+            <h1 class="title">Statistiques du site</h1>
+            <p class="stats-subtitle">
+                Du {{ stats.from|date('d/m/Y') }} au {{ stats.to|date('d/m/Y') }} (aujourd'hui inclus)
+            </p>
+        </div>
+        <nav class="stats-periods" aria-label="Période affichée">
+            {% for period in periods %}
+                <a href="?periode={{ period }}" class="btn {{ period == stats.days ? 'btn-primary' : 'btn-secondary' }}"
+                   {% if period == stats.days %}aria-current="page"{% endif %}>
+                    {{ period == 365 ? '1 an' : period ~ ' jours' }}
+                </a>
+            {% endfor %}
+        </nav>
+    </div>
+{% endblock %}
+
+{% block main %}
+    {% set kpis = stats.kpis %}
+    {% set cards = [
+        { key: 'visitors', label: 'Visiteurs', icon: 'fa-user-friends', help: 'Personnes différentes, comptées une fois par jour' },
+        { key: 'views', label: 'Pages vues', icon: 'fa-eye', help: 'Nombre total de pages affichées' },
+        { key: 'signups', label: 'Nouveaux inscrits', icon: 'fa-user-plus', help: 'Comptes élèves créés' },
+        { key: 'sales', label: 'Achats', icon: 'fa-shopping-cart', help: 'Paiements encaissés' },
+        { key: 'revenue', label: 'Chiffre d\'affaires', icon: 'fa-euro-sign', help: 'Montant total encaissé (TTC)' },
+    ] %}
+
+    <section class="stats-kpis" aria-label="Chiffres clés">
+        {% for card in cards %}
+            {% set kpi = kpis[card.key] %}
+            <article class="stats-card">
+                <p class="stats-card-label"><i class="fas {{ card.icon }}" aria-hidden="true"></i> {{ card.label }}</p>
+                <p class="stats-card-value">
+                    {% if card.key == 'revenue' %}
+                        {{ kpi.value|number_format(2, ',', ' ') }} €
+                    {% else %}
+                        {{ kpi.value|number_format(0, ',', ' ') }}
+                    {% endif %}
+                </p>
+                {{ _self.evolution(kpi) }}
+                <p class="stats-card-help">{{ card.help }}</p>
+            </article>
+        {% endfor %}
+    </section>
+
+    <section class="stats-panel" aria-labelledby="stats-chart-title">
+        <div class="stats-panel-head">
+            <h2 id="stats-chart-title">Fréquentation {{ stats.days <= 31 ? 'par jour' : (stats.days <= 90 ? 'par semaine' : 'par mois') }}</h2>
+            <p class="stats-legend" aria-hidden="true">
+                <span><i class="stats-dot is-views"></i> Pages vues</span>
+                <span><i class="stats-dot is-visitors"></i> Visiteurs</span>
+            </p>
+        </div>
+
+        {% if kpis.views.value == 0 %}
+            <p class="stats-empty">
+                Aucune visite enregistrée sur cette période. Les visites sont comptées à partir de la mise en ligne de cette fonctionnalité.
+            </p>
+        {% else %}
+            {% set labelEvery = stats.chart|length > 14 ? (stats.chart|length / 7)|round(0, 'ceil') : 1 %}
+            <div class="stats-chart" aria-hidden="true">
+                {% for bar in stats.chart %}
+                    <div class="stats-bar" title="{{ bar.label }} : {{ bar.visitors }} visiteur{{ bar.visitors > 1 ? 's' }}, {{ bar.views }} page{{ bar.views > 1 ? 's' }} vue{{ bar.views > 1 ? 's' }}, {{ bar.signups }} inscription{{ bar.signups > 1 ? 's' }}">
+                        <div class="stats-bar-track">
+                            <span class="stats-bar-views" style="height: {{ (bar.views / stats.chartMax * 100)|round(1) }}%"></span>
+                            <span class="stats-bar-visitors" style="height: {{ (bar.visitors / stats.chartMax * 100)|round(1) }}%"></span>
+                        </div>
+                        <span class="stats-bar-label">{{ loop.index0 % labelEvery == 0 ? bar.label : '' }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <details class="stats-details">
+            <summary>Voir le détail en tableau</summary>
+            <div class="table-responsive">
+                <table class="table datagrid">
+                    <thead>
+                        <tr>
+                            <th scope="col">Période</th>
+                            <th scope="col" class="text-end">Visiteurs</th>
+                            <th scope="col" class="text-end">Pages vues</th>
+                            <th scope="col" class="text-end">Inscriptions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bar in stats.chart|reverse %}
+                            <tr>
+                                <th scope="row">{{ bar.label }}</th>
+                                <td class="text-end">{{ bar.visitors }}</td>
+                                <td class="text-end">{{ bar.views }}</td>
+                                <td class="text-end">{{ bar.signups }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </section>
+
+    <div class="stats-grid">
+        <section class="stats-panel" aria-labelledby="stats-pages-title">
+            <h2 id="stats-pages-title">Pages les plus consultées</h2>
+            {% if stats.pages is empty %}
+                <p class="stats-empty">Aucune donnée.</p>
+            {% else %}
+                <table class="table datagrid">
+                    <thead>
+                        <tr>
+                            <th scope="col">Page</th>
+                            <th scope="col" class="text-end">Visiteurs</th>
+                            <th scope="col" class="text-end">Vues</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for page in stats.pages %}
+                            <tr>
+                                <td class="stats-path">
+                                    <a href="{{ frontendUrl ~ page.path }}" target="_blank" rel="noopener noreferrer" title="{{ page.path }}">{{ page.title }}</a>
+                                </td>
+                                <td class="text-end">{{ page.visitors }}</td>
+                                <td class="text-end">{{ page.views }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </section>
+
+        <section class="stats-panel" aria-labelledby="stats-sources-title">
+            <h2 id="stats-sources-title">Provenance des visites</h2>
+            {% if stats.sources is empty %}
+                <p class="stats-empty">Aucune donnée.</p>
+            {% else %}
+                {% set totalVisits = stats.sources|reduce((sum, s) => sum + s.visits, 0) %}
+                <ul class="stats-bars-list">
+                    {% for source in stats.sources %}
+                        {% set share = (source.visits / totalVisits * 100)|round %}
+                        <li>
+                            <span class="stats-bars-list-label">{{ source.source ?? 'Accès direct ou favori' }}</span>
+                            <span class="stats-bars-list-value">{{ source.visits }} visite{{ source.visits > 1 ? 's' }} · {{ share }} %</span>
+                            <span class="stats-meter" aria-hidden="true"><span style="width: {{ share }}%"></span></span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <h2 class="mt-4">Appareils</h2>
+            {% if stats.devices is empty %}
+                <p class="stats-empty">Aucune donnée.</p>
+            {% else %}
+                {% set totalDevices = stats.devices|reduce((sum, n) => sum + n, 0) %}
+                {% set deviceIcons = { mobile: 'fa-mobile-alt', tablette: 'fa-tablet-alt', ordinateur: 'fa-desktop' } %}
+                <ul class="stats-bars-list">
+                    {% for device, count in stats.devices %}
+                        {% set share = (count / totalDevices * 100)|round %}
+                        <li>
+                            <span class="stats-bars-list-label"><i class="fas {{ deviceIcons[device] ?? 'fa-question' }}" aria-hidden="true"></i> {{ device|capitalize }}</span>
+                            <span class="stats-bars-list-value">{{ share }} %</span>
+                            <span class="stats-meter" aria-hidden="true"><span style="width: {{ share }}%"></span></span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+    </div>
+
+    <section class="stats-panel" aria-labelledby="stats-products-title">
+        <h2 id="stats-products-title">Ventes par produit</h2>
+        {% if stats.products is empty %}
+            <p class="stats-empty">Aucune vente sur cette période.</p>
+        {% else %}
+            <table class="table datagrid">
+                <thead>
+                    <tr>
+                        <th scope="col">Produit</th>
+                        <th scope="col" class="text-end">Achats</th>
+                        <th scope="col" class="text-end">Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in stats.products %}
+                        <tr>
+                            <td>{{ product.label }}</td>
+                            <td class="text-end">{{ product.count }}</td>
+                            <td class="text-end">{{ product.amount|number_format(2, ',', ' ') }} €</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </section>
+
+    <p class="stats-footnote">
+        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+        Mesure d'audience interne, sans cookie : aucune adresse IP n'est conservée et un visiteur ne peut pas être suivi d'un jour à l'autre.
+        Les données sont supprimées au bout de 13 mois.
+    </p>
+{% endblock %}
