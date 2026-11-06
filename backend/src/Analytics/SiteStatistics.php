@@ -2,6 +2,7 @@
 
 namespace App\Analytics;
 
+use App\Learning\LearningPreferences;
 use App\Repository\PageViewRepository;
 use Doctrine\DBAL\Connection;
 
@@ -72,7 +73,42 @@ final class SiteStatistics
             'sources'  => $this->pageViews->topSources($from, $to),
             'devices'  => $this->pageViews->devices($from, $to),
             'products' => $this->salesByProduct($from, $to),
+            'learners' => $this->learnerInterests(),
         ];
+    }
+
+    /**
+     * Réponses au parcours guidé de tous les élèves (hors période) : domaines et objectifs les plus demandés.
+     *
+     * @return array{answered: int, interests: array<string, int>, goals: array<string, int>}
+     */
+    public function learnerInterests(): array
+    {
+        $rows = $this->connection->fetchAllAssociative('SELECT interests, learning_goal FROM `user` WHERE onboarded_at IS NOT NULL');
+
+        $interests = array_fill_keys(LearningPreferences::INTERESTS, 0);
+        $goals     = array_fill_keys(array_values(LearningPreferences::GOALS), 0);
+        $answered  = 0;
+        foreach ($rows as $row) {
+            $list = json_decode((string) $row['interests'], true);
+            $goal = LearningPreferences::GOALS[$row['learning_goal'] ?? ''] ?? null;
+            if (!$list && $goal === null) {
+                continue; // parcours passé sans répondre
+            }
+            ++$answered;
+            foreach (is_array($list) ? $list : [] as $interest) {
+                if (isset($interests[$interest])) {
+                    ++$interests[$interest];
+                }
+            }
+            if ($goal !== null) {
+                ++$goals[$goal];
+            }
+        }
+        arsort($interests);
+        arsort($goals);
+
+        return ['answered' => $answered, 'interests' => array_filter($interests), 'goals' => array_filter($goals)];
     }
 
     /**

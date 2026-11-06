@@ -63,6 +63,9 @@ export interface Me {
   firstName?: string | null;
   lastName?: string | null;
   roles: string[];
+  /** Parcours guidé après l'inscription terminé ou passé */
+  onboarded?: boolean;
+  preferences?: { interests: string[]; level: string | null; goal: string | null };
 }
 
 export async function fetchMe(): Promise<Me | null> {
