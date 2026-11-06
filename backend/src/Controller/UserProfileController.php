@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Learning\LearningPreferences;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Cookie\JWTCookieProvider;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -29,7 +30,60 @@ class UserProfileController extends AbstractController
             'firstName' => $user->getFirstName(),
             'lastName'  => $user->getLastName(),
             'roles'     => $user->getRoles(),
+            'onboarded' => $user->getOnboardedAt() !== null,
+            'preferences' => $this->preferences($user),
         ]);
+    }
+
+    /**
+     * Parcours guidé après l'inscription : domaines d'intérêt, niveau et objectif de l'élève.
+     * Un envoi sans aucun choix (« Passer cette étape ») marque simplement le parcours comme vu.
+     */
+    #[Route('/api/me/preferences', name: 'api_me_preferences', methods: ['PUT'])]
+    public function updatePreferences(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['message' => 'Non autorisé.'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return $this->json(['message' => 'Requête invalide.'], 400);
+        }
+
+        $interests = $data['interests'] ?? [];
+        $level     = $data['level'] ?? null;
+        $goal      = $data['goal'] ?? null;
+
+        if (!is_array($interests) || array_diff($interests, LearningPreferences::INTERESTS) !== []) {
+            return $this->json(['message' => 'Domaine inconnu.'], 422);
+        }
+        if ($level !== null && !in_array($level, LearningPreferences::LEVELS, true)) {
+            return $this->json(['message' => 'Niveau inconnu.'], 422);
+        }
+        if ($goal !== null && !array_key_exists($goal, LearningPreferences::GOALS)) {
+            return $this->json(['message' => 'Objectif inconnu.'], 422);
+        }
+
+        // Ordre de référence, sans doublon
+        $user->setInterests(array_values(array_intersect(LearningPreferences::INTERESTS, $interests)))
+            ->setLearningLevel($level)
+            ->setLearningGoal($goal)
+            ->setOnboardedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        return $this->json(['success' => true, 'onboarded' => true, 'preferences' => $this->preferences($user)]);
+    }
+
+    /** @return array{interests: list<string>, level: ?string, goal: ?string} */
+    private function preferences(User $user): array
+    {
+        return [
+            'interests' => $user->getInterests(),
+            'level'     => $user->getLearningLevel(),
+            'goal'      => $user->getLearningGoal(),
+        ];
     }
 
     #[Route('/api/me', name: 'api_me_update', methods: ['PUT', 'PATCH'])]

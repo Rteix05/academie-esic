@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import AuthShell, { FormMessage } from '@/components/AuthShell';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, notifyAuthChanged } from '@/lib/api';
 import PasswordInput from '@/components/PasswordInput';
 
 export default function RegisterPage() {
@@ -47,7 +47,18 @@ export default function RegisterPage() {
       }
 
       setSuccess(true);
-      setTimeout(() => router.push('/login'), 2000);
+
+      // Connexion automatique, puis parcours guidé vers les formations adaptées
+      const login = await apiFetch('/api/login_check', {
+        method: 'POST',
+        body: JSON.stringify({ username: email, password }),
+      }).catch(() => null);
+      if (login?.ok) {
+        notifyAuthChanged(true);
+        router.push('/bienvenue');
+      } else {
+        setTimeout(() => router.push('/login'), 2000);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription.");
     } finally {
@@ -69,7 +80,7 @@ export default function RegisterPage() {
             <Check className="h-8 w-8" aria-hidden="true" />
           </span>
           <h2 className="mt-4 font-display text-xl font-semibold text-brand-forest">Inscription réussie !</h2>
-          <p className="mt-2 text-sm text-brand-muted">Redirection vers la page de connexion…</p>
+          <p className="mt-2 text-sm text-brand-muted" role="status">Préparation de votre espace…</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">

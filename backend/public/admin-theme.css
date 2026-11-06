@@ -248,3 +248,4 @@ h1, h2, h3, .content-header-title .title, .main-header .logo, .page-login .main-
 .stats-empty { color: var(--esic-muted); font-size: .875rem; margin: 0; }
 .stats-footnote { color: var(--esic-muted); font-size: .8rem; margin: .5rem 0 1rem; }
 .stats-footnote i { color: var(--esic-emerald); margin-right: .25rem; }
+.stats-subheading { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--esic-muted); margin: 0 0 .75rem; }

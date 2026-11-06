@@ -3,10 +3,13 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, FileText, GraduationCap, Video, Package, User, Receipt, Library, Download, Loader2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Compass, FileText, GraduationCap, Video, Package, User, Receipt, Library, Download, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { ContentCard } from '@/components/catalog/ContentCard';
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import { Spinner } from '@/components/ui';
-import { apiFetch, fetchMe } from '@/lib/api';
+import { apiFetch, fetchMe, type Me } from '@/lib/api';
+import { collection, formationToItem, type FormationDto } from '@/lib/catalog';
+import { recommendFormations } from '@/lib/preferences';
 import { formatDate, type MyInstitutPack } from '@/lib/institutPacks';
 
 interface Formation {
@@ -56,11 +59,21 @@ export default function DashboardPage() {
   const [institutPacks, setInstitutPacks] = useState<MyInstitutPack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [firstName, setFirstName] = useState<string | null>(null);
+  const [me, setMe] = useState<Me | null>(null);
+  const [catalog, setCatalog] = useState<FormationDto[] | null>(null);
+  const firstName = me?.firstName ?? null;
 
-  // Prénom pour le message d'accueil (facultatif)
+  // Prénom pour le message d'accueil, préférences pour les recommandations
   useEffect(() => {
-    fetchMe().then((me) => setFirstName(me?.firstName ?? null));
+    fetchMe().then((profile) => {
+      setMe(profile);
+      if (profile?.preferences?.interests.length) {
+        apiFetch('/api/formations', { headers: { Accept: 'application/ld+json' } })
+          .then((r) => (r.ok ? r.json() : []))
+          .then((data) => setCatalog(collection<FormationDto>(data)))
+          .catch(() => setCatalog([]));
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -98,6 +111,10 @@ export default function DashboardPage() {
   if (isLoading) {
     return <Spinner label="Chargement de votre espace…" />;
   }
+
+  const recommended = me?.preferences
+    ? recommendFormations(catalog ?? [], me.preferences, mesFormations.map((f) => f.id), 3)
+    : [];
 
   const stats = [
     { icon: GraduationCap, value: mesFormations.length, label: 'Formations' },
@@ -142,6 +159,51 @@ export default function DashboardPage() {
 
       <section className="container-page mt-10">
         {error && <p role="alert" className="mb-8 rounded-2xl bg-red-50 px-5 py-4 text-sm font-medium text-red-700">{error}</p>}
+
+        {/* Parcours guidé : invitation tant qu'il n'a pas été fait, puis recommandations */}
+        {me && !me.onboarded && (
+          <div className="mb-8 flex flex-col gap-5 rounded-4xl border border-brand-emerald/20 bg-white p-6 shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-8 dark:bg-white/5">
+            <div className="flex items-start gap-4">
+              <span className="icon-tile h-12 w-12 shrink-0"><Compass className="h-6 w-6" aria-hidden="true" /></span>
+              <div>
+                <h2 className="font-display text-lg font-semibold text-brand-forest">Trouvez les formations faites pour vous</h2>
+                <p className="mt-1 text-sm text-brand-muted">Trois questions, moins d&apos;une minute : nous vous proposons une sélection adaptée à vos envies et à votre niveau.</p>
+              </div>
+            </div>
+            <Link href="/bienvenue" className="btn-primary shrink-0 self-start sm:self-center">
+              Commencer
+              <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+            </Link>
+          </div>
+        )}
+
+        {me?.onboarded && (
+          <div className="mb-8">
+            <Panel icon={<Sparkles className="h-5 w-5" />} title="Recommandé pour vous">
+              {catalog === null && me.preferences?.interests.length ? (
+                <p className="flex items-center gap-2 text-sm text-brand-muted" role="status">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Recherche des formations pour vous…
+                </p>
+              ) : recommended.length > 0 ? (
+                <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                  {recommended.map((f) => <ContentCard key={f.id} item={formationToItem(f)} fluid />)}
+                </div>
+              ) : (
+                <p className="rounded-3xl bg-brand-cream p-6 text-center text-sm text-brand-muted dark:bg-white/5">
+                  {me.preferences?.interests.length
+                    ? 'Aucune nouvelle formation dans vos domaines pour le moment.'
+                    : 'Indiquez les domaines qui vous intéressent pour recevoir des recommandations.'}
+                </p>
+              )}
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/bienvenue" className="btn-secondary py-2 text-xs">
+                  <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Modifier mes préférences
+                </Link>
+                <Link href="/formations" className="btn-ghost py-2 text-xs">Tout le catalogue</Link>
+              </div>
+            </Panel>
+          </div>
+        )}
 
         <div className="grid items-start gap-6 lg:grid-cols-2">
             {/* Formations */}

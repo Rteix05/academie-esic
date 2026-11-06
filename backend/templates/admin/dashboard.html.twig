@@ -211,6 +211,49 @@
         {% endif %}
     </section>
 
+    <section class="stats-panel" aria-labelledby="stats-learners-title">
+        <h2 id="stats-learners-title">Ce que recherchent les élèves</h2>
+        {% set learners = stats.learners %}
+        {% if learners.answered == 0 %}
+            <p class="stats-empty">
+                Aucune réponse pour le moment. Après leur inscription, les élèves indiquent les domaines qui les intéressent et leur objectif ;
+                leurs réponses s'afficheront ici.
+            </p>
+        {% else %}
+            <p class="stats-subtitle mb-3">
+                {{ learners.answered }} élève{{ learners.answered > 1 ? 's ont' : ' a' }} répondu au parcours guidé (depuis sa mise en ligne, toutes périodes confondues).
+            </p>
+            <div class="stats-grid">
+                <div>
+                    <h3 class="stats-subheading">Domaines d'intérêt</h3>
+                    <ul class="stats-bars-list">
+                        {% for interest, count in learners.interests %}
+                            {% set share = (count / learners.answered * 100)|round %}
+                            <li>
+                                <span class="stats-bars-list-label">{{ interest }}</span>
+                                <span class="stats-bars-list-value">{{ count }} élève{{ count > 1 ? 's' }} · {{ share }} %</span>
+                                <span class="stats-meter" aria-hidden="true"><span style="width: {{ share }}%"></span></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="stats-subheading">Objectif de formation</h3>
+                    <ul class="stats-bars-list">
+                        {% for goal, count in learners.goals %}
+                            {% set share = (count / learners.answered * 100)|round %}
+                            <li>
+                                <span class="stats-bars-list-label">{{ goal }}</span>
+                                <span class="stats-bars-list-value">{{ count }} élève{{ count > 1 ? 's' }} · {{ share }} %</span>
+                                <span class="stats-meter" aria-hidden="true"><span style="width: {{ share }}%"></span></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
     <p class="stats-footnote">
         <i class="fas fa-shield-alt" aria-hidden="true"></i>
         Mesure d'audience interne, sans cookie : aucune adresse IP n'est conservée et un visiteur ne peut pas être suivi d'un jour à l'autre.
