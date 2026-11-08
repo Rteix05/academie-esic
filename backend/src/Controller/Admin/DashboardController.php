@@ -53,7 +53,18 @@ class DashboardController extends AbstractDashboardController
         return Assets::new()
             // Polices du site public : Poppins (titres) et DM Sans (texte)
             ->addHtmlContentToHead('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">')
-            ->addCssFile('/admin-theme.css');
+            ->addCssFile('/admin-theme.css?v=' . $this->themeVersion());
+    }
+
+    /**
+     * Empreinte du thème : la feuille de style est mise en cache un an par le serveur,
+     * son adresse change donc à chaque modification pour que les navigateurs la rechargent.
+     */
+    private function themeVersion(): string
+    {
+        $file = $this->getParameter('kernel.project_dir') . '/public/admin-theme.css';
+
+        return is_file($file) ? substr(md5_file($file), 0, 10) : '1';
     }
 
     public function configureMenuItems(): iterable
