@@ -1,8 +1,5 @@
 import { BookOpen, Compass, GraduationCap, type LucideIcon } from 'lucide-react';
 
-/** Date limite des inscriptions affichée sur l'accueil */
-export const INSCRIPTIONS_DATE_LIMITE = '30 novembre 2026';
-
 export interface Parcours {
   slug: string;
   titre: string;
