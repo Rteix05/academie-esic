@@ -18,6 +18,7 @@ interface UserProfile {
 
 const NAV_LINKS = [
   { href: '/histoire',    label: 'À propos' },
+  { href: '/biographie',  label: 'Biographie' },
   { href: '/formations',  label: 'Formations' },
   { href: '/masterclass', label: 'Masterclass' },
   { href: '/contact',     label: 'Contact' },
