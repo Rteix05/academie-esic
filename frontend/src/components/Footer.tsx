@@ -71,6 +71,15 @@ export default function Footer() {
               © {year} Académie E.S.I.C. — Tous droits réservés.
               <span className="mx-2" aria-hidden="true">·</span>
               <span>Version {process.env.APP_VERSION}</span>
+              <span className="mx-2" aria-hidden="true">·</span>
+              <a
+                href="https://rafaelteixeira.fr"
+                target="_blank"
+                rel="noopener"
+                className="text-emerald-100/50 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Rteix05
+              </a>
             </p>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <li><Link href="/mentions-legales" className="underline-offset-4 transition hover:text-white hover:underline">Mentions légales</Link></li>
