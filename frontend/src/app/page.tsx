@@ -4,7 +4,7 @@ import { ContentCard } from '@/components/catalog/ContentCard';
 import { serverFetch } from '@/lib/api';
 import { fetchNews, formatNewsDate } from '@/lib/news';
 import { collection, formationToItem, masterclassToItem, type CatalogItem, type FormationDto, type MasterclassDto } from '@/lib/catalog';
-import { INSCRIPTIONS_DATE_LIMITE, PARCOURS } from '@/lib/parcours';
+import { PARCOURS } from '@/lib/parcours';
 import { ArrowRight, BookOpen, Heart, Flame, Quote, Feather, Award, GraduationCap, Users, ShieldCheck, Sparkles, CalendarDays } from 'lucide-react';
 
 const atouts = [
@@ -101,15 +101,14 @@ export default async function HomePage() {
                 Consolidez vos fondements bibliques, approfondissez votre réflexion théologique et développez un ministère ancré dans la maturité, le discernement et l&apos;éthique.
               </p>
 
-              {/* Date limite des inscriptions */}
+              {/* Inscriptions ouvertes */}
               <div className="mx-auto mt-8 flex max-w-xl items-center gap-4 rounded-3xl bg-brand-forest px-5 py-4 text-left text-white shadow-float ring-4 ring-brand-emerald/20 lg:mx-0 dark:ring-emerald-400/20">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10">
                   <CalendarDays className="h-6 w-6 text-emerald-300" aria-hidden="true" />
                 </span>
                 <p className="text-sm leading-relaxed text-white/85">
-                  <span className="font-display text-xs font-semibold uppercase tracking-wider text-emerald-300">Inscriptions ouvertes</span>
                   <strong className="block font-display text-lg font-semibold text-white sm:text-xl">
-                    Jusqu&apos;au {INSCRIPTIONS_DATE_LIMITE}
+                    Inscriptions ouvertes
                   </strong>
                   Notamment pour le parcours théologique personnalisé. Inscrivez-vous dès maintenant !
                 </p>

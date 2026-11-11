@@ -129,4 +129,14 @@ final class SiteStatisticsTest extends ApiTestCase
         $user = $this->em()->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'nouveau@test.fr']);
         self::assertNotNull($user?->getCreatedAt());
     }
+
+    public function testThemeStylesheetUrlChangesWithItsContent(): void
+    {
+        $this->client->loginUser($this->createUser('admin@test.fr', ['ROLE_ADMIN']), 'main');
+        $crawler = $this->client->request('GET', '/admin');
+
+        // Feuille mise en cache un an : son adresse porte l'empreinte du fichier
+        $hash = substr(md5_file(static::getContainer()->getParameter('kernel.project_dir') . '/public/admin-theme.css'), 0, 10);
+        self::assertCount(1, $crawler->filter('link[href="/admin-theme.css?v=' . $hash . '"]'));
+    }
 }
