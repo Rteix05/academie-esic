@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { BookOpen, Eye, Compass, Quote, Target, CheckCircle2, GraduationCap, Video, CalendarDays, Sparkles, Award, Flame } from 'lucide-react';
+import { ArrowRight, BookOpen, Eye, Compass, Quote, Target, CheckCircle2, GraduationCap, Video, CalendarDays, Sparkles, Award, Flame } from 'lucide-react';
+import Link from 'next/link';
 import { PageHeader } from '@/components/ui';
 
 export const metadata: Metadata = {
@@ -141,6 +142,23 @@ export default function AProposPage() {
           <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-brand-muted">
             Chaque contenu est conçu pour être accessible à votre rythme, sans prérequis particuliers. Que vous soyez nouveau croyant ou serviteur confirmé, l&apos;Académie vous accueille là où vous en êtes.
           </p>
+        </div>
+      </section>
+
+      {/* ── LE FONDATEUR ─────────────────────────────────────────────────── */}
+      <section className="container-page py-20">
+        <div className="card flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+          <div>
+            <span className="eyebrow">Le fondateur</span>
+            <h2 className="mt-4 font-display text-2xl font-semibold text-brand-forest">Samuel Panzu</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-brand-muted">
+              Fondateur de La Montagne de la Prière Ministries et pasteur principal de La Montagne de la Prière Paris, au service de Jésus-Christ depuis plus de trente ans.
+            </p>
+          </div>
+          <Link href="/biographie" className="btn-primary shrink-0">
+            Lire sa biographie
+            <span className="btn-icon"><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+          </Link>
         </div>
       </section>
     </div>

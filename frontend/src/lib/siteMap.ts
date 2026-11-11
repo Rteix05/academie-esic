@@ -17,6 +17,7 @@ export const SITE_SECTIONS: SiteSection[] = [
     links: [
       { href: '/', label: 'Accueil' },
       { href: '/histoire', label: 'À propos' },
+      { href: '/biographie', label: 'Biographie' },
       { href: '/how-it-works', label: 'Comment ça marche' },
       { href: '/actualites', label: 'Actualités' },
       { href: '/contact', label: 'Contact' },
