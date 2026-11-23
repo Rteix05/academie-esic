@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Church, Globe, HandHeart, Heart, Mountain, Sparkles, TreePine } from 'lucide-react';
 import { PageHeader } from '@/components/ui';
@@ -71,10 +72,19 @@ export default function BiographiePage() {
 
       {/* ── PRÉSENTATION GÉNÉRALE ────────────────────────────────────────── */}
       <section className="container-page py-20">
-        <div className="card mx-auto flex max-w-4xl flex-col gap-6 p-8 sm:flex-row sm:items-start sm:p-10">
-          <span className="icon-tile shrink-0"><Mountain className="h-6 w-6" aria-hidden="true" /></span>
+        <div className="card mx-auto grid max-w-5xl items-center gap-8 overflow-hidden p-6 sm:p-8 md:grid-cols-[2fr_3fr] md:gap-10">
+          <Image
+            src="/images/biographie/samuel-panzu.webp"
+            alt="Portrait de Samuel Panzu"
+            width={1000}
+            height={1500}
+            priority
+            sizes="(min-width: 768px) 380px, 100vw"
+            className="mx-auto aspect-[4/5] w-full max-w-sm rounded-2xl object-cover object-top"
+          />
           <div>
-            <h2 className="font-display text-2xl font-semibold text-brand-forest">Présentation générale</h2>
+            <span className="icon-tile"><Mountain className="h-6 w-6" aria-hidden="true" /></span>
+            <h2 className="mt-6 font-display text-2xl font-semibold text-brand-forest">Présentation générale</h2>
             <p className="mt-3 leading-relaxed text-brand-muted">
               Samuel Panzu est le fondateur de La Montagne de la Prière Ministries (MDLP) et le pasteur principal de l’église
               La Montagne de la Prière Paris. Il exerce un ministère prophétique et apostolique au service de Jésus-Christ
@@ -119,6 +129,18 @@ export default function BiographiePage() {
         </div>
       </section>
 
+      {/* ── PHOTO : LE COUPLE EN PRIÈRE ───────────────────────────────────── */}
+      <section className="container-page pt-20">
+        <Image
+          src="/images/biographie/samuel-et-filomena-panzu-priere.webp"
+          alt="Samuel et Filomena Panzu en prière, dos à dos"
+          width={1800}
+          height={1200}
+          sizes="(min-width: 1280px) 1200px, 100vw"
+          className="mx-auto aspect-[3/2] w-full max-w-5xl rounded-3xl object-cover shadow-soft sm:aspect-[2/1]"
+        />
+      </section>
+
       {/* ── EXPANSION & FORMATION / MISSION ACTUELLE ─────────────────────── */}
       <section className="container-page grid gap-6 py-20 md:grid-cols-2">
         <div className="card p-8 sm:p-10">
@@ -159,6 +181,25 @@ export default function BiographiePage() {
               Marié à Filomena Panzu depuis près de 26 ans, père de quatre enfants.
             </p>
           </div>
+        </div>
+
+        <div className="mx-auto mt-6 grid max-w-4xl gap-6 sm:grid-cols-2">
+          <Image
+            src="/images/biographie/samuel-et-filomena-panzu.webp"
+            alt="Samuel et Filomena Panzu"
+            width={1000}
+            height={1500}
+            sizes="(min-width: 640px) 440px, 100vw"
+            className="aspect-[4/5] w-full rounded-3xl object-cover object-top shadow-soft"
+          />
+          <Image
+            src="/images/biographie/filomena-panzu.webp"
+            alt="Portrait de Filomena Panzu"
+            width={1000}
+            height={1500}
+            sizes="(min-width: 640px) 440px, 100vw"
+            className="aspect-[4/5] w-full rounded-3xl object-cover object-top shadow-soft"
+          />
         </div>
 
         <div className="mt-10 text-center">
